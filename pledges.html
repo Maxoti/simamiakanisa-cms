@@ -1,0 +1,353 @@
+<!-- ============================================ -->
+<!-- PLEDGES.HTML - HTML Templates for Pledges -->
+<!-- This file contains all HTML templates used by pledges.js -->
+<!-- ============================================ -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pledges</title>
+</head>
+<body>
+
+<!-- ============================================ -->
+<!-- TEMPLATE: Main Pledges Dashboard -->
+<!-- ============================================ -->
+<template id="pledges-dashboard-template">
+    <div class="pledges-container">
+        <!-- Header with Actions -->
+        <div class="pledges-header">
+            <h1 class="pledges-title"> Pledges Management</h1>
+            <button class="btn btn-primary" onclick="openCreatePledgeModal()">
+                + New Pledge
+            </button>
+        </div>
+        
+        <!-- Summary Statistics -->
+        <div class="pledges-summary">
+            <div class="pledge-stat-card purple">
+                <h4> Total Pledged</h4>
+                <div class="value" id="totalPledged">KSh 0</div>
+                <div class="subtitle">across all pledges</div>
+            </div>
+            
+            <div class="pledge-stat-card green">
+                <h4>✅ Total Paid</h4>
+                <div class="value" id="totalPaid">KSh 0</div>
+                <div class="subtitle" id="completionRate">0% completion</div>
+            </div>
+            
+            <div class="pledge-stat-card orange">
+                <h4> Remaining</h4>
+                <div class="value" id="totalRemaining">KSh 0</div>
+                <div class="subtitle" id="activePledges">0 active pledges</div>
+            </div>
+            
+            <div class="pledge-stat-card red">
+                <h4> Overdue</h4>
+                <div class="value" id="overduePledges">0</div>
+                <div class="subtitle">need attention</div>
+            </div>
+        </div>
+        
+        <!-- Filters -->
+        <div class="pledges-filters">
+            <select id="pledgeStatusFilter" onchange="filterPledges()">
+                <option value="all">All Pledges</option>
+                <option value="Active">Active Only</option>
+                <option value="Completed">Completed</option>
+                <option value="Overdue">Overdue</option>
+            </select>
+            
+            <select id="pledgeCategoryFilter" onchange="filterPledges()">
+                <option value="all">All Categories</option>
+                <option value="Building Fund">Building Fund</option>
+                <option value="Mission">Mission</option>
+                <option value="Equipment">Equipment</option>
+                <option value="Other">Other</option>
+            </select>
+            
+            <button class="btn btn-success" onclick="exportPledgesReport()">
+                Export Report
+            </button>
+        </div>
+        
+        <!-- Pledges Table -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">All Pledges</h3>
+            </div>
+            <div id="pledgesTable">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Loading pledges...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- ============================================ -->
+<!-- TEMPLATE: Pledge Table Row -->
+<!-- ============================================ -->
+<template id="pledge-row-template">
+    <tr>
+        <td><strong class="pledge-member-name"></strong></td>
+        <td><span class="badge badge-primary pledge-category"></span></td>
+        <td style="font-weight: bold;" class="pledge-total"></td>
+        <td style="color: #16a34a;" class="pledge-paid"></td>
+        <td style="color: #ea580c;" class="pledge-remaining"></td>
+        <td class="pledge-progress-cell">
+            <div style="background: #e5e7eb; border-radius: 10px; height: 20px; width: 100px; overflow: hidden;">
+                <div class="pledge-progress-bar" style="background: #16a34a; height: 100%; width: 0%;"></div>
+            </div>
+            <small class="pledge-progress-text">0%</small>
+        </td>
+        <td><span class="badge pledge-status-badge"></span></td>
+        <td class="pledge-end-date"></td>
+        <td class="pledge-actions" style="display: flex; gap: 5px; flex-wrap: wrap;">
+            <!-- Actions populated by JS -->
+        </td>
+    </tr>
+</template>
+
+<!-- ============================================ -->
+<!-- TEMPLATE: Empty State -->
+<!-- ============================================ -->
+<template id="pledges-empty-template">
+    <div class="empty-state">
+        <div class="empty-state-icon"></div>
+        <p>No pledges yet. Create your first pledge!</p>
+        <button class="btn btn-primary" onclick="openCreatePledgeModal()" style="margin-top: 20px;">
+            + Create First Pledge
+        </button>
+    </div>
+</template>
+
+<!-- ============================================ -->
+<!-- TEMPLATE: Loading State -->
+<!-- ============================================ -->
+<template id="pledges-loading-template">
+    <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading pledges...</p>
+    </div>
+</template>
+
+<!-- ============================================ -->
+<!-- TEMPLATE: Error State -->
+<!-- ============================================ -->
+<template id="pledges-error-template">
+    <div style="background: #fee2e2; padding: 30px; border-radius: 15px; text-align: center; margin: 20px 0;">
+        <h2 style="color: #991b1b; margin-bottom: 15px;"> Error</h2>
+        <p style="color: #991b1b;" class="error-message"></p>
+        <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #dc2626; color: white; border: none; border-radius: 8px; cursor: pointer;">
+            Reload Page
+        </button>
+    </div>
+</template>
+
+<!-- ============================================ -->
+<!-- MODAL: Create New Pledge -->
+<!-- ============================================ -->
+<template id="create-pledge-modal-template">
+    <div id="createPledgeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Create New Pledge</span>
+                <button class="modal-close" onclick="closeModal('createPledgeModal')" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6b7280;">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Member *</label>
+                <select class="form-input" id="pledgeMemberSelect" required>
+                    <option value="">Select Member</option>
+                    <!-- Populated by JavaScript -->
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Category *</label>
+                <select class="form-input" id="pledgeCategory" required>
+                    <option>Building Fund</option>
+                    <option>Mission</option>
+                    <option>Equipment</option>
+                    <option>Special Project</option>
+                    <option>Youth Ministry</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Total Amount (KSh) *</label>
+                <input type="number" class="form-input" id="pledgeAmount" min="0" step="100" placeholder="e.g. 50000" required>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="form-group">
+                    <label class="form-label">Start Date *</label>
+                    <input type="date" class="form-input" id="pledgeStartDate" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">End Date *</label>
+                    <input type="date" class="form-input" id="pledgeEndDate" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Payment Frequency</label>
+                <select class="form-input" id="pledgeFrequency">
+                    <option>Monthly</option>
+                    <option>Quarterly</option>
+                    <option>Bi-Annual</option>
+                    <option>One-time</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Notes (Optional)</label>
+                <textarea class="form-input" id="pledgeNotes" rows="3" placeholder="Any additional information..."></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeModal('createPledgeModal')">Cancel</button>
+                <button class="btn btn-primary" onclick="createPledgeFromModal()">Create Pledge</button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- ============================================ -->
+<!-- MODAL: Record Payment -->
+<!-- ============================================ -->
+<template id="record-payment-modal-template">
+    <div id="recordPaymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Record Payment</span>
+                <button class="modal-close" onclick="closeModal('recordPaymentModal')" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6b7280;">&times;</button>
+            </div>
+            
+            <!-- Pledge Info -->
+            <div style="background: #f3f4f6; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <small style="color: #6b7280;">Member:</small>
+                        <div style="font-weight: bold;" id="paymentPledgeMember"></div>
+                    </div>
+                    <div>
+                        <small style="color: #6b7280;">Category:</small>
+                        <div style="font-weight: bold;" id="paymentPledgeCategory"></div>
+                    </div>
+                    <div>
+                        <small style="color: #6b7280;">Total Pledge:</small>
+                        <div style="font-weight: bold;" id="paymentPledgeTotal"></div>
+                    </div>
+                    <div>
+                        <small style="color: #6b7280;">Remaining:</small>
+                        <div style="font-weight: bold; color: #ea580c;" id="paymentPledgeRemaining"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Payment Amount (KSh) *</label>
+                <input type="number" class="form-input" id="paymentAmount" min="0" step="100" placeholder="Enter amount" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Payment Date *</label>
+                <input type="date" class="form-input" id="paymentDate" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Payment Method *</label>
+                <select class="form-input" id="paymentMethod">
+                    <option>M-Pesa</option>
+                    <option>Cash</option>
+                    <option>Bank Transfer</option>
+                    <option>Cheque</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Receipt/Reference Number</label>
+                <input type="text" class="form-input" id="paymentReference" placeholder="e.g. MPE123456">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Notes (Optional)</label>
+                <textarea class="form-input" id="paymentNotes" rows="2" placeholder="Any additional notes..."></textarea>
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeModal('recordPaymentModal')">Cancel</button>
+                <button class="btn btn-success" onclick="submitPayment()">Record Payment</button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- ============================================ -->
+<!-- MODAL: Payment History -->
+<!-- ============================================ -->
+<template id="payment-history-modal-template">
+    <div id="paymentHistoryModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <span>Payment History</span>
+                <button class="modal-close" onclick="closeModal('paymentHistoryModal')" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #6b7280;">&times;</button>
+            </div>
+            
+            <!-- Pledge Summary -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; color: white; margin-bottom: 20px;">
+                <h3 style="margin-bottom: 15px;" id="historyPledgeMember"></h3>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; font-size: 14px;">
+                    <div>
+                        <div style="opacity: 0.8;">Total Pledged</div>
+                        <div style="font-size: 20px; font-weight: bold;" id="historyPledgeTotal"></div>
+                    </div>
+                    <div>
+                        <div style="opacity: 0.8;">Paid</div>
+                        <div style="font-size: 20px; font-weight: bold;" id="historyPledgePaid"></div>
+                    </div>
+                    <div>
+                        <div style="opacity: 0.8;">Remaining</div>
+                        <div style="font-size: 20px; font-weight: bold;" id="historyPledgeRemaining"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Payments List -->
+            <div id="paymentsListContainer">
+                <!-- Populated by JavaScript -->
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn btn-secondary" onclick="closeModal('paymentHistoryModal')">Close</button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<!-- ============================================ -->
+<!-- TEMPLATE: Payment History Item -->
+<!-- ============================================ -->
+<template id="payment-item-template">
+    <div style="border-left: 4px solid #16a34a; padding: 15px; background: #f9fafb; border-radius: 8px; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+            <div>
+                <div style="font-size: 18px; font-weight: bold; color: #16a34a;" class="payment-amount"></div>
+                <div style="font-size: 12px; color: #6b7280;" class="payment-date"></div>
+            </div>
+            <span class="badge badge-success payment-method"></span>
+        </div>
+        <div style="font-size: 13px; color: #6b7280;" class="payment-reference"></div>
+        <div style="font-size: 13px; color: #374151; margin-top: 5px;" class="payment-notes"></div>
+    </div>
+</template>
+
+</body>
+</html>

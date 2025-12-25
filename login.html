@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimamiaKanisa - Login</title>
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .login-container {
+        background: white;
+        padding: 40px;
+        border-radius: 16px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        width: 100%;
+        max-width: 420px;
+        animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .logo-container {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .logo-container img {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 15px;
+    }
+
+    h2 {
+        text-align: center;
+        color: #1f2937;
+        margin-bottom: 10px;
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .subtitle {
+        text-align: center;
+        color: #6b7280;
+        margin-bottom: 30px;
+        font-size: 14px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        color: #374151;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.3s;
+        background: #f9fafb;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: #2563eb;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .password-container {
+        position: relative;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        color: #6b7280;
+        padding: 4px;
+    }
+
+    .remember-forgot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #374151;
+    }
+
+    .remember-me input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+    }
+
+    .forgot-link {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s;
+    }
+
+    .forgot-link:hover {
+        color: #1e40af;
+        text-decoration: underline;
+    }
+
+    button {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+    }
+
+    button:active {
+        transform: translateY(0);
+    }
+
+    button:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .link {
+        text-align: center;
+        margin-top: 20px;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .link a {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s;
+    }
+
+    .link a:hover {
+        color: #1e40af;
+        text-decoration: underline;
+    }
+
+    .error-message {
+        background: #fee2e2;
+        color: #dc2626;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-size: 14px;
+        display: none;
+        border-left: 4px solid #dc2626;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 20px 0;
+        color: #9ca3af;
+        font-size: 13px;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .divider span {
+        padding: 0 10px;
+    }
+</style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo-container">
+            <img src="images/dove-fig.png" alt="SimamiaKanisa Logo" onerror="this.style.display='none'">
+            <h2>Welcome Back</h2>
+            <p class="subtitle">Sign in to SimamiaKanisa</p>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #6b7280;">Logging you in...</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email"> Email Address</label>
+                <input type="email" id="email" placeholder="your.email@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password"> Password</label>
+                <div class="password-container">
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                    <button type="button" class="toggle-password" onclick="togglePassword()">👁️</button>
+                </div>
+            </div>
+
+            <div class="remember-forgot">
+                <label class="remember-me">
+                    <input type="checkbox" id="rememberMe">
+                    Remember me
+                </label>
+                <a href="#" class="forgot-link" onclick="handleForgotPassword(event)">Forgot password?</a>
+            </div>
+
+            <button type="submit" id="loginBtn">
+                 Sign In
+            </button>
+        </form>
+
+        <div class="divider">
+            <span>OR</span>
+        </div>
+
+        <div class="link">
+            <p>Don't have an account? <a href="register.html">Create one now</a></p>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <!-- Your Firebase config and auth -->
+    <script src="firebase-config.js"></script>
+    <script src="auth.js"></script>
+
+    <script>
+        const form = document.getElementById('loginForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const rememberMeCheckbox = document.getElementById('rememberMe');
+        const loginBtn = document.getElementById('loginBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const loading = document.getElementById('loading');
+
+        // Check if user was remembered
+        window.addEventListener('load', function() {
+            const rememberedEmail = localStorage.getItem('rememberedEmail');
+            if (rememberedEmail) {
+                emailInput.value = rememberedEmail;
+                rememberMeCheckbox.checked = true;
+            }
+        });
+
+        // Toggle password visibility
+        function togglePassword() {
+            const field = document.getElementById('password');
+            const button = field.nextElementSibling;
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                button.textContent = '🙈';
+            } else {
+                field.type = 'password';
+                button.textContent = '👁️';
+            }
+        }
+
+        // Handle forgot password
+        function handleForgotPassword(event) {
+            event.preventDefault();
+            const email = emailInput.value.trim();
+            
+            if (!email) {
+                showError('Please enter your email address first');
+                return;
+            }
+
+            if (confirm(`Send password reset email to ${email}?`)) {
+                resetPassword(email);
+            }
+        }
+
+        // Override resetPassword to add UI feedback
+        const originalResetPassword = window.resetPassword;
+        window.resetPassword = function(email) {
+            auth.sendPasswordResetEmail(email)
+                .then(() => {
+                    showSuccess('Password reset email sent! Check your inbox.');
+                })
+                .catch((error) => {
+                    console.error("Password reset error:", error.message);
+                    let errorMsg = "Failed to send reset email. ";
+                    
+                    switch(error.code) {
+                        case 'auth/user-not-found':
+                            errorMsg += "No account found with this email.";
+                            break;
+                        case 'auth/invalid-email':
+                            errorMsg += "Invalid email address.";
+                            break;
+                        default:
+                            errorMsg += error.message;
+                    }
+                    showError(errorMsg);
+                });
+        };
+
+        // Form submission
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const rememberMe = rememberMeCheckbox.checked;
+
+            // Hide previous messages
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+
+            // Validation
+            if (!email || !password) {
+                showError('Please enter both email and password');
+                return;
+            }
+
+            // Remember email if checked
+            if (rememberMe) {
+                localStorage.setItem('rememberedEmail', email);
+            } else {
+                localStorage.removeItem('rememberedEmail');
+            }
+
+            // Show loading
+            loading.style.display = 'block';
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Signing in...';
+
+            // Login user
+            loginUserWithFeedback(email, password);
+        });
+
+        function loginUserWithFeedback(email, password) {
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    console.log("User logged in:", user.uid);
+
+                    return db.collection("users").doc(user.uid).update({
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => {
+                        return db.collection("users").doc(user.uid).get();
+                    });
+                })
+                .then((doc) => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        
+                        if (userData.active === false) {
+                            showError('Your account has been deactivated. Please contact admin.');
+                            auth.signOut();
+                            loading.style.display = 'none';
+                            loginBtn.disabled = false;
+                            loginBtn.textContent = '🚀 Sign In';
+                            return;
+                        }
+
+                        sessionStorage.setItem('userRole', userData.role);
+                        sessionStorage.setItem('userEmail', userData.email);
+                        sessionStorage.setItem('userId', doc.id);
+                        
+                        showSuccess('Login successful! Redirecting...');
+                        
+                        setTimeout(() => {
+                            window.location.href = "index.html";
+                        }, 1500);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Login error:", error.message);
+                    loading.style.display = 'none';
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = '🚀 Sign In';
+                    
+                    let errorMsg = "Login failed. ";
+                    switch(error.code) {
+                        case 'auth/user-not-found':
+                            errorMsg += "No account found with this email.";
+                            break;
+                        case 'auth/wrong-password':
+                            errorMsg += "Incorrect password.";
+                            break;
+                        case 'auth/invalid-email':
+                            errorMsg += "Invalid email address.";
+                            break;
+                        case 'auth/user-disabled':
+                            errorMsg += "This account has been disabled.";
+                            break;
+                        case 'auth/too-many-requests':
+                            errorMsg += "Too many failed attempts. Please try again later.";
+                            break;
+                        default:
+                            errorMsg += error.message;
+                    }
+                    showError(errorMsg);
+                });
+        }
+
+        function showError(message) {
+            errorMessage.textContent = '❌ ' + message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            successMessage.textContent = '✅ ' + message;
+            successMessage.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
