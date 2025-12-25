@@ -541,6 +541,200 @@ async function deleteEvent(id) {
     }
 }
 
+/* ===================================
+   ADD DATA LABELS FOR MOBILE TABLES
+   Add this to your main.js or analytics.js
+   =================================== */
+
+// Function to add data-label attributes to table cells
+function addMobileLabels() {
+  // For Contributions Table
+  const contributionsTable = document.querySelector('#contributionsTable');
+  if (contributionsTable) {
+    const headers = ['Member', 'Type', 'Date', 'Actions'];
+    const rows = contributionsTable.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      cells.forEach((cell, index) => {
+        if (headers[index]) {
+          cell.setAttribute('data-label', headers[index]);
+        }
+      });
+    });
+  }
+  
+  // For Pledges Table
+  const pledgesTable = document.querySelector('#pledgesTable');
+  if (pledgesTable) {
+    const headers = ['Member', 'Category', 'Amount', 'Progress', 'Status', 'End Date', 'Actions'];
+    const rows = pledgesTable.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+      const cells = row.querySelectorAll('td');
+      cells.forEach((cell, index) => {
+        if (headers[index]) {
+          cell.setAttribute('data-label', headers[index]);
+        }
+      });
+    });
+  }
+}
+
+// Call this function when tables are loaded/updated
+document.addEventListener('DOMContentLoaded', addMobileLabels);
+
+// Also call after any dynamic table updates
+// If you're using Firebase or updating tables dynamically, call addMobileLabels() after updates
+
+/* ===================================
+   MOBILE MENU ENHANCEMENTS
+   =================================== */
+
+// Improve mobile menu behavior
+function improveMobileNav() {
+  const navOverlay = document.querySelector('.nav-overlay');
+  const menuButton = document.querySelector('.menu-btn');
+  const closeButton = document.querySelector('.nav-close');
+  
+  if (!navOverlay) return;
+  
+  // Close menu when clicking on a navigation item (mobile only)
+  if (window.innerWidth <= 768) {
+    const navButtons = navOverlay.querySelectorAll('button');
+    navButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        navOverlay.classList.remove('active');
+      });
+    });
+  }
+  
+  // Prevent body scroll when menu is open
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      if (mutation.attributeName === 'class') {
+        const isActive = navOverlay.classList.contains('active');
+        if (isActive) {
+          document.body.style.overflow = 'hidden';
+        } else {
+          document.body.style.overflow = '';
+        }
+      }
+    });
+  });
+  
+  observer.observe(navOverlay, { attributes: true });
+}
+
+// Initialize mobile navigation improvements
+if (window.innerWidth <= 768) {
+  document.addEventListener('DOMContentLoaded', improveMobileNav);
+}
+
+/* ===================================
+   RESPONSIVE TABLE WRAPPER
+   =================================== */
+
+// Add a wrapper div around tables for better mobile scrolling (optional fallback)
+function wrapTablesForMobile() {
+  const tables = document.querySelectorAll('table');
+  
+  tables.forEach(table => {
+    // Check if table isn't already wrapped
+    if (!table.parentElement.classList.contains('table-wrapper')) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'table-wrapper';
+      table.parentNode.insertBefore(wrapper, table);
+      wrapper.appendChild(table);
+    }
+  });
+}
+
+// Optional: Add this CSS for table wrapper
+const style = document.createElement('style');
+style.textContent = `
+  .table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 20px;
+  }
+  
+  @media (max-width: 768px) {
+    .table-wrapper {
+      overflow-x: visible;
+    }
+  }
+`;
+document.head.appendChild(style);
+
+/* ===================================
+   VIEWPORT HEIGHT FIX FOR MOBILE
+   =================================== */
+
+// Fix for mobile browsers where 100vh includes the address bar
+function setMobileVH() {
+  let vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+
+window.addEventListener('resize', setMobileVH);
+window.addEventListener('orientationchange', setMobileVH);
+setMobileVH();
+
+/* ===================================
+   EXPORT TO CSV/PDF BUTTON FIX
+   =================================== */
+
+// Ensure export buttons work well on mobile
+function fixExportButtons() {
+  const exportButtons = document.querySelectorAll('[onclick*="export"]');
+  
+  exportButtons.forEach(button => {
+    button.addEventListener('touchstart', function() {
+      this.style.opacity = '0.7';
+    });
+    
+    button.addEventListener('touchend', function() {
+      this.style.opacity = '1';
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', fixExportButtons);
+
+/* ===================================
+   UTILITY: Detect if device is mobile
+   =================================== */
+
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+}
+
+// Add mobile class to body
+if (isMobileDevice()) {
+  document.body.classList.add('is-mobile');
+}
+
+/* ===================================
+   CALL ALL FUNCTIONS ON LOAD
+   =================================== */
+
+window.addEventListener('load', () => {
+  addMobileLabels();
+  wrapTablesForMobile();
+  
+  // Re-add labels when tables update
+  const observer = new MutationObserver(() => {
+    addMobileLabels();
+  });
+  
+  const tables = document.querySelectorAll('table tbody');
+  tables.forEach(table => {
+    observer.observe(table, { childList: true, subtree: true });
+  });
+});
+
 // Initialize app when page loads
 window.addEventListener('DOMContentLoaded', () => {
     console.log(' SimamiaKanisa starting...');
