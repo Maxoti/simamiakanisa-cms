@@ -1,4 +1,5 @@
 // ====== AUTHENTICATION FUNCTIONS ======
+// Wait for main.js to load
 
 // Register a new user with enhanced security
 function registerUser(email, password, role = "user") {

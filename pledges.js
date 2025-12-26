@@ -57,7 +57,7 @@ function getTemplate(templateId) {
 // ============================================
 
 async function renderPledgesTab() {
-    console.log('🤝 Pledges tab opened!');
+    console.log(' Pledges tab opened!');
     
     if (!pledgesInitialized) {
         await loadPledge();
@@ -93,13 +93,13 @@ function buildPledgesHTML() {
         // ✅ UPDATED: Added pagination controls
         container.innerHTML = `
             <div class="pledges-header">
-                <h1 class="pledges-title">🤝 Pledges Management</h1>
+                <h1 class="pledges-title"> Pledges Management</h1>
                 <button class="btn btn-primary" onclick="openCreatePledgeModal()">+ New Pledge</button>
             </div>
             
             <div class="pledges-summary">
                 <div class="pledge-stat-card purple">
-                    <h4>💰 Total Pledged</h4>
+                    <h4> Total Pledged</h4>
                     <div class="value" id="totalPledged">KSh 0</div>
                     <div class="subtitle">across all pledges</div>
                 </div>
@@ -114,7 +114,7 @@ function buildPledgesHTML() {
                     <div class="subtitle" id="activePledges">0 active pledges</div>
                 </div>
                 <div class="pledge-stat-card red">
-                    <h4>⚠️ Overdue</h4>
+                    <h4> Overdue</h4>
                     <div class="value" id="overduePledges">0</div>
                     <div class="subtitle">need attention</div>
                 </div>
@@ -359,7 +359,7 @@ function renderPledgesTable() {
         } else {
             container.innerHTML = `
                 <div class="empty-state">
-                    <div class="empty-state-icon">🤝</div>
+                    <div class="empty-state-icon"></div>
                     <p>No pledges found.</p>
                     <button class="btn btn-primary" onclick="openCreatePledgeModal()" style="margin-top: 15px;">
                         + Create First Pledge
@@ -412,7 +412,7 @@ function renderPledgesTable() {
                     <button class="btn btn-success" onclick="openRecordPaymentModal('${pledge.id}')" 
                             style="padding: 5px 10px; font-size: 12px;"
                             ${pledge.status === 'Completed' ? 'disabled' : ''}>
-                        💰 Pay
+                         Pay
                     </button>
                     <button class="btn btn-whatsapp" onclick="sendPledgeReminder('${pledge.id}')"
                             style="padding: 5px 10px; font-size: 12px; background: #25D366; color: white; border: none;">
@@ -420,7 +420,7 @@ function renderPledgesTable() {
                     </button>
                     <button class="btn btn-primary" onclick="openPaymentHistoryModal('${pledge.id}')"
                             style="padding: 5px 10px; font-size: 12px;">
-                        📜 History
+                         History
                     </button>
                 </td>
             </tr>

@@ -39,7 +39,6 @@ body {
     opacity: 0.9;
 }
 
-
 /* Container */
 .container {
     max-width: 1200px;
@@ -58,8 +57,6 @@ body {
     gap: 10px;
     flex-wrap: wrap;
 }
-
-
 
 .tab-btn {
     flex: 1;
@@ -395,420 +392,66 @@ tr:hover {
     font-size: 48px;
     margin-bottom: 15px;
 }
+
 /* ===================================
-   MOBILE RESPONSIVE STYLES
-   Add this to your style.css file
+   PAGINATION CONTROLS
    =================================== */
 
-/* Mobile Navigation Improvements */
-@media (max-width: 768px) {
-  .nav-overlay {
-    width: 100% !important;
-  }
-  
-  .nav-close {
-    font-size: 32px !important;
-    padding: 10px !important;
-  }
-  
-  .tabs button {
-    font-size: 14px !important;
-    padding: 10px 8px !important;
-  }
+.pagination-container {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
-/* ===================================
-   CONTRIBUTIONS TABLE - MOBILE
-   =================================== */
-@media (max-width: 768px) {
-  /* Hide the table header on mobile */
-  #contributionsTable thead {
-    display: none;
-  }
-  
-  /* Make each row a card */
-  #contributionsTable tbody tr {
-    display: block;
-    margin-bottom: 20px;
-    border: 1px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 15px;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  }
-  
-  /* Style each cell as a row */
-  #contributionsTable tbody td {
+.pagination-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 0;
-    border: none;
-    border-bottom: 1px solid #f0f0f0;
-    text-align: left;
-  }
-  
-  #contributionsTable tbody td:last-child {
-    border-bottom: none;
-  }
-  
-  /* Add labels before each cell */
-  #contributionsTable tbody td:before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: #555;
-    font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  
-  /* Style the delete button */
-  #contributionsTable tbody td button {
-    margin-left: auto;
-    padding: 8px 20px;
-    font-size: 14px;
-  }
-}
-
-/* ===================================
-   PLEDGES TABLE - MOBILE
-   =================================== */
-@media (max-width: 768px) {
-  /* Container for pledges */
-  .pledges-container {
-    padding: 10px;
-  }
-  
-  /* Hide table header */
-  #pledgesTable thead {
-    display: none;
-  }
-  
-  /* Make the table scrollable as fallback */
-  #pledgesTable {
-    display: block;
-    overflow-x: visible;
-  }
-  
-  #pledgesTable tbody {
-    display: block;
-  }
-  
-  /* Each pledge as a card */
-  #pledgesTable tbody tr {
-    display: block;
-    margin-bottom: 20px;
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 15px;
-    background: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    position: relative;
-  }
-  
-  /* Style each cell */
-  #pledgesTable tbody td {
-    display: block;
-    padding: 8px 0;
-    border: none;
-    text-align: left;
-    width: 100%;
-  }
-  
-  /* Add labels */
-  #pledgesTable tbody td:before {
-    content: attr(data-label);
-    font-weight: 600;
-    color: #666;
-    font-size: 12px;
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 4px;
-  }
-  
-  /* Member name - make it prominent */
-  #pledgesTable tbody td:nth-child(1) {
-    font-size: 18px;
-    font-weight: 700;
-    color: #1a73e8;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #f0f0f0;
-    margin-bottom: 12px;
-  }
-  
-  /* Category badge styling */
-  #pledgesTable tbody td:nth-child(2) {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  
-  /* Amount styling */
-  #pledgesTable tbody td:nth-child(3) {
-    font-size: 16px;
-    font-weight: 600;
-    color: #f44336;
-  }
-  
-  /* Progress bar container */
-  #pledgesTable tbody td:nth-child(4) {
-    padding: 12px 0;
-  }
-  
-  /* Status badge */
-  #pledgesTable tbody td:nth-child(5) span {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-  
-  /* Action buttons container */
-  #pledgesTable tbody td:nth-child(7) {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    padding-top: 15px;
-    border-top: 2px solid #f0f0f0;
-    margin-top: 10px;
-  }
-  
-  #pledgesTable tbody td:nth-child(7):before {
-    display: none;
-  }
-  
-  /* Style action buttons */
-  #pledgesTable tbody td button {
-    flex: 1;
-    min-width: 80px;
-    padding: 10px 15px;
-    font-size: 13px;
-    border-radius: 8px;
-    font-weight: 600;
-  }
-}
-
-/* ===================================
-   STATS GRID - MOBILE
-   =================================== */
-@media (max-width: 768px) {
-  .stats-grid {
-    grid-template-columns: 1fr !important;
-    gap: 15px !important;
-  }
-  
-  .stat-card {
-    padding: 20px !important;
-  }
-  
-  .stat-label {
-    font-size: 13px !important;
-  }
-  
-  .stat-value {
-    font-size: 28px !important;
-  }
-}
-
-/* ===================================
-   FORMS - MOBILE
-   =================================== */
-@media (max-width: 768px) {
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .form-group label {
-    font-size: 14px;
-    margin-bottom: 6px;
-  }
-  
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    font-size: 16px; /* Prevents zoom on iOS */
-    padding: 12px;
-  }
-  
-  button[type="submit"] {
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-  }
-}
-
-/* ===================================
-   FILTERS - MOBILE
-   =================================== */
-@media (max-width: 768px) {
-  .filter-container {
-    display: flex;
-    flex-direction: column;
     gap: 10px;
-    margin-bottom: 20px;
-  }
-  
-  .filter-container select {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    border-radius: 8px;
-  }
-  
-  .export-btn {
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-  }
-}
-
-/* ===================================
-   GENERAL MOBILE UTILITIES
-   =================================== */
-@media (max-width: 768px) {
-  /* Ensure proper spacing */
-  .content {
-    padding: 15px !important;
-  }
-  
-  /* Make sure text doesn't overflow */
-  * {
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-  }
-  
-  /* Responsive images */
-  img {
-    max-width: 100%;
-    height: auto;
-  }
-  
-  /* Better touch targets */
-  button, a, input, select {
-    min-height: 44px;
-  }
-}
-
-/* ===================================
-   VERY SMALL SCREENS (< 375px)
-   =================================== */
-@media (max-width: 375px) {
-  .tabs button {
-    font-size: 12px !important;
-    padding: 8px 6px !important;
-  }
-  
-  #pledgesTable tbody td button {
-    font-size: 12px;
-    padding: 8px 12px;
-  }
-}/* ===================================
-   PAGINATION & SEARCH STYLES
-   Copy this and paste at the END of your style.css
-   (After the "VERY SMALL SCREENS" section)
-   =================================== */
-
-/* ===== SEARCH BAR ===== */
-.mobile-search-wrapper {
-    margin-bottom: 20px;
-}
-
-.mobile-search {
-    position: relative;
-    width: 100%;
-}
-
-.mobile-search input {
-    width: 100%;
-    padding: 14px 45px 14px 14px;
-    font-size: 15px;
-    border: 2px solid #e5e7eb;
-    border-radius: 10px;
-    background: white;
-    transition: all 0.3s;
-}
-
-.mobile-search input:focus {
-    border-color: #2563eb;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.mobile-search::after {
-    content: "🔍";
-    position: absolute;
-    right: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 20px;
-    pointer-events: none;
-}
-
-.result-count {
-    font-size: 13px;
-    color: #6b7280;
-    margin-top: 8px;
-    padding-left: 4px;
-    font-weight: 500;
-}
-
-.no-results {
-    text-align: center;
-    padding: 60px 20px;
-    color: #6b7280;
-}
-
-.no-results-icon {
-    font-size: 48px;
-    margin-bottom: 12px;
-    opacity: 0.5;
-}
-
-.no-results-text {
-    font-size: 16px;
-    font-weight: 500;
-    margin-bottom: 8px;
-}
-
-.no-results-hint {
-    font-size: 14px;
-    color: #9ca3af;
-}
-
-/* ===== PAGINATION ===== */
-.pagination-wrapper {
-    margin-bottom: 20px;
+    flex-wrap: wrap;
 }
 
 .items-per-page {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 12px 15px;
     background: white;
-    border-radius: 10px;
-    margin-bottom: 12px;
-    font-size: 14px;
-    font-weight: 500;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    padding: 10px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .items-per-page label {
+    font-size: 14px;
+    font-weight: 500;
     color: #374151;
 }
 
 .items-per-page select {
     padding: 8px 12px;
     border: 1px solid #d1d5db;
-    border-radius: 8px;
+    border-radius: 6px;
     font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
     background: white;
-    font-weight: 500;
 }
 
-.items-per-page select:focus {
+.search-box {
+    flex: 1;
+    min-width: 200px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 10px 15px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.search-box input:focus {
     outline: none;
     border-color: #2563eb;
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
@@ -818,29 +461,24 @@ tr:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 15px;
     background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    padding: 12px 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .pagination-controls button {
-    padding: 10px 18px;
-    font-size: 14px;
-    font-weight: 600;
-    border: 2px solid #e5e7eb;
+    padding: 8px 16px;
+    border: 1px solid #d1d5db;
     background: white;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
+    font-weight: 500;
     transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
 }
 
-.pagination-controls button:not(:disabled):hover {
+.pagination-controls button:hover:not(:disabled) {
     background: #f3f4f6;
-    border-color: #d1d5db;
 }
 
 .pagination-controls button:disabled {
@@ -850,76 +488,460 @@ tr:hover {
 
 .page-info {
     font-size: 14px;
-    color: #374151;
     font-weight: 600;
+    color: #374151;
 }
 
-/* ===== LOADING STATE ===== */
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.9);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
+/* ===================================
+   DESKTOP - Keep tables as default
+   =================================== */
+@media (min-width: 769px) {
+    .table-wrapper {
+        overflow-x: auto;
+    }
+    
+    table {
+        width: 100%;
+        min-width: 800px;
+    }
+    
+    /* Hide cards on desktop */
+    .cards-container {
+        display: none !important;
+    }
 }
 
-.loading-spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid #e5e7eb;
-    border-top-color: #2563eb;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
-.loading-text {
-    margin-top: 15px;
-    font-size: 14px;
-    color: #6b7280;
-    font-weight: 500;
-    text-align: center;
-}
-
-/* ===== MOBILE ADJUSTMENTS ===== */
+/* ===================================
+   MOBILE RESPONSIVE STYLES
+   =================================== */
 @media (max-width: 768px) {
-    .mobile-search-wrapper {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background: #f5f5f5;
-        padding: 12px 15px;
-        margin: -20px -20px 15px -20px;
+    
+    /* Stats Grid - Single Column */
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
     }
     
-    .pagination-wrapper {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        background: #f5f5f5;
-        padding: 12px 15px;
-        margin: -20px -20px 15px -20px;
+    .stat-card {
+        padding: 20px !important;
     }
     
-    .items-per-page {
-        margin-bottom: 10px;
-        font-size: 13px;
+    .stat-label {
+        font-size: 13px !important;
+    }
+    
+    .stat-value {
+        font-size: 28px !important;
+    }
+    
+    /* Hide Desktop Tables, Show Cards */
+    .table-wrapper table {
+        display: none !important;
+    }
+    
+    .cards-container {
+        display: block !important;
+    }
+    
+    /* ===== MEMBER CARDS ===== */
+    .member-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-left: 4px solid #2563eb;
+        transition: all 0.3s;
+    }
+    
+    .member-card:active {
+        transform: scale(0.98);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    /* ===== EVENT CARDS ===== */
+    .event-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-left: 4px solid #f97316;
+        transition: all 0.3s;
+    }
+    
+    /* ===== CONTRIBUTION CARDS ===== */
+    .contribution-card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-left: 4px solid #16a34a;
+        transition: all 0.3s;
+    }
+    
+    /* Card Header - Name */
+    .card-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 15px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+    
+    .event-card .card-name {
+        color: #f97316;
+        border-bottom-color: #fed7aa;
+    }
+    
+    .contribution-card .card-name {
+        color: #16a34a;
+        border-bottom-color: #dcfce7;
+    }
+    
+    /* Card Info Rows */
+    .card-info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .card-info-row:last-of-type {
+        border-bottom: none;
+        padding-bottom: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .card-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .card-value {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1e293b;
+        text-align: right;
+    }
+    
+    .card-phone {
+        color: #2563eb;
+        font-weight: 600;
+    }
+    
+    .contribution-amount {
+        font-size: 20px !important;
+        font-weight: 700 !important;
+        color: #16a34a !important;
+    }
+    
+    /* Card Actions */
+    .card-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding-top: 15px;
+        border-top: 2px solid #f1f5f9;
+    }
+    
+    .card-actions button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    .card-actions .btn-whatsapp {
+        background: #25D366;
+        color: white;
+    }
+    
+    .card-actions .btn-whatsapp:active {
+        background: #20BA5A;
+    }
+    
+    .card-actions .btn-danger {
+        background: #dc2626;
+        color: white;
+    }
+    
+    .card-actions .btn-danger:active {
+        background: #b91c1c;
+    }
+    
+    /* Pagination Sticky on Mobile */
+    .pagination-container {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: #f5f5f5;
+        padding: 15px;
+        margin: -20px -20px 20px -20px;
+    }
+    
+    .pagination-top {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .items-per-page,
+    .search-box {
+        width: 100%;
+    }
+    
+    .search-box input {
+        padding: 12px 15px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .pagination-controls {
+        margin-top: 15px;
     }
     
     .pagination-controls button {
-        padding: 12px 16px;
+        padding: 10px 14px;
         font-size: 13px;
     }
     
     .page-info {
         font-size: 13px;
     }
+    
+    /* Empty State */
+    .empty-state {
+        background: white;
+        border-radius: 12px;
+        padding: 40px 20px;
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    /* Forms */
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        font-size: 16px; /* Prevents zoom on iOS */
+        padding: 12px;
+    }
+    
+    button[type="submit"] {
+        width: 100%;
+        padding: 14px;
+        font-size: 16px;
+    }
+    
+    /* Content Spacing */
+    .content {
+        padding: 15px !important;
+    }
+    
+    /* Text Overflow Prevention */
+    * {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+    
+    /* Responsive Images */
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+    
+    /* Better Touch Targets */
+    button, a, input, select {
+        min-height: 44px;
+    }
+}
+
+/* ===================================
+   PLEDGES TABLE - MOBILE CARDS
+   =================================== */
+@media (max-width: 768px) {
+    .pledges-container {
+        padding: 10px;
+    }
+    
+    #pledgesTable thead {
+        display: none;
+    }
+    
+    #pledgesTable {
+        display: block;
+        overflow-x: visible;
+    }
+    
+    #pledgesTable tbody {
+        display: block;
+    }
+    
+    #pledgesTable tbody tr {
+        display: block;
+        margin-bottom: 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 15px;
+        background: white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        position: relative;
+    }
+    
+    #pledgesTable tbody td {
+        display: block;
+        padding: 8px 0;
+        border: none;
+        text-align: left;
+        width: 100%;
+    }
+    
+    #pledgesTable tbody td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #666;
+        font-size: 12px;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 4px;
+    }
+    
+    #pledgesTable tbody td:nth-child(1) {
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a73e8;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #f0f0f0;
+        margin-bottom: 12px;
+    }
+    
+    #pledgesTable tbody td:nth-child(2) {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    #pledgesTable tbody td:nth-child(3) {
+        font-size: 16px;
+        font-weight: 600;
+        color: #f44336;
+    }
+    
+    #pledgesTable tbody td:nth-child(4) {
+        padding: 12px 0;
+    }
+    
+    #pledgesTable tbody td:nth-child(5) span {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    #pledgesTable tbody td:nth-child(7) {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        padding-top: 15px;
+        border-top: 2px solid #f0f0f0;
+        margin-top: 10px;
+    }
+    
+    #pledgesTable tbody td:nth-child(7):before {
+        display: none;
+    }
+    
+    #pledgesTable tbody td button {
+        flex: 1;
+        min-width: 80px;
+        padding: 10px 15px;
+        font-size: 13px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+}
+
+/* ===================================
+   VERY SMALL SCREENS (< 480px)
+   =================================== */
+@media (max-width: 480px) {
+    .member-card,
+    .event-card,
+    .contribution-card {
+        padding: 15px;
+        margin-bottom: 12px;
+    }
+    
+    .card-name {
+        font-size: 16px;
+    }
+    
+    .card-info-row {
+        padding: 8px 0;
+    }
+    
+    .card-label {
+        font-size: 11px;
+    }
+    
+    .card-value {
+        font-size: 13px;
+    }
+    
+    .card-actions button {
+        padding: 10px;
+        font-size: 13px;
+    }
+    
+    .tabs button {
+        font-size: 12px !important;
+        padding: 8px 6px !important;
+    }
+}
+
+/* ===================================
+   LOADING STATE
+   =================================== */
+.loading-state {
+    background: white;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e5e7eb;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 15px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
