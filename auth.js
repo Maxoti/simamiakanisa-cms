@@ -153,6 +153,7 @@ function logoutUser() {
 }
 
 // Protect pages (check if user is logged in and has required role)
+
 function protectPage(requiredRole = null) {
     auth.onAuthStateChanged((user) => {
         if (user) {
@@ -186,7 +187,7 @@ function protectPage(requiredRole = null) {
                             
                             if (!allowedRoles.includes(role)) {
                                 alert("Access denied! You don't have permission to view this page.");
-                                window.location.href = "index.html"; // Redirect to main page
+                                window.location.href = "index.html";
                                 return;
                             }
                         }
@@ -194,16 +195,44 @@ function protectPage(requiredRole = null) {
                         // ✅ CRITICAL FIX: Load data after authentication
                         console.log("🔄 Authentication successful, loading app data...");
                         
-                        // Call loadAllData if it exists
-                        if (typeof loadAllData === 'function') {
-                            loadAllData().then(() => {
-                                console.log("✅ All data loaded successfully");
-                            }).catch(error => {
-                                console.error("❌ Error loading data:", error);
-                            });
-                        } else {
-                            console.warn("⚠️ loadAllData function not found");
+                        // Multiple attempts to load data
+                        let attempts = 0;
+                        const maxAttempts = 5;
+                        
+                        function attemptLoadData() {
+                            attempts++;
+                            console.log(`📊 Load attempt ${attempts}/${maxAttempts}...`);
+                            
+                            if (typeof loadAllData === 'function') {
+                                console.log('✅ loadAllData found!');
+                                loadAllData()
+                                    .then(() => {
+                                        console.log("✅ All data loaded successfully!");
+                                        
+                                        // Make sure dashboard shows data
+                                        if (typeof updateDashboard === 'function') {
+                                            updateDashboard();
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error("❌ Error loading data:", error);
+                                        alert("Error loading data. Please refresh the page.");
+                                    });
+                            } else {
+                                console.warn(`⚠️ loadAllData not found (attempt ${attempts})`);
+                                
+                                if (attempts < maxAttempts) {
+                                    console.log('⏳ Retrying in 500ms...');
+                                    setTimeout(attemptLoadData, 500);
+                                } else {
+                                    console.error('❌ loadAllData function not found after multiple attempts');
+                                    alert('Error: Data loading function not available. Please refresh the page.');
+                                }
+                            }
                         }
+                        
+                        // Start loading attempts
+                        attemptLoadData();
                         
                     } else {
                         console.error("User document not found");
@@ -219,10 +248,41 @@ function protectPage(requiredRole = null) {
                 });
         } else {
             console.log("❌ No user logged in");
-            window.location.href = "login.html"; // Redirect if not logged in
+            window.location.href = "login.html";
         }
     });
 }
+
+function forceLoadData() {
+    console.log('🔄 Force loading all data...');
+    
+    // Check if loadAllData exists
+    if (typeof loadAllData === 'function') {
+        console.log('✅ loadAllData found, calling it now...');
+        loadAllData()
+            .then(() => {
+                console.log('✅ Data loaded successfully');
+            })
+            .catch(error => {
+                console.error('❌ Error loading data:', error);
+            });
+    } else {
+        console.error('❌ loadAllData function not found!');
+        console.log('⚠️ Retrying in 1 second...');
+        
+        // Retry after 1 second
+        setTimeout(() => {
+            if (typeof loadAllData === 'function') {
+                console.log('✅ loadAllData found on retry, calling now...');
+                loadAllData();
+            } else {
+                console.error('❌ loadAllData still not found after retry');
+                alert('Error: Data loading function not found. Please refresh the page.');
+            }
+        }, 1000);
+    }
+}
+
 
 // Check if user has specific role (useful for hiding/showing UI elements)
 function hasRole(requiredRole) {

@@ -1,5 +1,5 @@
 // ============================================
-// PLEDGES.JS - Using HTML Templates
+// PLEDGES.JS - With Pagination
 // ============================================
 
 console.log('📋 Pledges.js loading...');
@@ -10,6 +10,14 @@ let pledgePayments = [];
 let pledgesInitialized = false;
 let currentPledgeId = null; // For modal operations
 
+// ✅ PAGINATION STATE - NEW
+const pledgesPaginationState = {
+    currentPage: 1,
+    itemsPerPage: 20,
+    totalItems: 0,
+    filteredPledges: []
+};
+
 // ============================================
 // TEMPLATE LOADER
 // ============================================
@@ -19,11 +27,8 @@ async function loadPledge() {
         const response = await fetch('pledges.html');
         const html = await response.text();
         
-        // Create a temporary container
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = html;
-        
-        // Append all templates to document
         document.body.appendChild(tempDiv);
         
         console.log('✅ Pledge templates loaded');
@@ -52,30 +57,25 @@ function getTemplate(templateId) {
 // ============================================
 
 async function renderPledgesTab() {
-    console.log(' Pledges tab opened!');
+    console.log('🤝 Pledges tab opened!');
     
-    // Load templates if not already loaded
     if (!pledgesInitialized) {
         await loadPledge();
         pledgesInitialized = true;
     }
     
-    // Check if Firebase is available
     if (typeof db === 'undefined') {
         console.error('❌ Firebase not initialized!');
         showPledgeError('Database not connected. Please reload the page.');
         return;
     }
     
-    // Build the pledges UI using template
     buildPledgesHTML();
-    
-    // Load pledges data
     loadPledgesData();
 }
 
 // ============================================
-// BUILD PLEDGES HTML FROM TEMPLATE
+// BUILD PLEDGES HTML - WITH PAGINATION
 // ============================================
 
 function buildPledgesHTML() {
@@ -85,40 +85,41 @@ function buildPledgesHTML() {
         return;
     }
     
-    // Try to use template
     const template = getTemplate('pledges-dashboard-template');
     if (template) {
         container.innerHTML = '';
         container.appendChild(template);
     } else {
-        // Fallback to inline HTML
+        // ✅ UPDATED: Added pagination controls
         container.innerHTML = `
             <div class="pledges-header">
-                <h1 class="pledges-title"> Pledges Management</h1>
+                <h1 class="pledges-title">🤝 Pledges Management</h1>
                 <button class="btn btn-primary" onclick="openCreatePledgeModal()">+ New Pledge</button>
             </div>
+            
             <div class="pledges-summary">
                 <div class="pledge-stat-card purple">
-                    <h4> Total Pledged</h4>
+                    <h4>💰 Total Pledged</h4>
                     <div class="value" id="totalPledged">KSh 0</div>
                     <div class="subtitle">across all pledges</div>
                 </div>
                 <div class="pledge-stat-card green">
-                    <h4> Total Paid</h4>
+                    <h4>✅ Total Paid</h4>
                     <div class="value" id="totalPaid">KSh 0</div>
                     <div class="subtitle" id="completionRate">0% completion</div>
                 </div>
                 <div class="pledge-stat-card orange">
-                    <h4> Remaining</h4>
+                    <h4>📊 Remaining</h4>
                     <div class="value" id="totalRemaining">KSh 0</div>
                     <div class="subtitle" id="activePledges">0 active pledges</div>
                 </div>
                 <div class="pledge-stat-card red">
-                    <h4> Overdue</h4>
+                    <h4>⚠️ Overdue</h4>
                     <div class="value" id="overduePledges">0</div>
                     <div class="subtitle">need attention</div>
                 </div>
             </div>
+            
             <div class="pledges-filters">
                 <select id="pledgeStatusFilter" onchange="filterPledges()">
                     <option value="all">All Pledges</option>
@@ -134,6 +135,29 @@ function buildPledgesHTML() {
                     <option value="Other">Other</option>
                 </select>
             </div>
+            
+            <!-- ✅ PAGINATION CONTROLS - NEW -->
+            <div class="pagination-wrapper" style="margin-bottom: 20px;">
+                <div class="items-per-page">
+                    <label>Show:</label>
+                    <select id="pledgesPerPageSelect" onchange="changePledgesPerPage()">
+                        <option value="10">10</option>
+                        <option value="20" selected>20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select>
+                    <span style="margin-left: auto; color: #6b7280; font-size: 13px;">
+                        Total: <span id="pledgesTotalCount">0</span>
+                    </span>
+                </div>
+                
+                <div class="pagination-controls">
+                    <button id="pledgesPrevBtn" onclick="previousPledgesPageCustom()">← Previous</button>
+                    <span class="page-info" id="pledgesPageInfo">Page 1 of 1</span>
+                    <button id="pledgesNextBtn" onclick="nextPledgesPageCustom()">Next →</button>
+                </div>
+            </div>
+            
             <div class="card">
                 <div class="card-header"><h3 class="card-title">All Pledges</h3></div>
                 <div id="pledgesTable">
@@ -146,8 +170,60 @@ function buildPledgesHTML() {
         `;
     }
     
-    // Insert modal templates if they exist
     insertModalTemplates();
+}
+
+// ============================================
+// PAGINATION FUNCTIONS - NEW
+// ============================================
+
+function changePledgesPerPage() {
+    const select = document.getElementById('pledgesPerPageSelect');
+    if (select) {
+        pledgesPaginationState.itemsPerPage = parseInt(select.value);
+        pledgesPaginationState.currentPage = 1;
+        renderPledgesTable();
+    }
+}
+
+function nextPledgesPageCustom() {
+    const state = pledgesPaginationState;
+    const totalPages = Math.ceil(state.totalItems / state.itemsPerPage);
+    
+    if (state.currentPage < totalPages) {
+        state.currentPage++;
+        renderPledgesTable();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function previousPledgesPageCustom() {
+    const state = pledgesPaginationState;
+    
+    if (state.currentPage > 1) {
+        state.currentPage--;
+        renderPledgesTable();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function updatePledgesPaginationControls() {
+    const state = pledgesPaginationState;
+    const totalPages = Math.ceil(state.totalItems / state.itemsPerPage);
+    
+    const pageInfo = document.getElementById('pledgesPageInfo');
+    if (pageInfo) {
+        pageInfo.textContent = `Page ${state.currentPage} of ${totalPages || 1}`;
+    }
+    
+    const prevBtn = document.getElementById('pledgesPrevBtn');
+    const nextBtn = document.getElementById('pledgesNextBtn');
+    
+    if (prevBtn) prevBtn.disabled = state.currentPage === 1;
+    if (nextBtn) nextBtn.disabled = state.currentPage === totalPages || totalPages === 0;
+    
+    const totalCountEl = document.getElementById('pledgesTotalCount');
+    if (totalCountEl) totalCountEl.textContent = state.totalItems;
 }
 
 // ============================================
@@ -155,7 +231,6 @@ function buildPledgesHTML() {
 // ============================================
 
 function insertModalTemplates() {
-    // Check if modals already exist
     if (!document.getElementById('createPledgeModal')) {
         const createModal = getTemplate('create-pledge-modal-template');
         if (createModal) document.body.appendChild(createModal);
@@ -178,9 +253,8 @@ function insertModalTemplates() {
 
 async function loadPledgesData() {
     try {
-        console.log(' Loading pledges from Firebase...');
+        console.log('📊 Loading pledges from Firebase...');
         
-        // Load pledges
         const pledgesSnapshot = await db.collection('pledges')
             .orderBy('createdAt', 'desc')
             .get();
@@ -192,7 +266,6 @@ async function loadPledgesData() {
             endDate: doc.data().endDate || new Date().toISOString().split('T')[0]
         }));
         
-        // Load pledge payments
         const paymentsSnapshot = await db.collection('pledge_payments')
             .orderBy('createdAt', 'desc')
             .get();
@@ -204,10 +277,12 @@ async function loadPledgesData() {
         
         console.log('✅ Loaded:', pledges.length, 'pledges,', pledgePayments.length, 'payments');
         
-        // Update status for all pledges
-        updateAllPledgeStatuses();
+        // ✅ Reset pagination
+        pledgesPaginationState.filteredPledges = [];
+        pledgesPaginationState.currentPage = 1;
+        pledgesPaginationState.totalItems = pledges.length;
         
-        // Render UI
+        updateAllPledgeStatuses();
         updatePledgeStats();
         renderPledgesTable();
         
@@ -258,13 +333,25 @@ function updatePledgeStats() {
 }
 
 // ============================================
-// RENDER PLEDGES TABLE
+// RENDER PLEDGES TABLE - WITH PAGINATION
 // ============================================
 
 function renderPledgesTable() {
     const container = document.getElementById('pledgesTable');
     
-    if (pledges.length === 0) {
+    if (!container) {
+        console.error('❌ Pledges table container not found');
+        return;
+    }
+    
+    // ✅ Use filtered pledges if available
+    const dataToRender = pledgesPaginationState.filteredPledges.length > 0 
+        ? pledgesPaginationState.filteredPledges 
+        : pledges;
+    
+    pledgesPaginationState.totalItems = dataToRender.length;
+    
+    if (dataToRender.length === 0) {
         const emptyTemplate = getTemplate('pledges-empty-template');
         if (emptyTemplate) {
             container.innerHTML = '';
@@ -272,20 +359,32 @@ function renderPledgesTable() {
         } else {
             container.innerHTML = `
                 <div class="empty-state">
-                    <div class="empty-state-icon"></div>
-                    <p>No pledges yet. Create your first pledge!</p>
+                    <div class="empty-state-icon">🤝</div>
+                    <p>No pledges found.</p>
+                    <button class="btn btn-primary" onclick="openCreatePledgeModal()" style="margin-top: 15px;">
+                        + Create First Pledge
+                    </button>
                 </div>
             `;
         }
+        updatePledgesPaginationControls();
         return;
     }
+    
+    // ✅ Calculate pagination
+    const state = pledgesPaginationState;
+    const startIndex = (state.currentPage - 1) * state.itemsPerPage;
+    const endIndex = startIndex + state.itemsPerPage;
+    const pageData = dataToRender.slice(startIndex, endIndex);
+    
+    console.log(`📄 Page ${state.currentPage}: showing ${pageData.length} of ${dataToRender.length} pledges`);
     
     let html = '<div class="table-wrapper"><table><thead><tr>';
     html += '<th>Member</th><th>Category</th><th>Total</th><th>Paid</th><th>Remaining</th>';
     html += '<th>Progress</th><th>Status</th><th>End Date</th><th>Actions</th>';
     html += '</tr></thead><tbody>';
     
-    pledges.forEach(pledge => {
+    pageData.forEach(pledge => {
         const progress = pledge.totalAmount > 0 
             ? Math.round((pledge.paidAmount / pledge.totalAmount) * 100) 
             : 0;
@@ -294,7 +393,7 @@ function renderPledgesTable() {
                           : pledge.status === 'Overdue' ? 'badge-danger'
                           : 'badge-primary';
         
-html += `
+        html += `
             <tr>
                 <td><strong>${pledge.memberName}</strong></td>
                 <td><span class="badge badge-primary">${pledge.category}</span></td>
@@ -313,15 +412,15 @@ html += `
                     <button class="btn btn-success" onclick="openRecordPaymentModal('${pledge.id}')" 
                             style="padding: 5px 10px; font-size: 12px;"
                             ${pledge.status === 'Completed' ? 'disabled' : ''}>
-                         Pay
+                        💰 Pay
                     </button>
                     <button class="btn btn-whatsapp" onclick="sendPledgeReminder('${pledge.id}')"
                             style="padding: 5px 10px; font-size: 12px; background: #25D366; color: white; border: none;">
-                         WhatsApp
+                        💬 WhatsApp
                     </button>
                     <button class="btn btn-primary" onclick="openPaymentHistoryModal('${pledge.id}')"
                             style="padding: 5px 10px; font-size: 12px;">
-                         History
+                        📜 History
                     </button>
                 </td>
             </tr>
@@ -330,10 +429,39 @@ html += `
     
     html += '</tbody></table></div>';
     container.innerHTML = html;
+    
+    // ✅ Update pagination controls
+    updatePledgesPaginationControls();
 }
 
 // ============================================
-// OPEN CREATE PLEDGE MODAL
+// FILTER PLEDGES - WITH PAGINATION SUPPORT
+// ============================================
+
+function filterPledges() {
+    const statusFilter = document.getElementById('pledgeStatusFilter')?.value || 'all';
+    const categoryFilter = document.getElementById('pledgeCategoryFilter')?.value || 'all';
+    
+    let filtered = [...pledges];
+    
+    if (statusFilter !== 'all') {
+        filtered = filtered.filter(p => p.status === statusFilter);
+    }
+    
+    if (categoryFilter !== 'all') {
+        filtered = filtered.filter(p => p.category === categoryFilter);
+    }
+    
+    pledgesPaginationState.filteredPledges = filtered;
+    pledgesPaginationState.currentPage = 1; // Reset to first page
+    
+    console.log(`🔍 Filtered: ${filtered.length} of ${pledges.length} pledges`);
+    
+    renderPledgesTable();
+}
+
+// ============================================
+// MODAL FUNCTIONS (Keep all your existing modal functions)
 // ============================================
 
 function openCreatePledgeModal() {
@@ -343,7 +471,6 @@ function openCreatePledgeModal() {
         return;
     }
     
-    // Populate member dropdown
     const memberSelect = document.getElementById('pledgeMemberSelect');
     if (memberSelect) {
         memberSelect.innerHTML = '<option value="">Select Member</option>';
@@ -355,19 +482,13 @@ function openCreatePledgeModal() {
         });
     }
     
-    // Set default dates
     document.getElementById('pledgeStartDate').value = new Date().toISOString().split('T')[0];
     const oneYearLater = new Date();
     oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
     document.getElementById('pledgeEndDate').value = oneYearLater.toISOString().split('T')[0];
     
-    // Show modal
     modal.classList.add('active');
 }
-
-// ============================================
-// CREATE PLEDGE FROM MODAL
-// ============================================
 
 async function createPledgeFromModal() {
     const memberName = document.getElementById('pledgeMemberSelect').value;
@@ -378,7 +499,6 @@ async function createPledgeFromModal() {
     const frequency = document.getElementById('pledgeFrequency').value;
     const notes = document.getElementById('pledgeNotes')?.value || '';
     
-    // Validation
     if (!memberName || !amount || !startDate || !endDate) {
         alert('Please fill all required fields');
         return;
@@ -415,7 +535,7 @@ async function createPledgeFromModal() {
         
         await db.collection('pledges').add(pledgeData);
         
-        alert(' Pledge created successfully!');
+        alert('✅ Pledge created successfully!');
         closeModal('createPledgeModal');
         await loadPledgesData();
         
@@ -425,10 +545,6 @@ async function createPledgeFromModal() {
     }
 }
 
-// ============================================
-// OPEN RECORD PAYMENT MODAL
-// ============================================
-
 function openRecordPaymentModal(pledgeId) {
     currentPledgeId = pledgeId;
     const pledge = pledges.find(p => p.id === pledgeId);
@@ -437,16 +553,12 @@ function openRecordPaymentModal(pledgeId) {
     const modal = document.getElementById('recordPaymentModal');
     if (!modal) return;
     
-    // Populate pledge info
     document.getElementById('paymentPledgeMember').textContent = pledge.memberName;
     document.getElementById('paymentPledgeCategory').textContent = pledge.category;
     document.getElementById('paymentPledgeTotal').textContent = `KSh ${pledge.totalAmount.toLocaleString()}`;
     document.getElementById('paymentPledgeRemaining').textContent = `KSh ${pledge.remainingAmount.toLocaleString()}`;
     
-    // Set default date to today
     document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
-    
-    // Clear form
     document.getElementById('paymentAmount').value = '';
     document.getElementById('paymentReference').value = '';
     if (document.getElementById('paymentNotes')) {
@@ -455,10 +567,6 @@ function openRecordPaymentModal(pledgeId) {
     
     modal.classList.add('active');
 }
-
-// ============================================
-// SUBMIT PAYMENT
-// ============================================
 
 async function submitPayment() {
     const pledge = pledges.find(p => p.id === currentPledgeId);
@@ -515,10 +623,6 @@ async function submitPayment() {
     }
 }
 
-// ============================================
-// OPEN PAYMENT HISTORY MODAL
-// ============================================
-
 function openPaymentHistoryModal(pledgeId) {
     const pledge = pledges.find(p => p.id === pledgeId);
     if (!pledge) return;
@@ -526,13 +630,11 @@ function openPaymentHistoryModal(pledgeId) {
     const modal = document.getElementById('paymentHistoryModal');
     if (!modal) return;
     
-    // Populate pledge info
     document.getElementById('historyPledgeMember').textContent = pledge.memberName + ' - ' + pledge.category;
     document.getElementById('historyPledgeTotal').textContent = `KSh ${pledge.totalAmount.toLocaleString()}`;
     document.getElementById('historyPledgePaid').textContent = `KSh ${pledge.paidAmount.toLocaleString()}`;
     document.getElementById('historyPledgeRemaining').textContent = `KSh ${pledge.remainingAmount.toLocaleString()}`;
     
-    // Get payments for this pledge
     const payments = pledgePayments.filter(p => p.pledgeId === pledgeId);
     
     const container = document.getElementById('paymentsListContainer');
@@ -544,22 +646,18 @@ function openPaymentHistoryModal(pledgeId) {
                 <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
                     <div>
                         <div style="font-size: 18px; font-weight: bold; color: #16a34a;">KSh ${p.amount.toLocaleString()}</div>
-                        <div style="font-size: 12px; color: #806b72ff;">${p.paymentDate}</div>
+                        <div style="font-size: 12px; color: #6b7280;">${p.paymentDate}</div>
                     </div>
                     <span class="badge badge-success">${p.paymentMethod}</span>
                 </div>
                 ${p.reference ? `<div style="font-size: 13px; color: #6b7280;">Ref: ${p.reference}</div>` : ''}
-                ${p.notes ? `<div style="font-size: 13px; color: #51373bff; margin-top: 5px;">${p.notes}</div>` : ''}
+                ${p.notes ? `<div style="font-size: 13px; color: #374151; margin-top: 5px;">${p.notes}</div>` : ''}
             </div>
         `).join('');
     }
     
     modal.classList.add('active');
 }
-
-// ============================================
-// SEND PLEDGE REMINDER
-// ============================================
 
 function sendPledgeReminder(pledgeId) {
     const pledge = pledges.find(p => p.id === pledgeId);
@@ -591,9 +689,9 @@ Balance: KSh ${pledge.remainingAmount.toLocaleString()}
 Due Date: ${pledge.endDate}
 
 *Payment Options:*
- M-Pesa: [Your Paybill]
- Bank: [Your Account]
- Cash: During service
+📱 M-Pesa: [Your Paybill]
+🏦 Bank: [Your Account]
+💵 Cash: During service
 
 Thank you for your commitment!
 SimamiaKanisa Church`;
@@ -601,103 +699,15 @@ SimamiaKanisa Church`;
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
 }
 
-// ============================================
-// FILTER PLEDGES
-// ============================================
-
-function filterPledges() {
-    // Future implementation
-    renderPledgesTable();
-}
-
-// Export pledges report to PDF
-function exportPledgesReport() {
-    console.log('Exporting pledges report to PDF...');
-    
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    
-    // Add header
-    doc.setFontSize(18);
-    doc.text('SimamiaKanisa - Pledges Report', 14, 20);
-    
-    doc.setFontSize(11);
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 28);
-    
-    // Get pledges data
-    db.collection('pledges').get().then(snapshot => {
-        const pledgesData = [];
-        
-        snapshot.forEach(doc => {
-            const pledge = doc.data();
-            const completion = Math.round((pledge.paidAmount / pledge.totalAmount) * 100);
-            
-            pledgesData.push([
-                pledge.memberName,
-                pledge.category,
-                `KSh ${pledge.totalAmount.toLocaleString()}`,
-                `KSh ${pledge.paidAmount.toLocaleString()}`,
-                `KSh ${pledge.remainingAmount.toLocaleString()}`,
-                completion + '%',
-                pledge.status
-            ]);
-        });
-        
-        // Add table
-        doc.autoTable({
-            head: [['Member', 'Category', 'Total', 'Paid', 'Remaining', 'Progress', 'Status']],
-            body: pledgesData,
-            startY: 35,
-            theme: 'grid',
-            headStyles: { fillColor: [41, 128, 185] },
-            styles: { fontSize: 9 }
-        });
-        
-        // Add summary
-        const totalPledged = pledgesData.reduce((sum, row) => {
-            return sum + parseFloat(row[2].replace(/[^\d]/g, ''));
-        }, 0);
-        
-        const totalPaid = pledgesData.reduce((sum, row) => {
-            return sum + parseFloat(row[3].replace(/[^\d]/g, ''));
-        }, 0);
-        
-        const finalY = doc.lastAutoTable.finalY + 10;
-        doc.setFontSize(12);
-        doc.text(`Total Pledged: KSh ${totalPledged.toLocaleString()}`, 14, finalY);
-        doc.text(`Total Paid: KSh ${totalPaid.toLocaleString()}`, 14, finalY + 7);
-        doc.text(`Overall Completion: ${Math.round((totalPaid/totalPledged)*100)}%`, 14, finalY + 14);
-        
-        // Save PDF
-        doc.save(`Pledges_Report_${new Date().toISOString().split('T')[0]}.pdf`);
-        
-        alert('✅ PDF report exported successfully!');
-    }).catch(error => {
-        console.error('Export error:', error);
-        alert('❌ Error exporting report');
-    });
-}
-
-// ============================================
-// ERROR HANDLING
-// ============================================
-
 function showPledgeError(message) {
     const container = document.querySelector('.pledges-container');
     if (container) {
-        const errorTemplate = getTemplate('pledges-error-template');
-        if (errorTemplate) {
-            container.innerHTML = '';
-            container.appendChild(errorTemplate);
-            container.querySelector('.error-message').textContent = message;
-        } else {
-            container.innerHTML = `
-                <div style="background: #fee2e2; padding: 30px; border-radius: 15px; text-align: center;">
-                    <h2 style="color: #991b1b;"> Error</h2>
-                    <p style="color: #991b1b;">${message}</p>
-                </div>
-            `;
-        }
+        container.innerHTML = `
+            <div style="background: #fee2e2; padding: 30px; border-radius: 15px; text-align: center;">
+                <h2 style="color: #991b1b;">❌ Error</h2>
+                <p style="color: #991b1b;">${message}</p>
+            </div>
+        `;
     }
 }
 
