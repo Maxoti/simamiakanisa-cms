@@ -775,8 +775,7 @@ tr:hover {
     button, a, input, select {
         min-height: 44px;
     }
-}
-/* ============================================
+}/* ============================================
    PLEDGES TABLE - DESKTOP & MOBILE RESPONSIVE
    ============================================ */
 
@@ -892,248 +891,269 @@ tr:hover {
 }
 
 /* ============================================
-   MOBILE RESPONSIVE - CARD LAYOUT
+   MOBILE RESPONSIVE - CARD LAYOUT - OVERRIDE
    ============================================ */
-@media (max-width: 768px) {
+@media screen and (max-width: 768px) {
+    /* CRITICAL: Override the generic table hiding rule */
+    #pledgesTable .table-wrapper table,
+    .pledges-container .table-wrapper table,
+    .table-wrapper .pledges-table {
+        display: block !important; /* Override the display: none !important */
+    }
+    
     /* Container adjustments */
     .pledges-container {
-        padding: 10px;
+        padding: 10px !important;
     }
     
     /* Hide table wrapper overflow */
-    .table-wrapper {
-        overflow-x: visible;
-        overflow-y: visible;
+    #pledgesTable .table-wrapper,
+    .pledges-container .table-wrapper {
+        overflow-x: visible !important;
+        overflow-y: visible !important;
     }
     
     /* Convert table to block for card layout */
-    .pledges-table {
-        border: 0;
-        display: block;
+    .pledges-table,
+    #pledgesTable table,
+    .pledges-container table {
+        border: 0 !important;
+        display: block !important;
+        width: 100% !important;
     }
     
-    /* Hide table headers on mobile */
-    .pledges-table thead {
-        display: none;
+    /* CRITICAL: Hide table headers on mobile */
+    .pledges-table thead,
+    #pledgesTable thead,
+    .pledges-container thead {
+        display: none !important;
+        visibility: hidden !important;
     }
     
-    .pledges-table tbody {
-        display: block;
+    .pledges-table tbody,
+    #pledgesTable tbody,
+    .pledges-container tbody {
+        display: block !important;
+        width: 100% !important;
     }
     
     /* Card-style rows */
-    .pledges-table tbody tr {
-        display: block;
-        margin-bottom: 20px;
-        border: 1px solid #e5e7eb;
-        border-radius: 12px;
-        padding: 16px;
-        background: white;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-        border-left: 4px solid #667eea;
+    .pledges-table tbody tr,
+    #pledgesTable tbody tr,
+    .pledges-container tbody tr {
+        display: block !important;
+        width: 100% !important;
+        margin-bottom: 20px !important;
+        border: 1px solid #e5e7eb !important;
+        border-radius: 12px !important;
+        padding: 16px !important;
+        background: white !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+        border-left: 4px solid #667eea !important;
     }
     
-    .pledges-table tbody tr:hover {
-        background: white;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    .pledges-table tbody tr:hover,
+    #pledgesTable tbody tr:hover,
+    .pledges-container tbody tr:hover {
+        background: white !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
     }
     
     /* Card-style cells */
-    .pledges-table tbody td {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 0;
-        border: none;
-        border-bottom: 1px solid #f3f4f6;
-        font-size: 14px;
+    .pledges-table tbody td,
+    #pledgesTable tbody td,
+    .pledges-container tbody td {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 10px 0 !important;
+        border: none !important;
+        border-bottom: 1px solid #f3f4f6 !important;
+        font-size: 14px !important;
+        width: 100% !important;
     }
     
-    .pledges-table tbody td:last-child {
-        border-bottom: none;
-        padding-top: 15px;
-        margin-top: 10px;
-        border-top: 2px solid #f3f4f6;
+    .pledges-table tbody td:last-child,
+    #pledgesTable tbody td:last-child,
+    .pledges-container tbody td:last-child {
+        border-bottom: none !important;
+        padding-top: 15px !important;
+        margin-top: 10px !important;
+        border-top: 2px solid #f3f4f6 !important;
     }
     
     /* Show labels before content on mobile */
-    .pledges-table tbody td:before {
-        content: attr(data-label);
-        font-weight: 700;
-        color: #374151;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        flex: 0 0 45%;
-        text-align: left;
-    }
-    
-    .pledges-table tbody td:after {
-        content: '';
-        flex: 0 0 50%;
+    .pledges-table tbody td::before,
+    #pledgesTable tbody td::before,
+    .pledges-container tbody td::before {
+        content: attr(data-label) !important;
+        font-weight: 700 !important;
+        color: #374151 !important;
+        font-size: 12px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        flex: 0 0 45% !important;
+        text-align: left !important;
     }
     
     /* Member name - make it stand out */
-    .pledges-table tbody td:nth-child(1) {
-        font-size: 18px;
-        font-weight: 700;
-        color: #667eea;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #e5e7eb;
-        margin-bottom: 8px;
+    .pledges-table tbody td:nth-child(1),
+    #pledgesTable tbody td:nth-child(1),
+    .pledges-container tbody td:nth-child(1) {
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        color: #667eea !important;
+        padding-bottom: 12px !important;
+        border-bottom: 2px solid #e5e7eb !important;
+        margin-bottom: 8px !important;
     }
     
-    .pledges-table tbody td:nth-child(1):before {
-        font-size: 11px;
-        color: #6b7280;
+    .pledges-table tbody td:nth-child(1)::before,
+    #pledgesTable tbody td:nth-child(1)::before,
+    .pledges-container tbody td:nth-child(1)::before {
+        font-size: 11px !important;
+        color: #6b7280 !important;
     }
     
     /* Category badge */
-    .pledges-table tbody td:nth-child(2) {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+    .pledges-table tbody td:nth-child(2),
+    #pledgesTable tbody td:nth-child(2),
+    .pledges-container tbody td:nth-child(2) {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
     }
     
     /* Amount fields - make them bigger */
     .pledges-table tbody td:nth-child(3),
     .pledges-table tbody td:nth-child(4),
-    .pledges-table tbody td:nth-child(5) {
-        font-size: 16px;
-        font-weight: 600;
+    .pledges-table tbody td:nth-child(5),
+    #pledgesTable tbody td:nth-child(3),
+    #pledgesTable tbody td:nth-child(4),
+    #pledgesTable tbody td:nth-child(5),
+    .pledges-container tbody td:nth-child(3),
+    .pledges-container tbody td:nth-child(4),
+    .pledges-container tbody td:nth-child(5) {
+        font-size: 16px !important;
+        font-weight: 600 !important;
     }
     
     /* Progress bar adjustments */
-    .pledges-table tbody td:nth-child(6) {
-        flex-direction: column;
-        align-items: flex-start;
+    .pledges-table tbody td:nth-child(6),
+    #pledgesTable tbody td:nth-child(6),
+    .pledges-container tbody td:nth-child(6) {
+        flex-direction: column !important;
+        align-items: flex-start !important;
     }
     
-    .pledges-table tbody td:nth-child(6) .progress-bar-container {
-        width: 100%;
-        margin: 5px 0;
-    }
-    
-    .pledges-table tbody td:nth-child(6):after {
-        display: none;
+    .pledges-table tbody td:nth-child(6) .progress-bar-container,
+    #pledgesTable tbody td:nth-child(6) .progress-bar-container,
+    .pledges-container tbody td:nth-child(6) .progress-bar-container {
+        width: 100% !important;
+        margin: 5px 0 !important;
     }
     
     /* Actions cell - full width buttons */
-    .actions-cell {
-        flex-direction: column;
-        width: 100%;
-        gap: 8px;
+    .pledges-table .actions-cell,
+    #pledgesTable .actions-cell,
+    .pledges-container .actions-cell {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 8px !important;
     }
     
-    .actions-cell:before {
-        display: none;
+    .pledges-table .actions-cell::before,
+    #pledgesTable .actions-cell::before,
+    .pledges-container .actions-cell::before {
+        display: none !important;
     }
     
-    .actions-cell .btn {
+    .pledges-table .actions-cell .btn,
+    #pledgesTable .actions-cell .btn,
+    .pledges-container .actions-cell .btn,
+    .pledges-table .actions-cell button,
+    #pledgesTable .actions-cell button,
+    .pledges-container .actions-cell button {
         width: 100% !important;
         padding: 12px !important;
         font-size: 14px !important;
-        border-radius: 8px;
+        border-radius: 8px !important;
     }
     
     /* Filters - stack vertically */
     .pledges-filters {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        margin: 15px 0;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        margin: 15px 0 !important;
     }
     
     .pledges-filters select {
-        width: 100%;
-        padding: 12px;
-        font-size: 14px;
-        border-radius: 8px;
+        width: 100% !important;
+        padding: 12px !important;
+        font-size: 14px !important;
+        border-radius: 8px !important;
     }
     
     /* Pagination - mobile friendly */
     .pagination-wrapper {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin: 20px 0;
-    }
-    
-    .items-per-page {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-    }
-    
-    .items-per-page select {
-        padding: 8px 12px;
-        font-size: 14px;
-        border-radius: 6px;
-    }
-    
-    .pagination-controls {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        width: 100%;
-    }
-    
-    .pagination-controls button {
-        padding: 10px 20px;
-        font-size: 14px;
-        border-radius: 8px;
-    }
-    
-    .pagination-controls .page-info {
-        font-size: 14px;
-        font-weight: 600;
-        color: #374151;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 15px !important;
+        margin: 20px 0 !important;
     }
     
     /* Summary cards - stack on mobile */
     .pledges-summary {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 15px;
-        margin: 20px 0;
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 15px !important;
+        margin: 20px 0 !important;
     }
     
     .pledge-stat-card {
-        padding: 20px;
-        border-radius: 12px;
+        padding: 20px !important;
+        border-radius: 12px !important;
     }
 }
 
 /* ============================================
    VERY SMALL SCREENS (< 480px)
    ============================================ */
-@media (max-width: 480px) {
+@media screen and (max-width: 480px) {
     .pledges-container {
-        padding: 5px;
+        padding: 5px !important;
     }
     
-    .pledges-table tbody tr {
-        padding: 12px;
-        margin-bottom: 15px;
+    .pledges-table tbody tr,
+    #pledgesTable tbody tr,
+    .pledges-container tbody tr {
+        padding: 12px !important;
+        margin-bottom: 15px !important;
     }
     
-    .pledges-table tbody td {
-        padding: 8px 0;
-        font-size: 13px;
+    .pledges-table tbody td,
+    #pledgesTable tbody td,
+    .pledges-container tbody td {
+        padding: 8px 0 !important;
+        font-size: 13px !important;
     }
     
-    .pledges-table tbody td:nth-child(1) {
-        font-size: 16px;
+    .pledges-table tbody td:nth-child(1),
+    #pledgesTable tbody td:nth-child(1),
+    .pledges-container tbody td:nth-child(1) {
+        font-size: 16px !important;
     }
     
-    .pledges-table tbody td:before {
-        font-size: 11px;
-        flex: 0 0 40%;
+    .pledges-table tbody td::before,
+    #pledgesTable tbody td::before,
+    .pledges-container tbody td::before {
+        font-size: 11px !important;
+        flex: 0 0 40% !important;
     }
     
-    .actions-cell .btn {
+    .actions-cell .btn,
+    .actions-cell button {
         padding: 10px !important;
         font-size: 13px !important;
     }
@@ -1142,7 +1162,7 @@ tr:hover {
 /* ============================================
    TABLET STYLES (769px - 1024px)
    ============================================ */
-@media (min-width: 769px) and (max-width: 1024px) {
+@media screen and (min-width: 769px) and (max-width: 1024px) {
     .pledges-table {
         font-size: 13px;
     }
