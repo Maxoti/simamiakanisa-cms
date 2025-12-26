@@ -6,12 +6,26 @@ let members = [];
 let contributions = [];
 let events = [];
 
+// Pagination state
+const paginationState = {
+    contributions: {
+        currentPage: 1,
+        itemsPerPage: 20,
+        totalItems: 0
+    },
+    pledges: {
+        currentPage: 1,
+        itemsPerPage: 20,
+        totalItems: 0
+    }
+};
+
 /**
  * Load all data from Firebase on startup
  */
 async function loadAllData() {
     try {
-        console.log(' Loading data from Firebase...');
+        console.log('🔄 Loading data from Firebase...');
         
         // Load members
         const membersSnapshot = await membersCollection.orderBy('joined', 'desc').get();
@@ -34,12 +48,31 @@ async function loadAllData() {
             ...doc.data()
         }));
         
-        console.log(' Data loaded successfully!');
-        console.log(` Loaded: ${members.length} members, ${contributions.length} contributions, ${events.length} events`);
+        // Load pledges if collection exists
+        try {
+            const pledgesSnapshot = await db.collection('pledges').orderBy('createdAt', 'desc').get();
+            pledges = pledgesSnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+        } catch (error) {
+            console.log('ℹ️ No pledges collection yet');
+            pledges = [];
+        }
         
-        // Render initial view
+        console.log('✅ Data loaded successfully!');
+        console.log(`📊 Loaded: ${members.length} members, ${contributions.length} contributions, ${events.length} events, ${pledges.length} pledges`);
+        
+        // Set pagination totals
+        paginationState.contributions.totalItems = contributions.length;
+        paginationState.pledges.totalItems = pledges.length;
+        
+        // Render initial view - show dashboard by default
         updateDashboard();
         renderMembers();
+        
+        // Switch to dashboard tab
+        switchTab('dashboard');
         
     } catch (error) {
         console.error('❌ Error loading data:', error);
@@ -70,8 +103,9 @@ function switchTab(tabName) {
     }
     
     // Add active class to clicked button
-    if (event && event.target) {
-        event.target.classList.add('active');
+    const clickedButton = document.querySelector(`[onclick*="switchTab('${tabName}')"]`);
+    if (clickedButton) {
+        clickedButton.classList.add('active');
     }
 
     // Refresh data based on tab
@@ -80,21 +114,31 @@ function switchTab(tabName) {
     } else if (tabName === 'members') {
         renderMembers();
     } else if (tabName === 'contributions') {
-        renderContributions();
+        loadContributionsPage();
     } else if (tabName === 'events') {
         renderEvents();
-
-    }  else if (tabName==='pledges'){
-        renderPledgesTab();
-    
+    } else if (tabName === 'pledges') {
+        // ✅ FIX: Use pledges.js function
+        if (typeof renderPledgesTab === 'function') {
+            renderPledgesTab();
+        } else {
+            console.error('❌ renderPledgesTab not found! Check if pledges.js is loaded.');
+            loadPledgesPage(); // Fallback
+        }
     } else if (tabName === 'analytics') {
-        // Initialize analytics tab
         console.log('Loading analytics...');
         if (typeof initAnalyticsTab === 'function') {
             initAnalyticsTab();
         } else {
             console.error('❌ Analytics module not loaded!');
             alert('Analytics module failed to load. Check if analytics.js is present.');
+        }
+    } else if (tabName === 'admin') {
+        if (typeof loadUsers === 'function') {
+            loadUsers();
+            if (typeof loadAuditLogs === 'function') {
+                loadAuditLogs();
+            }
         }
     }
 }
@@ -132,17 +176,266 @@ function updateDashboard() {
     const latestEvent = events[0]?.name || 'None scheduled';
     
     const stats = `
-        <p style="margin-bottom: 10px;"> Average Contribution: <strong>KSh ${Math.round(avgContribution).toLocaleString()}</strong></p>
-        <p style="margin-bottom: 10px;"> Active Groups: <strong>${uniqueGroups}</strong></p>
-        <p style="margin-bottom: 10px;"> Total Contributions: <strong>${contributions.length} transactions</strong></p>
-        <p> Latest Event: <strong>${latestEvent}</strong></p>
+        <p style="margin-bottom: 10px;">📊 Average Contribution: <strong>KSh ${Math.round(avgContribution).toLocaleString()}</strong></p>
+        <p style="margin-bottom: 10px;">👥 Active Groups: <strong>${uniqueGroups}</strong></p>
+        <p style="margin-bottom: 10px;">💰 Total Contributions: <strong>${contributions.length} transactions</strong></p>
+        <p>📅 Latest Event: <strong>${latestEvent}</strong></p>
     `;
     document.getElementById('quickStats').innerHTML = stats;
 }
 
+/* ===================================
+   SEARCH FUNCTIONALITY
+   =================================== */
+
 /**
- * Render members table with WhatsApp integration
+ * Search members in real-time
  */
+function searchMembers() {
+    const searchTerm = document.getElementById('memberSearch')?.value.toLowerCase().trim() || '';
+    const tableBody = document.querySelector('#membersTable tbody');
+    const resultCount = document.getElementById('memberResultCount');
+    
+    if (!tableBody) return;
+    
+    const rows = tableBody.querySelectorAll('tr');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    if (resultCount) {
+        if (searchTerm === '') {
+            resultCount.textContent = `Showing all ${rows.length} members`;
+        } else {
+            resultCount.textContent = `Found ${visibleCount} of ${rows.length} members`;
+        }
+    }
+}
+
+/**
+ * Search events in real-time
+ */
+function searchEvents() {
+    const searchTerm = document.getElementById('eventSearch')?.value.toLowerCase().trim() || '';
+    const tableBody = document.querySelector('#eventsTable tbody');
+    const resultCount = document.getElementById('eventResultCount');
+    
+    if (!tableBody) return;
+    
+    const rows = tableBody.querySelectorAll('tr');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+    
+    if (resultCount) {
+        if (searchTerm === '') {
+            resultCount.textContent = `Showing all ${rows.length} events`;
+        } else {
+            resultCount.textContent = `Found ${visibleCount} of ${rows.length} events`;
+        }
+    }
+}
+
+/* ===================================
+   PAGINATION FUNCTIONALITY
+   =================================== */
+
+function changeContributionsPerPage() {
+    const select = document.getElementById('contributionsPerPage');
+    if (select) {
+        paginationState.contributions.itemsPerPage = parseInt(select.value);
+        paginationState.contributions.currentPage = 1;
+        loadContributionsPage();
+    }
+}
+
+function changePledgesPerPage() {
+    const select = document.getElementById('pledgesPerPage');
+    if (select) {
+        paginationState.pledges.itemsPerPage = parseInt(select.value);
+        paginationState.pledges.currentPage = 1;
+        loadPledgesPage();
+    }
+}
+
+function nextContributionsPage() {
+    const state = paginationState.contributions;
+    const totalPages = Math.ceil(state.totalItems / state.itemsPerPage);
+    
+    if (state.currentPage < totalPages) {
+        state.currentPage++;
+        loadContributionsPage();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function previousContributionsPage() {
+    const state = paginationState.contributions;
+    
+    if (state.currentPage > 1) {
+        state.currentPage--;
+        loadContributionsPage();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function nextPledgesPage() {
+    const state = paginationState.pledges;
+    const totalPages = Math.ceil(state.totalItems / state.itemsPerPage);
+    
+    if (state.currentPage < totalPages) {
+        state.currentPage++;
+        loadPledgesPage();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function previousPledgesPage() {
+    const state = paginationState.pledges;
+    
+    if (state.currentPage > 1) {
+        state.currentPage--;
+        loadPledgesPage();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+}
+
+function loadContributionsPage() {
+    const state = paginationState.contributions;
+    const container = document.getElementById('contributionsTable');
+    
+    if (!container) return;
+    
+    const totalCountEl = document.getElementById('contributionsTotalCount');
+    if (totalCountEl) {
+        totalCountEl.textContent = contributions.length;
+    }
+    
+    if (contributions.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💰</div><p>No contributions recorded yet.</p></div>';
+        updatePaginationControls('contributions');
+        return;
+    }
+    
+    const startIndex = (state.currentPage - 1) * state.itemsPerPage;
+    const endIndex = startIndex + state.itemsPerPage;
+    const pageData = contributions.slice(startIndex, endIndex);
+    
+    let html = '<div class="table-wrapper"><table><thead><tr><th>Member</th><th>Type</th><th>Amount</th><th>Method</th><th>Date</th><th>Actions</th></tr></thead><tbody>';
+    
+    pageData.forEach(contrib => {
+        html += `
+            <tr>
+                <td><strong>${contrib.member}</strong></td>
+                <td><span class="badge badge-primary">${contrib.type}</span></td>
+                <td style="color: #16a34a; font-weight: bold;">KSh ${contrib.amount.toLocaleString()}</td>
+                <td>${contrib.method}</td>
+                <td>${contrib.date}</td>
+                <td>
+                    <button class="btn btn-danger" onclick="deleteContribution('${contrib.id}')">Delete</button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+    
+    updatePaginationControls('contributions');
+}
+
+function loadPledgesPage() {
+    const state = paginationState.pledges;
+    const container = document.getElementById('pledgesTable');
+    
+    if (!container) return;
+    
+    const totalCountEl = document.getElementById('pledgesTotalCount');
+    if (totalCountEl) {
+        totalCountEl.textContent = pledges.length;
+    }
+    
+    if (pledges.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🤝</div><p>No pledges recorded yet.</p></div>';
+        updatePaginationControls('pledges');
+        return;
+    }
+    
+    const startIndex = (state.currentPage - 1) * state.itemsPerPage;
+    const endIndex = startIndex + state.itemsPerPage;
+    const pageData = pledges.slice(startIndex, endIndex);
+    
+    let html = '<div class="table-wrapper"><table><thead><tr><th>Member</th><th>Category</th><th>Amount</th><th>Progress</th><th>Status</th><th>End Date</th><th>Actions</th></tr></thead><tbody>';
+    
+    pageData.forEach(pledge => {
+        const progress = Math.round(((pledge.paidAmount || 0) / pledge.amount) * 100);
+        html += `
+            <tr>
+                <td><strong>${pledge.memberName}</strong></td>
+                <td><span class="badge badge-primary">${pledge.category}</span></td>
+                <td style="color: #f44336; font-weight: bold;">KSh ${pledge.amount.toLocaleString()}</td>
+                <td>
+                    <div style="background: #e5e7eb; border-radius: 10px; height: 8px; overflow: hidden; margin-bottom: 4px;">
+                        <div style="background: #22c55e; width: ${progress}%; height: 100%;"></div>
+                    </div>
+                    <small>${progress}%</small>
+                </td>
+                <td><span class="badge ${pledge.status === 'Active' ? 'badge-success' : 'badge-secondary'}">${pledge.status}</span></td>
+                <td>${pledge.endDate}</td>
+                <td style="display: flex; gap: 5px; flex-wrap: wrap;">
+                    <button class="btn btn-success" style="padding: 6px 12px; font-size: 12px;" onclick="recordPledgePayment('${pledge.id}')">💰 Pay</button>
+                    <button class="btn btn-whatsapp" onclick="sendWhatsApp('${pledge.phone || ''}')">💬 WhatsApp</button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+    
+    updatePaginationControls('pledges');
+}
+
+function updatePaginationControls(section) {
+    const state = paginationState[section];
+    const totalPages = Math.ceil(state.totalItems / state.itemsPerPage);
+    
+    const pageInfo = document.getElementById(`${section}PageInfo`);
+    if (pageInfo) {
+        pageInfo.textContent = `Page ${state.currentPage} of ${totalPages || 1}`;
+    }
+    
+    const prevBtn = document.getElementById(`${section}PrevBtn`);
+    const nextBtn = document.getElementById(`${section}NextBtn`);
+    
+    if (prevBtn) {
+        prevBtn.disabled = state.currentPage === 1;
+    }
+    
+    if (nextBtn) {
+        nextBtn.disabled = state.currentPage === totalPages || totalPages === 0;
+    }
+}
+
+// ... (rest of your existing functions: renderMembers, sendWhatsAppReminder, renderEvents, etc.)
+// KEEP ALL YOUR EXISTING FUNCTIONS BELOW THIS LINE
+
 function renderMembers() {
     const container = document.getElementById('membersTable');
     
@@ -166,7 +459,7 @@ function renderMembers() {
                         💬 Tithe
                     </button>
                     <button class="btn btn-whatsapp" onclick="sendWhatsAppReminder('${member.name}', '${member.phone}', 'building')" title="Send Building Fund Reminder">
-                        🏗️ Building
+                         Building
                     </button>
                     <button class="btn btn-danger" onclick="deleteMember('${member.id}')" title="Delete member">
                         Delete
@@ -180,26 +473,19 @@ function renderMembers() {
     container.innerHTML = html;
 }
 
-/**
- * Send WhatsApp reminder to member
- */
 function sendWhatsAppReminder(name, phone, type) {
-    // Clean phone number (remove spaces, dashes, etc.)
     let cleanPhone = phone.replace(/\D/g, '');
     
-    // If phone starts with 0, replace with 254 (Kenya country code)
     if (cleanPhone.startsWith('0')) {
         cleanPhone = '254' + cleanPhone.substring(1);
     }
     
-    // If phone doesn't start with country code, add Kenya code
     if (!cleanPhone.startsWith('254')) {
         cleanPhone = '254' + cleanPhone;
     }
     
-    // Generate message based on reminder type
     let message = '';
-    const churchName = 'SimamiaKanisa Church'; // You can customize this
+    const churchName = 'SimamiaKanisa Church';
     
     if (type === 'tithe') {
         message = `🙏 *Reminder: Tithe Contribution*
@@ -213,9 +499,9 @@ This is a friendly reminder from ${churchName} about your tithe contribution.
 Your faithful giving helps us continue God's work in our community.
 
 Payment Options:
- M-Pesa: [Your Paybill/Till]
- Bank: [Your Account]
- Cash: During service
+📱 M-Pesa: [Your Paybill/Till]
+🏦 Bank: [Your Account]
+💵 Cash: During service
 
 God bless you!
 ${churchName}`;
@@ -229,66 +515,30 @@ This is a friendly reminder from ${churchName} about your Building Fund pledge.
 Together we are building God's house! Your contribution is making our vision a reality.
 
 Payment Options:
- M-Pesa: [Your Paybill/Till]
- Bank: [Your Account]
- Cash: During service
+📱 M-Pesa: [Your Paybill/Till]
+🏦 Bank: [Your Account]
+💵 Cash: During service
 
 Thank you for your partnership!
 ${churchName}`;
     }
     
-    // Encode message for URL
     const encodedMessage = encodeURIComponent(message);
-    
-    // Open WhatsApp with pre-filled message
     const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
     
     console.log(`📱 Opening WhatsApp for ${name} (${cleanPhone})...`);
     window.open(whatsappUrl, '_blank');
 }
 
-/**
- * Render contributions table
- */
 function renderContributions() {
-    const container = document.getElementById('contributionsTable');
-    
-    if (contributions.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"></div><p>No contributions recorded yet.</p></div>';
-        return;
-    }
-
-    let html = '<div class="table-wrapper"><table><thead><tr><th>Member</th><th>Type</th><th>Amount</th><th>Method</th><th>Date</th><th>Actions</th></tr></thead><tbody>';
-    
-    contributions.forEach(contrib => {
-        html += `
-            <tr>
-                <td><strong>${contrib.member}</strong></td>
-                <td><span class="badge badge-primary">${contrib.type}</span></td>
-                <td style="color: #16a34a; font-weight: bold;">KSh ${contrib.amount.toLocaleString()}</td>
-                <td>${contrib.method}</td>
-                <td>${contrib.date}</td>
-                <td>
-                    <button class="btn btn-danger" onclick="deleteContribution('${contrib.id}')" title="Delete contribution">
-                        Delete
-                    </button>
-                </td>
-            </tr>
-        `;
-    });
-    
-    html += '</tbody></table></div>';
-    container.innerHTML = html;
+    loadContributionsPage();
 }
 
-/**
- * Render events table
- */
 function renderEvents() {
     const container = document.getElementById('eventsTable');
     
     if (events.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"></div><p>No events scheduled.</p></div>';
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📅</div><p>No events scheduled.</p></div>';
         return;
     }
 
@@ -314,37 +564,22 @@ function renderEvents() {
     container.innerHTML = html;
 }
 
-/**
- * Open modal to add member
- */
 function openAddMemberModal() {
     document.getElementById('addMemberModal').classList.add('active');
 }
 
-/**
- * Open modal to add contribution
- */
 function openAddContributionModal() {
     document.getElementById('addContributionModal').classList.add('active');
 }
 
-/**
- * Open modal to add event
- */
 function openAddEventModal() {
     document.getElementById('addEventModal').classList.add('active');
 }
 
-/**
- * Close modal
- */
 function closeModal(modalId) {
     document.getElementById(modalId).classList.remove('active');
 }
 
-/**
- * Add new member to Firebase
- */
 async function addMember() {
     const name = document.getElementById('memberName').value;
     const phone = document.getElementById('memberPhone').value;
@@ -367,22 +602,17 @@ async function addMember() {
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        // Add to Firebase
         await membersCollection.add(newMember);
         
-        console.log(' Member added successfully!');
+        console.log('✅ Member added successfully!');
         
-        // Clear form
         document.getElementById('memberName').value = '';
         document.getElementById('memberPhone').value = '';
         document.getElementById('memberGroup').value = 'General';
         
         closeModal('addMemberModal');
-        
-        // Reload data
         await loadAllData();
-        
-        alert(' Member added successfully!');
+        alert('✅ Member added successfully!');
         
     } catch (error) {
         console.error('❌ Error adding member:', error);
@@ -390,9 +620,6 @@ async function addMember() {
     }
 }
 
-/**
- * Add new contribution to Firebase
- */
 async function addContribution() {
     const member = document.getElementById('contribMember').value;
     const type = document.getElementById('contribType').value;
@@ -416,21 +643,16 @@ async function addContribution() {
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        // Add to Firebase
         await contributionsCollection.add(newContrib);
         
-        console.log(' Contribution added successfully!');
+        console.log('✅ Contribution added successfully!');
         
-        // Clear form
         document.getElementById('contribMember').value = '';
         document.getElementById('contribAmount').value = '';
         
         closeModal('addContributionModal');
-        
-        // Reload data
         await loadAllData();
-        
-        alert(' Contribution recorded successfully!');
+        alert('✅ Contribution recorded successfully!');
         
     } catch (error) {
         console.error('❌ Error adding contribution:', error);
@@ -438,9 +660,6 @@ async function addContribution() {
     }
 }
 
-/**
- * Add new event to Firebase
- */
 async function addEvent() {
     const name = document.getElementById('eventName').value;
     const date = document.getElementById('eventDate').value;
@@ -463,22 +682,17 @@ async function addEvent() {
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        // Add to Firebase
         await eventsCollection.add(newEvent);
         
         console.log('✅ Event added successfully!');
         
-        // Clear form
         document.getElementById('eventName').value = '';
         document.getElementById('eventDate').value = '';
         document.getElementById('eventTime').value = '';
         document.getElementById('eventExpected').value = '50';
         
         closeModal('addEventModal');
-        
-        // Reload data
         await loadAllData();
-        
         alert('✅ Event added successfully!');
         
     } catch (error) {
@@ -487,17 +701,14 @@ async function addEvent() {
     }
 }
 
-/**
- * Delete member from Firebase
- */
 async function deleteMember(id) {
     if (confirm('Are you sure you want to delete this member?')) {
         try {
-            console.log(' Deleting member from Firebase...');
+            console.log('🗑️ Deleting member from Firebase...');
             await membersCollection.doc(id).delete();
-            console.log(' Member deleted successfully!');
+            console.log('✅ Member deleted successfully!');
             await loadAllData();
-            alert(' Member deleted successfully!');
+            alert('✅ Member deleted successfully!');
         } catch (error) {
             console.error('❌ Error deleting member:', error);
             alert('Error deleting member. Please try again.');
@@ -505,17 +716,14 @@ async function deleteMember(id) {
     }
 }
 
-/**
- * Delete contribution from Firebase
- */
 async function deleteContribution(id) {
     if (confirm('Are you sure you want to delete this contribution?')) {
         try {
-            console.log(' Deleting contribution from Firebase...');
+            console.log('🗑️ Deleting contribution from Firebase...');
             await contributionsCollection.doc(id).delete();
-            console.log(' Contribution deleted successfully!');
+            console.log('✅ Contribution deleted successfully!');
             await loadAllData();
-            alert(' Contribution deleted successfully!');
+            alert('✅ Contribution deleted successfully!');
         } catch (error) {
             console.error('❌ Error deleting contribution:', error);
             alert('Error deleting contribution. Please try again.');
@@ -523,17 +731,14 @@ async function deleteContribution(id) {
     }
 }
 
-/**
- * Delete event from Firebase
- */
 async function deleteEvent(id) {
     if (confirm('Are you sure you want to delete this event?')) {
         try {
-            console.log(' Deleting event from Firebase...');
+            console.log('🗑️ Deleting event from Firebase...');
             await eventsCollection.doc(id).delete();
-            console.log(' Event deleted successfully!');
+            console.log('✅ Event deleted successfully!');
             await loadAllData();
-            alert(' Event deleted successfully!');
+            alert('✅ Event deleted successfully!');
         } catch (error) {
             console.error('❌ Error deleting event:', error);
             alert('Error deleting event. Please try again.');
@@ -541,205 +746,22 @@ async function deleteEvent(id) {
     }
 }
 
-/* ===================================
-   ADD DATA LABELS FOR MOBILE TABLES
-   Add this to your main.js or analytics.js
-   =================================== */
-
-// Function to add data-label attributes to table cells
-function addMobileLabels() {
-  // For Contributions Table
-  const contributionsTable = document.querySelector('#contributionsTable');
-  if (contributionsTable) {
-    const headers = ['Member', 'Type', 'Date', 'Actions'];
-    const rows = contributionsTable.querySelectorAll('tbody tr');
+// CRITICAL: Initialize app AFTER authentication
+window.addEventListener('DOMContentLoaded', async () => {
+    console.log('🚀 SimamiaKanisa starting...');
+    console.log('🔗 Connecting to Firebase...');
     
-    rows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      cells.forEach((cell, index) => {
-        if (headers[index]) {
-          cell.setAttribute('data-label', headers[index]);
-        }
-      });
-    });
-  }
-  
-  // For Pledges Table
-  const pledgesTable = document.querySelector('#pledgesTable');
-  if (pledgesTable) {
-    const headers = ['Member', 'Category', 'Amount', 'Progress', 'Status', 'End Date', 'Actions'];
-    const rows = pledgesTable.querySelectorAll('tbody tr');
+    // Wait for auth to complete
+    console.log('⏳ Waiting for authentication...');
     
-    rows.forEach(row => {
-      const cells = row.querySelectorAll('td');
-      cells.forEach((cell, index) => {
-        if (headers[index]) {
-          cell.setAttribute('data-label', headers[index]);
-        }
-      });
-    });
-  }
-}
-
-// Call this function when tables are loaded/updated
-document.addEventListener('DOMContentLoaded', addMobileLabels);
-
-// Also call after any dynamic table updates
-// If you're using Firebase or updating tables dynamically, call addMobileLabels() after updates
-
-/* ===================================
-   MOBILE MENU ENHANCEMENTS
-   =================================== */
-
-// Improve mobile menu behavior
-function improveMobileNav() {
-  const navOverlay = document.querySelector('.nav-overlay');
-  const menuButton = document.querySelector('.menu-btn');
-  const closeButton = document.querySelector('.nav-close');
-  
-  if (!navOverlay) return;
-  
-  // Close menu when clicking on a navigation item (mobile only)
-  if (window.innerWidth <= 768) {
-    const navButtons = navOverlay.querySelectorAll('button');
-    navButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        navOverlay.classList.remove('active');
-      });
-    });
-  }
-  
-  // Prevent body scroll when menu is open
-  const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-      if (mutation.attributeName === 'class') {
-        const isActive = navOverlay.classList.contains('active');
-        if (isActive) {
-          document.body.style.overflow = 'hidden';
+    // Give auth.js time to initialize
+    setTimeout(async () => {
+        // Check if user is authenticated by checking if currentUser exists
+        if (typeof currentUser !== 'undefined' && currentUser !== null) {
+            console.log('✅ User authenticated:', currentUser.email);
+            await loadAllData();
         } else {
-          document.body.style.overflow = '';
+            console.log('⚠️ User not authenticated or auth not loaded yet');
         }
-      }
-    });
-  });
-  
-  observer.observe(navOverlay, { attributes: true });
-}
-
-// Initialize mobile navigation improvements
-if (window.innerWidth <= 768) {
-  document.addEventListener('DOMContentLoaded', improveMobileNav);
-}
-
-/* ===================================
-   RESPONSIVE TABLE WRAPPER
-   =================================== */
-
-// Add a wrapper div around tables for better mobile scrolling (optional fallback)
-function wrapTablesForMobile() {
-  const tables = document.querySelectorAll('table');
-  
-  tables.forEach(table => {
-    // Check if table isn't already wrapped
-    if (!table.parentElement.classList.contains('table-wrapper')) {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'table-wrapper';
-      table.parentNode.insertBefore(wrapper, table);
-      wrapper.appendChild(table);
-    }
-  });
-}
-
-// Optional: Add this CSS for table wrapper
-const style = document.createElement('style');
-style.textContent = `
-  .table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    margin-bottom: 20px;
-  }
-  
-  @media (max-width: 768px) {
-    .table-wrapper {
-      overflow-x: visible;
-    }
-  }
-`;
-document.head.appendChild(style);
-
-/* ===================================
-   VIEWPORT HEIGHT FIX FOR MOBILE
-   =================================== */
-
-// Fix for mobile browsers where 100vh includes the address bar
-function setMobileVH() {
-  let vh = window.innerHeight * 0.01;
-  document.documentElement.style.setProperty('--vh', `${vh}px`);
-}
-
-window.addEventListener('resize', setMobileVH);
-window.addEventListener('orientationchange', setMobileVH);
-setMobileVH();
-
-/* ===================================
-   EXPORT TO CSV/PDF BUTTON FIX
-   =================================== */
-
-// Ensure export buttons work well on mobile
-function fixExportButtons() {
-  const exportButtons = document.querySelectorAll('[onclick*="export"]');
-  
-  exportButtons.forEach(button => {
-    button.addEventListener('touchstart', function() {
-      this.style.opacity = '0.7';
-    });
-    
-    button.addEventListener('touchend', function() {
-      this.style.opacity = '1';
-    });
-  });
-}
-
-document.addEventListener('DOMContentLoaded', fixExportButtons);
-
-/* ===================================
-   UTILITY: Detect if device is mobile
-   =================================== */
-
-function isMobileDevice() {
-  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-}
-
-// Add mobile class to body
-if (isMobileDevice()) {
-  document.body.classList.add('is-mobile');
-}
-
-/* ===================================
-   CALL ALL FUNCTIONS ON LOAD
-   =================================== */
-
-window.addEventListener('load', () => {
-  addMobileLabels();
-  wrapTablesForMobile();
-  
-  // Re-add labels when tables update
-  const observer = new MutationObserver(() => {
-    addMobileLabels();
-  });
-  
-  const tables = document.querySelectorAll('table tbody');
-  tables.forEach(table => {
-    observer.observe(table, { childList: true, subtree: true });
-  });
-});
-
-// Initialize app when page loads
-window.addEventListener('DOMContentLoaded', () => {
-    console.log(' SimamiaKanisa starting...');
-    console.log(' Connecting to Firebase...');
-    console.log(' Analytics module loaded:', typeof initAnalyticsTab !== 'undefined');
-    console.log(' Chart.js loaded:', typeof Chart !== 'undefined');
-    loadAllData();
+    }, 1000);
 });

@@ -156,7 +156,7 @@ function logoutUser() {
 function protectPage(requiredRole = null) {
     auth.onAuthStateChanged((user) => {
         if (user) {
-            console.log("User logged in:", user.uid);
+            console.log("✅ User logged in:", user.uid);
 
             // Fetch user data from Firestore
             db.collection("users").doc(user.uid).get()
@@ -173,11 +173,12 @@ function protectPage(requiredRole = null) {
                             return;
                         }
 
-                        console.log("User role:", role);
+                        console.log("👤 User role:", role);
                         
                         // Store role in sessionStorage
                         sessionStorage.setItem('userRole', role);
                         sessionStorage.setItem('userEmail', userData.email);
+                        sessionStorage.setItem('userId', user.uid);
 
                         // Check if user has required role
                         if (requiredRole) {
@@ -186,8 +187,24 @@ function protectPage(requiredRole = null) {
                             if (!allowedRoles.includes(role)) {
                                 alert("Access denied! You don't have permission to view this page.");
                                 window.location.href = "index.html"; // Redirect to main page
+                                return;
                             }
                         }
+
+                        // ✅ CRITICAL FIX: Load data after authentication
+                        console.log("🔄 Authentication successful, loading app data...");
+                        
+                        // Call loadAllData if it exists
+                        if (typeof loadAllData === 'function') {
+                            loadAllData().then(() => {
+                                console.log("✅ All data loaded successfully");
+                            }).catch(error => {
+                                console.error("❌ Error loading data:", error);
+                            });
+                        } else {
+                            console.warn("⚠️ loadAllData function not found");
+                        }
+                        
                     } else {
                         console.error("User document not found");
                         alert("User data not found. Please contact admin.");
@@ -201,7 +218,7 @@ function protectPage(requiredRole = null) {
                     window.location.href = "login.html";
                 });
         } else {
-            console.log("No user logged in");
+            console.log("❌ No user logged in");
             window.location.href = "login.html"; // Redirect if not logged in
         }
     });
@@ -239,6 +256,11 @@ function getCurrentUserEmail() {
 // Get current user ID
 function getCurrentUserId() {
     return sessionStorage.getItem('userId') || auth.currentUser?.uid || null;
+}
+
+// Check if user is admin (for showing/hiding admin features)
+function isAdmin() {
+    return getCurrentUserRole() === 'admin';
 }
 
 // Password reset function
@@ -302,32 +324,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const publicPages = ['login.html', 'register.html', ''];
     
     if (!publicPages.includes(currentPage)) {
+        console.log("🔐 Protecting page:", currentPage);
         // This page needs authentication
         protectPage();
+    } else {
+        console.log("🌐 Public page, no authentication required");
     }
 });
-
-// ====== EXAMPLE USAGE ======
-
-// Example: Protect admin-only page
-// protectPage("admin");
-
-// Example: Protect page for admin or editor
-// protectPage(["admin", "editor"]);
-
-// Example: Register new user
-// registerUser("user@example.com", "password123", "admin");
-
-// Example: Login
-// loginUser("user@example.com", "password123");
-
-// Example: Logout
-// logoutUser();
-
-// Example: Reset password
-// resetPassword("user@example.com");
-
-// Example: Check if user has role (for showing/hiding UI elements)
-// if (hasRole('admin')) {
-//     document.getElementById('adminPanel').style.display = 'block';
-// }
