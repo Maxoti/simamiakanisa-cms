@@ -379,56 +379,54 @@ function renderPledgesTable() {
     
     console.log(`📄 Page ${state.currentPage}: showing ${pageData.length} of ${dataToRender.length} pledges`);
     
-    let html = '<div class="table-wrapper"><table><thead><tr>';
-    html += '<th>Member</th><th>Category</th><th>Total</th><th>Paid</th><th>Remaining</th>';
-    html += '<th>Progress</th><th>Status</th><th>End Date</th><th>Actions</th>';
-    html += '</tr></thead><tbody>';
+   // ✅ MOBILE-RESPONSIVE TABLE
+let html = '<div class="table-wrapper"><table class="pledges-table"><thead><tr>';
+html += '<th>Member</th><th>Category</th><th>Total</th><th>Paid</th><th>Remaining</th>';
+html += '<th>Progress</th><th>Status</th><th>End Date</th><th>Actions</th>';
+html += '</tr></thead><tbody>';
+
+pageData.forEach(pledge => {
+    const progress = pledge.totalAmount > 0 
+        ? Math.round((pledge.paidAmount / pledge.totalAmount) * 100) 
+        : 0;
     
-    pageData.forEach(pledge => {
-        const progress = pledge.totalAmount > 0 
-            ? Math.round((pledge.paidAmount / pledge.totalAmount) * 100) 
-            : 0;
-        
-        const statusClass = pledge.status === 'Completed' ? 'badge-success' 
-                          : pledge.status === 'Overdue' ? 'badge-danger'
-                          : 'badge-primary';
-        
-        html += `
-            <tr>
-                <td><strong>${pledge.memberName}</strong></td>
-                <td><span class="badge badge-primary">${pledge.category}</span></td>
-                <td style="font-weight: bold;">KSh ${pledge.totalAmount.toLocaleString()}</td>
-                <td style="color: #16a34a;">KSh ${pledge.paidAmount.toLocaleString()}</td>
-                <td style="color: #ea580c;">KSh ${pledge.remainingAmount.toLocaleString()}</td>
-                <td>
-                    <div style="background: #e5e7eb; border-radius: 10px; height: 20px; width: 100px; overflow: hidden;">
-                        <div style="background: #16a34a; height: 100%; width: ${progress}%;"></div>
-                    </div>
-                    <small>${progress}%</small>
-                </td>
-                <td><span class="badge ${statusClass}">${pledge.status}</span></td>
-                <td>${pledge.endDate}</td>
-                <td style="display: flex; gap: 5px; flex-wrap: wrap;">
-                    <button class="btn btn-success" onclick="openRecordPaymentModal('${pledge.id}')" 
-                            style="padding: 5px 10px; font-size: 12px;"
-                            ${pledge.status === 'Completed' ? 'disabled' : ''}>
-                         Pay
-                    </button>
-                    <button class="btn btn-whatsapp" onclick="sendPledgeReminder('${pledge.id}')"
-                            style="padding: 5px 10px; font-size: 12px; background: #25D366; color: white; border: none;">
-                        💬 WhatsApp
-                    </button>
-                    <button class="btn btn-primary" onclick="openPaymentHistoryModal('${pledge.id}')"
-                            style="padding: 5px 10px; font-size: 12px;">
-                         History
-                    </button>
-                </td>
-            </tr>
-        `;
-    });
+    const statusClass = pledge.status === 'Completed' ? 'badge-success' 
+                      : pledge.status === 'Overdue' ? 'badge-danger'
+                      : 'badge-primary';
     
-    html += '</tbody></table></div>';
-    container.innerHTML = html;
+    html += `
+        <tr data-pledge-id="${pledge.id}">
+            <td data-label="Member"><strong>${pledge.memberName}</strong></td>
+            <td data-label="Category"><span class="badge badge-primary">${pledge.category}</span></td>
+            <td data-label="Total" style="font-weight: bold;">KSh ${pledge.totalAmount.toLocaleString()}</td>
+            <td data-label="Paid" style="color: #16a34a;">KSh ${pledge.paidAmount.toLocaleString()}</td>
+            <td data-label="Remaining" style="color: #ea580c;">KSh ${pledge.remainingAmount.toLocaleString()}</td>
+            <td data-label="Progress">
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: ${progress}%"></div>
+                </div>
+                <small>${progress}%</small>
+            </td>
+            <td data-label="Status"><span class="badge ${statusClass}">${pledge.status}</span></td>
+            <td data-label="End Date">${pledge.endDate}</td>
+            <td data-label="Actions" class="actions-cell">
+                <button class="btn btn-success btn-sm" onclick="openRecordPaymentModal('${pledge.id}')" 
+                        ${pledge.status === 'Completed' ? 'disabled' : ''}>
+                     Pay
+                </button>
+                <button class="btn btn-whatsapp btn-sm" onclick="sendPledgeReminder('${pledge.id}')">
+                    💬 WhatsApp
+                </button>
+                <button class="btn btn-primary btn-sm" onclick="openPaymentHistoryModal('${pledge.id}')">
+                    📊 History
+                </button>
+            </td>
+        </tr>
+    `;
+});
+
+html += '</tbody></table></div>';
+container.innerHTML = html;
     
     // ✅ Update pagination controls
     updatePledgesPaginationControls();
@@ -544,7 +542,83 @@ async function createPledgeFromModal() {
         alert('Failed to create pledge. Please try again.');
     }
 }
+// ============================================
+// EXPORT PLEDGES REPORT
+// ============================================
 
+function exportPledgesReport() {
+    try {
+        console.log('📊 Exporting pledges report...');
+        
+        // Get the filtered pledges based on current filters
+        const pledgesToExport = pledgesPaginationState.filteredPledges.length > 0 
+            ? pledgesPaginationState.filteredPledges 
+            : pledges;
+        
+        if (!pledgesToExport || pledgesToExport.length === 0) {
+            alert('No pledges to export');
+            return;
+        }
+
+        // Create CSV content with proper headers
+        let csvContent = "Member,Category,Total Amount,Paid Amount,Remaining Amount,Progress,Status,Start Date,End Date,Payment Frequency\n";
+        
+        pledgesToExport.forEach(pledge => {
+            const progress = pledge.totalAmount > 0 
+                ? Math.round((pledge.paidAmount / pledge.totalAmount) * 100) 
+                : 0;
+            
+            const row = [
+                pledge.memberName || '',
+                pledge.category || '',
+                pledge.totalAmount || 0,
+                pledge.paidAmount || 0,
+                pledge.remainingAmount || 0,
+                progress + '%',
+                pledge.status || '',
+                pledge.startDate || '',
+                pledge.endDate || '',
+                pledge.paymentFrequency || ''
+            ].map(field => `"${field}"`).join(',');
+            
+            csvContent += row + "\n";
+        });
+
+        // Add summary row
+        const totalPledged = pledgesToExport.reduce((sum, p) => sum + p.totalAmount, 0);
+        const totalPaid = pledgesToExport.reduce((sum, p) => sum + p.paidAmount, 0);
+        const totalRemaining = pledgesToExport.reduce((sum, p) => sum + p.remainingAmount, 0);
+        const overallProgress = totalPledged > 0 ? Math.round((totalPaid / totalPledged) * 100) : 0;
+        
+        csvContent += `\n"TOTAL","",${totalPledged},${totalPaid},${totalRemaining},"${overallProgress}%","","","",""\n`;
+
+        // Create download link
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        
+        const timestamp = new Date().toISOString().split('T')[0];
+        const filename = `pledges_report_${timestamp}.csv`;
+        
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Clean up
+        URL.revokeObjectURL(url);
+        
+        console.log('✅ Report exported successfully:', filename);
+        alert(`✅ Report exported successfully!\n${pledgesToExport.length} pledges exported to ${filename}`);
+        
+    } catch (error) {
+        console.error('❌ Error exporting report:', error);
+        alert('Failed to export report. Please check the console for details.');
+    }
+}
 function openRecordPaymentModal(pledgeId) {
     currentPledgeId = pledgeId;
     const pledge = pledges.find(p => p.id === pledgeId);
@@ -689,9 +763,9 @@ Balance: KSh ${pledge.remainingAmount.toLocaleString()}
 Due Date: ${pledge.endDate}
 
 *Payment Options:*
-📱 M-Pesa: [Your Paybill]
-🏦 Bank: [Your Account]
-💵 Cash: During service
+ M-Pesa: [Your Paybill]
+ Bank: [Your Account]
+ Cash: During service
 
 Thank you for your commitment!
 SimamiaKanisa Church`;

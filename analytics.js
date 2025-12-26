@@ -623,9 +623,322 @@ function exportToExcel() {
     
     console.log('✅ Excel exported successfully');
 }
+// ============================================
+// EXPORT ANALYTICS TO PDF - MOBILE FRIENDLY
+// ============================================
 
-function exportToPDF() {
-    alert('📄 PDF Export: Use your browser Print function (Ctrl+P) and select "Save as PDF"');
+async function exportToPDF() {
+    try {
+        console.log('📊 Generating Analytics PDF report...');
+        
+        // Show loading state
+        const exportBtn = event?.target;
+        const originalText = exportBtn?.textContent || 'Export PDF';
+        if (exportBtn) {
+            exportBtn.disabled = true;
+            exportBtn.textContent = '⏳ Generating PDF...';
+        }
+        
+        // Check if jsPDF is available
+        if (typeof window.jspdf === 'undefined') {
+            alert('❌ PDF library not loaded. Please refresh the page and try again.');
+            if (exportBtn) {
+                exportBtn.disabled = false;
+                exportBtn.textContent = originalText;
+            }
+            return;
+        }
+        
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
+        
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        let yPosition = 20;
+        
+        // ========== HEADER ==========
+        doc.setFontSize(20);
+        doc.setTextColor(40, 40, 40);
+        doc.setFont(undefined, 'bold');
+        doc.text('SimamiaKanisa Church', pageWidth / 2, yPosition, { align: 'center' });
+        
+        yPosition += 8;
+        doc.setFontSize(16);
+        doc.setTextColor(102, 126, 234);
+        doc.text('Financial Analytics Report', pageWidth / 2, yPosition, { align: 'center' });
+        
+        yPosition += 6;
+        doc.setFontSize(10);
+        doc.setTextColor(100, 100, 100);
+        doc.setFont(undefined, 'normal');
+        const reportDate = new Date().toLocaleDateString('en-GB', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+        doc.text(`Generated: ${reportDate} at ${new Date().toLocaleTimeString()}`, pageWidth / 2, yPosition, { align: 'center' });
+        
+        // Line separator
+        yPosition += 5;
+        doc.setDrawColor(200, 200, 200);
+        doc.line(15, yPosition, pageWidth - 15, yPosition);
+        yPosition += 10;
+        
+        // ========== GET ANALYTICS DATA ==========
+        const periodSelect = document.getElementById('analyticsPeriod');
+        const yearSelect = document.getElementById('analyticsYear');
+        const period = periodSelect ? periodSelect.options[periodSelect.selectedIndex].text : 'This Year';
+        const year = yearSelect ? yearSelect.value : new Date().getFullYear();
+        
+        // Get statistics from the DOM
+        const totalCollections = document.getElementById('totalCollections')?.textContent || 'KSh 0';
+        const contributingMembers = document.getElementById('contributingMembers')?.textContent || '0';
+        const avgPerMember = document.getElementById('avgPerMember')?.textContent || 'KSh 0';
+        const growthRate = document.getElementById('growthRate')?.textContent || '0%';
+        
+        // ========== SUMMARY SECTION ==========
+        doc.setFontSize(14);
+        doc.setTextColor(40, 40, 40);
+        doc.setFont(undefined, 'bold');
+        doc.text('Executive Summary', 15, yPosition);
+        yPosition += 8;
+        
+        doc.setFontSize(10);
+        doc.setFont(undefined, 'normal');
+        doc.setTextColor(60, 60, 60);
+        doc.text(`Period: ${period} (${year})`, 15, yPosition);
+        yPosition += 7;
+        
+        // Summary box
+        doc.setFillColor(245, 247, 250);
+        doc.roundedRect(15, yPosition, pageWidth - 30, 45, 3, 3, 'F');
+        
+        yPosition += 8;
+        doc.setFontSize(11);
+        doc.setFont(undefined, 'bold');
+        
+        // Total Collections
+        doc.setTextColor(22, 163, 74);
+        doc.text('Total Collections:', 20, yPosition);
+        doc.setFont(undefined, 'normal');
+        doc.text(totalCollections, 70, yPosition);
+        
+        yPosition += 10;
+        
+        // Contributing Members
+        doc.setTextColor(59, 130, 246);
+        doc.setFont(undefined, 'bold');
+        doc.text('Contributing Members:', 20, yPosition);
+        doc.setFont(undefined, 'normal');
+        doc.text(contributingMembers, 70, yPosition);
+        
+        yPosition += 10;
+        
+        // Average per Member
+        doc.setTextColor(168, 85, 247);
+        doc.setFont(undefined, 'bold');
+        doc.text('Average per Member:', 20, yPosition);
+        doc.setFont(undefined, 'normal');
+        doc.text(avgPerMember, 70, yPosition);
+        
+        yPosition += 10;
+        
+        // Growth Rate
+        const growthValue = parseFloat(growthRate.replace('%', ''));
+        doc.setTextColor(growthValue >= 0 ? 22 : 234, growthValue >= 0 ? 163 : 88, growthValue >= 0 ? 74 : 12);
+        doc.setFont(undefined, 'bold');
+        doc.text('Growth Rate:', 20, yPosition);
+        doc.setFont(undefined, 'normal');
+        doc.text(growthRate, 70, yPosition);
+        
+        yPosition += 15;
+        
+        // ========== MONTHLY BREAKDOWN TABLE ==========
+        if (typeof monthlyData !== 'undefined' && monthlyData.length > 0) {
+            doc.setFontSize(14);
+            doc.setTextColor(40, 40, 40);
+            doc.setFont(undefined, 'bold');
+            doc.text('Monthly Breakdown', 15, yPosition);
+            yPosition += 5;
+            
+            // Prepare table data
+            const tableData = monthlyData.map(item => [
+                item.month || '',
+                `KSh ${(item.amount || 0).toLocaleString()}`,
+                item.contributors || '0',
+                `KSh ${(item.average || 0).toLocaleString()}`
+            ]);
+            
+            doc.autoTable({
+                startY: yPosition,
+                head: [['Month', 'Total Amount', 'Contributors', 'Average']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [102, 126, 234],
+                    textColor: 255,
+                    fontStyle: 'bold',
+                    fontSize: 10,
+                    halign: 'center'
+                },
+                bodyStyles: {
+                    fontSize: 9,
+                    textColor: 50
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 247, 250]
+                },
+                columnStyles: {
+                    0: { cellWidth: 40, halign: 'left' },
+                    1: { cellWidth: 45, halign: 'right', fontStyle: 'bold' },
+                    2: { cellWidth: 35, halign: 'center' },
+                    3: { cellWidth: 45, halign: 'right' }
+                },
+                margin: { left: 15, right: 15 }
+            });
+            
+            yPosition = doc.lastAutoTable.finalY + 10;
+        }
+        
+        // ========== TOP CONTRIBUTORS TABLE ==========
+        if (typeof topContributors !== 'undefined' && topContributors.length > 0) {
+            // Check if we need a new page
+            if (yPosition > pageHeight - 80) {
+                doc.addPage();
+                yPosition = 20;
+            }
+            
+            doc.setFontSize(14);
+            doc.setTextColor(40, 40, 40);
+            doc.setFont(undefined, 'bold');
+            doc.text('Top Contributors', 15, yPosition);
+            yPosition += 5;
+            
+            const contributorsData = topContributors.slice(0, 10).map((contributor, index) => [
+                (index + 1).toString(),
+                contributor.name || 'Unknown',
+                `KSh ${(contributor.amount || 0).toLocaleString()}`,
+                contributor.count || '0'
+            ]);
+            
+            doc.autoTable({
+                startY: yPosition,
+                head: [['Rank', 'Member', 'Total Amount', 'Contributions']],
+                body: contributorsData,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [22, 163, 74],
+                    textColor: 255,
+                    fontStyle: 'bold',
+                    fontSize: 10,
+                    halign: 'center'
+                },
+                bodyStyles: {
+                    fontSize: 9,
+                    textColor: 50
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 247, 250]
+                },
+                columnStyles: {
+                    0: { cellWidth: 20, halign: 'center', fontStyle: 'bold' },
+                    1: { cellWidth: 65, halign: 'left' },
+                    2: { cellWidth: 45, halign: 'right', fontStyle: 'bold', textColor: [22, 163, 74] },
+                    3: { cellWidth: 35, halign: 'center' }
+                },
+                margin: { left: 15, right: 15 }
+            });
+            
+            yPosition = doc.lastAutoTable.finalY + 10;
+        }
+        
+        // ========== CONTRIBUTION CATEGORIES ==========
+        if (typeof categoryBreakdown !== 'undefined' && categoryBreakdown.length > 0) {
+            // Check if we need a new page
+            if (yPosition > pageHeight - 60) {
+                doc.addPage();
+                yPosition = 20;
+            }
+            
+            doc.setFontSize(14);
+            doc.setTextColor(40, 40, 40);
+            doc.setFont(undefined, 'bold');
+            doc.text('Contribution Categories', 15, yPosition);
+            yPosition += 5;
+            
+            const categoryData = categoryBreakdown.map(cat => [
+                cat.category || 'Other',
+                `KSh ${(cat.amount || 0).toLocaleString()}`,
+                `${cat.percentage || 0}%`
+            ]);
+            
+            doc.autoTable({
+                startY: yPosition,
+                head: [['Category', 'Amount', 'Percentage']],
+                body: categoryData,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [168, 85, 247],
+                    textColor: 255,
+                    fontStyle: 'bold',
+                    fontSize: 10,
+                    halign: 'center'
+                },
+                bodyStyles: {
+                    fontSize: 9,
+                    textColor: 50
+                },
+                alternateRowStyles: {
+                    fillColor: [245, 247, 250]
+                },
+                columnStyles: {
+                    0: { cellWidth: 70, halign: 'left' },
+                    1: { cellWidth: 60, halign: 'right', fontStyle: 'bold' },
+                    2: { cellWidth: 35, halign: 'center' }
+                },
+                margin: { left: 15, right: 15 }
+            });
+        }
+        
+        // ========== FOOTER ==========
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text(
+                `SimamiaKanisa Church - Analytics Report - Page ${i} of ${pageCount}`,
+                pageWidth / 2,
+                pageHeight - 10,
+                { align: 'center' }
+            );
+        }
+        
+        // ========== SAVE PDF ==========
+        const timestamp = new Date().toISOString().split('T')[0];
+        const filename = `SimamiaKanisa_Analytics_${year}_${timestamp}.pdf`;
+        doc.save(filename);
+        
+        console.log('✅ Analytics PDF generated successfully:', filename);
+        
+        // Show success message
+        alert(`✅ Analytics report exported successfully!\n\nFile: ${filename}\n\nCheck your Downloads folder.`);
+        
+        // Reset button
+        if (exportBtn) {
+            exportBtn.disabled = false;
+            exportBtn.textContent = originalText;
+        }
+        
+    } catch (error) {
+        console.error('❌ Error generating analytics PDF:', error);
+        alert('Failed to generate PDF. Error: ' + error.message);
+        
+        // Reset button on error
+        if (event?.target) {
+            event.target.disabled = false;
+            event.target.textContent = '📄 Export PDF';
+        }
+    }
 }
-
-console.log('✅ Analytics module loaded successfully!');

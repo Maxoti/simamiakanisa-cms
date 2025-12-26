@@ -6,6 +6,7 @@ let members = [];
 let contributions = [];
 let events = [];
 
+
 // Pagination state (existing + new merged)
 const paginationState = {
     members: {
@@ -612,12 +613,12 @@ function renderContributions() {
                 </div>
                 
                 <div class="card-info-row">
-                    <span class="card-label">💵 Amount</span>
+                    <span class="card-label"> Amount</span>
                     <span class="card-value contribution-amount">KSh ${contrib.amount.toLocaleString()}</span>
                 </div>
                 
                 <div class="card-info-row">
-                    <span class="card-label">💳 Method</span>
+                    <span class="card-label"> Method</span>
                     <span class="card-value">${contrib.method}</span>
                 </div>
                 
@@ -628,7 +629,7 @@ function renderContributions() {
                 
                 <div class="card-actions">
                     <button class="btn btn-danger" onclick="deleteContribution('${contrib.id}')">
-                        🗑️ Delete Contribution
+                         Delete Contribution
                     </button>
                 </div>
             </div>
@@ -850,9 +851,9 @@ This is a friendly reminder from ${churchName} about your tithe contribution.
 Your faithful giving helps us continue God's work in our community.
 
 Payment Options:
-📱 M-Pesa: [Your Paybill/Till]
-🏦 Bank: [Your Account]
-💵 Cash: During service
+ M-Pesa: [Your Paybill/Till]
+ Bank: [Your Account]
+ Cash: During service
 
 God bless you!
 ${churchName}`;
@@ -866,9 +867,9 @@ This is a friendly reminder from ${churchName} about your Building Fund pledge.
 Together we are building God's house! Your contribution is making our vision a reality.
 
 Payment Options:
-📱 M-Pesa: [Your Paybill/Till]
-🏦 Bank: [Your Account]
-💵 Cash: During service
+ M-Pesa: [Your Paybill/Till]
+ Bank: [Your Account]
+ Cash: During service
 
 Thank you for your partnership!
 ${churchName}`;
