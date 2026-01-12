@@ -6,7 +6,7 @@ SimamiaKanisa is a comprehensive, web-based church management system designed sp
 
 ---
 
-## 📋 Table of Contents
+##  Table of Contents
 
 - [Features](#features)
 - [Tech Stack](#tech-stack)
@@ -22,36 +22,36 @@ SimamiaKanisa is a comprehensive, web-based church management system designed sp
 
 ---
 
-## ✨ Features
+##  Features
 
-### 👥 **Member Management**
+###  **Member Management**
 - Add, edit, and delete church members
 - Organize members by ministry/group (Youth, Choir, Women, Men, Elders, Ushers)
 - Store contact information (name, phone number)
 - Track member statistics
 
-### 💰 **Contributions & Tithes**
+###  **Contributions & Tithes**
 - Record various types of contributions (Tithes, Offerings, Building Fund, Mission, Other)
 - Support multiple payment methods (M-Pesa, Cash, Bank Transfer)
 - Real-time contribution tracking
 - Monthly and annual contribution summaries
 - Detailed contribution breakdown by type
 
-### 📅 **Event Management**
+###  **Event Management**
 - Create and manage church events
 - Set event date, time, and expected attendance
 - Track upcoming and past events
 - Event calendar view
 
-### 🤝 **Pledge Management**
+###  **Pledge Management**
 - Create member pledges with categories (Building Fund, Mission, Equipment, etc.)
 - Track pledge payments and balances
 - Monitor pledge status (Active, Completed, Overdue)
 - Payment history for each pledge
 - Progress tracking with visual indicators
-- 📱 WhatsApp reminder integration for pledge notifications
+- WhatsApp reminder integration for pledge notifications
 
-### 📊 **Analytics & Reports**
+###  **Analytics & Reports**
 - Real-time dashboard with key metrics
 - Monthly collection trends
 - Contribution breakdown by category
@@ -59,21 +59,21 @@ SimamiaKanisa is a comprehensive, web-based church management system designed sp
 - Visual charts and graphs using Chart.js
 - Export reports to Excel and PDF
 
-### 🔐 **Security & Authentication**
+###  **Security & Authentication**
 - Firebase Authentication integration
 - Role-based access control (Admin, Editor, User)
 - Protected routes and data
 - Session management
 - Secure login and registration
 
-### 💬 **WhatsApp Integration**
+###  **WhatsApp Integration**
 - Send pledge reminders directly via WhatsApp
 - Pre-formatted messages with pledge details
 - One-click communication with members
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 ### **Frontend**
 - HTML5, CSS3, JavaScript (ES6+)
@@ -93,7 +93,7 @@ SimamiaKanisa is a comprehensive, web-based church management system designed sp
 
 ---
 
-## 📦 Prerequisites
+## Prerequisites
 
 Before you begin, ensure you have:
 
@@ -105,12 +105,12 @@ Before you begin, ensure you have:
 
 ---
 
-## 🚀 Installation
+##  Installation
 
 ### 1. **Clone the Repository**
 
 ```bash
-git clone https://github.com/yourusername/simamiakanisa.git
+git clone https://github.com/maxoti/simamiakanisa.git
 cd simamiakanisa
 ```
 
@@ -206,7 +206,7 @@ Navigate to `http://127.0.0.1:5501/register.html` to create your first account.
 
 ---
 
-## ⚙️ Configuration
+##  Configuration
 
 ### **Customize Payment Details**
 
@@ -214,7 +214,7 @@ Update WhatsApp pledge reminder message in `pledges.js`:
 
 ```javascript
 // Find this section and update with your church details:
-*💳 Payment Options:*
+*Payment Options:*
 • M-Pesa Paybill: [Your Paybill Number]
 • Bank Account: [Your Bank Details]
 • Cash: During church service
@@ -228,7 +228,7 @@ Update WhatsApp pledge reminder message in `pledges.js`:
 
 ---
 
-## 📖 Usage
+## Usage
 
 ### **First Time Setup**
 
@@ -254,7 +254,7 @@ Update WhatsApp pledge reminder message in `pledges.js`:
    - Fill in pledge details (member, category, amount, dates)
 
 5. **Send Reminders**
-   - In Pledges table, click **📱 WhatsApp** button
+   - In Pledges table, click ** WhatsApp** button
    - Pre-formatted message opens in WhatsApp
    - Send to member
 
@@ -266,7 +266,7 @@ Update WhatsApp pledge reminder message in `pledges.js`:
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 simamiakanisa/
@@ -292,7 +292,7 @@ simamiakanisa/
 
 ---
 
-## 🔒 Security Features
+## Security Features
 
 - ✅ Firebase Authentication with email/password
 - ✅ Role-based access control (RBAC)
@@ -306,7 +306,7 @@ simamiakanisa/
 
 ---
 
-## 📸 Screenshots
+## Screenshots
 
 ### Dashboard
 ![Dashboard](https://via.placeholder.com/800x400?text=Dashboard+Screenshot)
@@ -319,7 +319,7 @@ simamiakanisa/
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions are welcome! Please follow these steps:
 
@@ -338,19 +338,19 @@ Contributions are welcome! Please follow these steps:
 
 ---
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 🙏 Support
+## Support
 
 ### **Getting Help**
 
-- 📧 Email: support@simamiakanisa.com
-- 💬 GitHub Issues: [Report a bug](https://github.com/yourusername/simamiakanisa/issues)
-- 📖 Documentation: [Wiki](https://github.com/yourusername/simamiakanisa/wiki)
+-  Email: support@simamiakanisa.com
+-  GitHub Issues: [Report a bug](https://github.com/yourusername/simamiakanisa/issues)
+-  Documentation: [Wiki](https://github.com/yourusername/simamiakanisa/wiki)
 
 ### **Donations**
 
@@ -361,7 +361,7 @@ If you find SimamiaKanisa useful, consider supporting the project:
 
 ---
 
-## 🌟 Acknowledgments
+##  Acknowledgments
 
 - Built with ❤️ for Kenyan Churches
 - Firebase for backend infrastructure
@@ -370,7 +370,7 @@ If you find SimamiaKanisa useful, consider supporting the project:
 
 ---
 
-## 📝 Roadmap
+##  Roadmap
 
 ### **Planned Features**
 
@@ -387,7 +387,7 @@ If you find SimamiaKanisa useful, consider supporting the project:
 
 ---
 
-## 🔗 Links
+##  Links
 
 - **Live Demo**: [https://simamiakanisa.web.app](https://simamiakanisa.web.app)
 - **Documentation**: [https://docs.simamiakanisa.com](https://docs.simamiakanisa.com)
@@ -397,9 +397,9 @@ If you find SimamiaKanisa useful, consider supporting the project:
 
 <div align="center">
 
-**Made with 🙏 for the Church Community**
+**Made with  for the Church Community**
 
-⭐ Star this repo if you find it helpful!
+ Star this repo if you find it helpful!
 
 [Report Bug](https://github.com/yourusername/simamiakanisa/issues) · [Request Feature](https://github.com/yourusername/simamiakanisa/issues)
 
