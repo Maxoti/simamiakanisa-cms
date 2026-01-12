@@ -324,7 +324,7 @@ function renderMembers() {
                     <div class="card-name">${member.name}</div>
                     
                     <div class="card-info-row">
-                        <span class="card-label">📱 Phone</span>
+                        <span class="card-label"> Phone</span>
                         <span class="card-value card-phone">
                             <a href="tel:${member.phone}" style="color: inherit; text-decoration: none;">
                                 ${member.phone}
@@ -333,7 +333,7 @@ function renderMembers() {
                     </div>
                     
                     <div class="card-info-row">
-                        <span class="card-label">👥 Group</span>
+                        <span class="card-label"> Group</span>
                         <span class="card-value">
                             <span class="badge badge-primary">${member.group}</span>
                         </span>
