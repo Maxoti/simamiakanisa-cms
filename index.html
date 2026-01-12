@@ -300,14 +300,12 @@
         <!-- Navigation Tabs -->
         <div class="tabs" id="navTabs">
             <button class="nav-close" onclick="toggleNav()" aria-label="Close menu">✕</button>
-            <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
-            <button class="tab-btn" onclick="switchTab('members')">👥 Members</button>
+            <button class="tab-btn active" onclick="switchTab('dashboard')"> Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('members')"> Members</button>
             <button class="tab-btn" onclick="switchTab('contributions')"> Contributions</button>
-            <button class="tab-btn" onclick="switchTab('events')">📅 Events</button>
+            <button class="tab-btn" onclick="switchTab('events')">Events</button>
             <button class="tab-btn" onclick="switchTab('pledges')"> Pledges</button>
-            <button class="tab-btn" onclick="switchTab('analytics')">📈 Analytics</button>
-            <!-- Admin-only tab -->
-            <button class="tab-btn admin-only" onclick="switchTab('settings')" style="display: none;">⚙️ Settings</button>
+            <button class="tab-btn" onclick="switchTab('analytics')">Analytics</button>
         </div>
 
         <!-- DASHBOARD TAB -->
@@ -355,7 +353,7 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">📊 Quick Overview</h3>
+                    <h3 class="card-title"> Quick Overview</h3>
                 </div>
                 <div id="quickStats"></div>
             </div>
@@ -365,7 +363,7 @@
         <div id="members" class="content">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">👥 Members Directory</h3>
+                    <h3 class="card-title"> Members Directory</h3>
                     <button class="btn btn-primary editor-only" onclick="openAddMemberModal()">+ Add Member</button>
                 </div>
                 <div id="membersTable"></div>
@@ -397,7 +395,7 @@
         <div id="events" class="content">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">📅 Church Events</h3>
+                    <h3 class="card-title"> Church Events</h3>
                     <button class="btn btn-primary editor-only" onclick="openAddEventModal()">+ Add Event</button>
                 </div>
                 <div id="eventsTable"></div>
@@ -414,20 +412,7 @@
             </div>
         </div>
 
-        <!-- SETTINGS TAB (Admin Only) -->
-        <div id="settings" class="content">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">⚙️ System Settings</h3>
-                </div>
-                <div style="padding: 20px;">
-                    <h4>User Management</h4>
-                    <p>Manage user roles and permissions</p>
-                    <div id="userManagementTable"></div>
-                </div>
-            </div>
-        </div>
-    </div>
+        
 
     <!-- ADD MEMBER MODAL -->
     <div id="addMemberModal" class="modal">
@@ -602,7 +587,7 @@
     
     <!-- Security & Initialization Script -->
     <script>
-        // 🔒 SECURITY: Protect this page - must be logged in
+        // SECURITY: Protect this page - must be logged in
         // Check authentication IMMEDIATELY when page loads
         auth.onAuthStateChanged((user) => {
             if (!user) {
@@ -641,7 +626,7 @@
                 const editorElements = document.querySelectorAll('.editor-only');
                 editorElements.forEach(el => el.style.display = '');
                 
-                console.log('✅ Admin access granted');
+                console.log('Admin access granted');
             } else if (userRole === 'editor') {
                 // Show only editor elements
                 const editorElements = document.querySelectorAll('.editor-only');
@@ -651,7 +636,7 @@
                 const adminElements = document.querySelectorAll('.admin-only');
                 adminElements.forEach(el => el.style.display = 'none');
                 
-                console.log('✅ Editor access granted');
+                console.log(' Editor access granted');
             } else {
                 // Regular user - hide all edit/add buttons
                 const editorElements = document.querySelectorAll('.editor-only');
@@ -660,7 +645,7 @@
                 const adminElements = document.querySelectorAll('.admin-only');
                 adminElements.forEach(el => el.style.display = 'none');
                 
-                console.log('✅ User (read-only) access');
+                console.log(' User (read-only) access');
             }
         }
 
@@ -668,7 +653,7 @@
         const originalAddMember = window.addMember;
         window.addMember = function() {
             if (!hasRole(['admin', 'editor'])) {
-                alert('❌ You do not have permission to add members.');
+                alert(' You do not have permission to add members.');
                 return;
             }
             if (originalAddMember) originalAddMember();
@@ -678,7 +663,7 @@
         const originalAddContribution = window.addContribution;
         window.addContribution = function() {
             if (!hasRole(['admin', 'editor'])) {
-                alert('❌ You do not have permission to add contributions.');
+                alert(' You do not have permission to add contributions.');
                 return;
             }
             if (originalAddContribution) originalAddContribution();
@@ -688,7 +673,7 @@
         const originalAddEvent = window.addEvent;
         window.addEvent = function() {
             if (!hasRole(['admin', 'editor'])) {
-                alert('❌ You do not have permission to add events.');
+                alert(' You do not have permission to add events.');
                 return;
             }
             if (originalAddEvent) originalAddEvent();

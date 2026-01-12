@@ -192,10 +192,10 @@ function updateDashboard() {
     const latestEvent = events[0]?.name || 'None scheduled';
     
     const stats = `
-        <p style="margin-bottom: 10px;">📊 Average Contribution: <strong>KSh ${Math.round(avgContribution).toLocaleString()}</strong></p>
-        <p style="margin-bottom: 10px;">👥 Active Groups: <strong>${uniqueGroups}</strong></p>
+        <p style="margin-bottom: 10px;"> Average Contribution: <strong>KSh ${Math.round(avgContribution).toLocaleString()}</strong></p>
+        <p style="margin-bottom: 10px;"> Active Groups: <strong>${uniqueGroups}</strong></p>
         <p style="margin-bottom: 10px;"> Total Contributions: <strong>${contributions.length} transactions</strong></p>
-        <p>📅 Latest Event: <strong>${latestEvent}</strong></p>
+        <p> Latest Event: <strong>${latestEvent}</strong></p>
     `;
     document.getElementById('quickStats').innerHTML = stats;
 }
@@ -292,7 +292,7 @@ function renderMembers() {
                 <td><span class="badge badge-success">${member.status}</span></td>
                 <td style="display: flex; gap: 8px; flex-wrap: wrap;">
                     <button class="btn btn-whatsapp" onclick="sendWhatsAppReminder('${member.name}', '${member.phone}', 'tithe')">
-                        💬 Tithe
+                         Tithe
                     </button>
                     <button class="btn btn-whatsapp" onclick="sendWhatsAppReminder('${member.name}', '${member.phone}', 'building')">
                          Building
@@ -313,7 +313,7 @@ function renderMembers() {
     if (paginatedMembers.length === 0) {
         cardsHTML += `
             <div class="empty-state">
-                <div class="empty-state-icon">🔍</div>
+                <div class="empty-state-icon"></div>
                 <p>No members found matching "${state.searchQuery}"</p>
             </div>
         `;
@@ -340,12 +340,12 @@ function renderMembers() {
                     </div>
                     
                     <div class="card-info-row">
-                        <span class="card-label">📅 Joined</span>
+                        <span class="card-label">Joined</span>
                         <span class="card-value">${member.joined}</span>
                     </div>
                     
                     <div class="card-info-row">
-                        <span class="card-label">✅ Status</span>
+                        <span class="card-label">Status</span>
                         <span class="card-value">
                             <span class="badge badge-success">${member.status}</span>
                         </span>
@@ -353,7 +353,7 @@ function renderMembers() {
                     
                     <div class="card-actions">
                         <button class="btn btn-whatsapp" onclick="sendWhatsAppReminder('${member.name}', '${member.phone}', 'tithe')">
-                            💬 Send Tithe Reminder
+                             Send Tithe Reminder
                         </button>
                         <button class="btn btn-whatsapp" onclick="sendWhatsAppReminder('${member.name}', '${member.phone}', 'building')">
                              Send Building Fund Reminder
@@ -381,7 +381,7 @@ function renderEvents() {
     const state = paginationState.events;
     
     if (events.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📅</div><p>No events scheduled.</p></div>';
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"></div><p>No events scheduled.</p></div>';
         return;
     }
 
@@ -412,7 +412,7 @@ function renderEvents() {
                 </div>
                 <div class="search-box">
                     <input type="text" 
-                           placeholder="🔍 Search events..." 
+                           placeholder=" Search events..." 
                            value="${state.searchQuery}"
                            oninput="searchItems('events', this.value)">
                 </div>
@@ -471,15 +471,15 @@ function renderEvents() {
     paginatedEvents.forEach(event => {
         cardsHTML += `
             <div class="event-card">
-                <div class="card-name">📅 ${event.name}</div>
+                <div class="card-name"> ${event.name}</div>
                 
                 <div class="card-info-row">
-                    <span class="card-label">📆 Date</span>
+                    <span class="card-label"> Date</span>
                     <span class="card-value">${event.date}</span>
                 </div>
                 
                 <div class="card-info-row">
-                    <span class="card-label">🕐 Time</span>
+                    <span class="card-label"> Time</span>
                     <span class="card-value">${event.time}</span>
                 </div>
                 
@@ -490,7 +490,7 @@ function renderEvents() {
                 
                 <div class="card-actions">
                     <button class="btn btn-danger" onclick="deleteEvent('${event.id}')">
-                        🗑️ Delete Event
+                         Delete Event
                     </button>
                 </div>
             </div>
@@ -510,7 +510,7 @@ function renderContributions() {
     const state = paginationState.contributions;
     
     if (contributions.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💰</div><p>No contributions recorded yet.</p></div>';
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"></div><p>No contributions recorded yet.</p></div>';
         return;
     }
 
@@ -542,7 +542,7 @@ function renderContributions() {
                 </div>
                 <div class="search-box">
                     <input type="text" 
-                           placeholder="🔍 Search contributions..." 
+                           placeholder=" Search contributions..." 
                            value="${state.searchQuery}"
                            oninput="searchItems('contributions', this.value)">
                 </div>
@@ -603,10 +603,10 @@ function renderContributions() {
     paginatedContributions.forEach(contrib => {
         cardsHTML += `
             <div class="contribution-card">
-                <div class="card-name">💰 ${contrib.member}</div>
+                <div class="card-name"> ${contrib.member}</div>
                 
                 <div class="card-info-row">
-                    <span class="card-label">📋 Type</span>
+                    <span class="card-label"> Type</span>
                     <span class="card-value">
                         <span class="badge badge-primary">${contrib.type}</span>
                     </span>
@@ -623,7 +623,7 @@ function renderContributions() {
                 </div>
                 
                 <div class="card-info-row">
-                    <span class="card-label">📅 Date</span>
+                    <span class="card-label"> Date</span>
                     <span class="card-value">${contrib.date}</span>
                 </div>
                 
@@ -760,7 +760,7 @@ function loadPledgesPage() {
     }
     
     if (pledges.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🤝</div><p>No pledges recorded yet.</p></div>';
+        container.innerHTML = '<div class="empty-state"><div class="empty-state-icon"></div><p>No pledges recorded yet.</p></div>';
         updatePaginationControls('pledges');
         return;
     }
@@ -787,8 +787,8 @@ function loadPledgesPage() {
                 <td data-label="Status"><span class="badge ${pledge.status === 'Active' ? 'badge-success' : 'badge-secondary'}">${pledge.status}</span></td>
                 <td data-label="End Date">${pledge.endDate}</td>
                 <td data-label="Actions" style="display: flex; gap: 5px; flex-wrap: wrap;">
-                    <button class="btn btn-success" style="padding: 6px 12px; font-size: 12px;" onclick="recordPledgePayment('${pledge.id}')">💰 Pay</button>
-                    <button class="btn btn-whatsapp" onclick="sendWhatsApp('${pledge.phone || ''}')">💬 WhatsApp</button>
+                    <button class="btn btn-success" style="padding: 6px 12px; font-size: 12px;" onclick="recordPledgePayment('${pledge.id}')"> Pay</button>
+                    <button class="btn btn-whatsapp" onclick="sendWhatsApp('${pledge.phone || ''}')"> WhatsApp</button>
                 </td>
             </tr>
         `;
@@ -840,7 +840,7 @@ function sendWhatsAppReminder(name, phone, type) {
     const churchName = 'SimamiaKanisa Church';
     
     if (type === 'tithe') {
-        message = `🙏 *Reminder: Tithe Contribution*
+        message = ` *Reminder: Tithe Contribution*
 
 Dear ${name},
 
@@ -858,7 +858,7 @@ Payment Options:
 God bless you!
 ${churchName}`;
     } else if (type === 'building') {
-        message = `🏗️ *Reminder: Building Fund*
+        message = ` *Reminder: Building Fund*
 
 Dear ${name},
 
@@ -878,7 +878,7 @@ ${churchName}`;
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
     
-    console.log(`📱 Opening WhatsApp for ${name} (${cleanPhone})...`);
+    console.log(` Opening WhatsApp for ${name} (${cleanPhone})...`);
     window.open(whatsappUrl, '_blank');
 }
 
@@ -917,7 +917,7 @@ async function addMember() {
     }
 
     try {
-        console.log('➕ Adding member to Firebase...');
+        console.log(' Adding member to Firebase...');
         
         const newMember = {
             name: name,
@@ -930,7 +930,7 @@ async function addMember() {
 
         await membersCollection.add(newMember);
         
-        console.log('✅ Member added successfully!');
+        console.log(' Member added successfully!');
         
         document.getElementById('memberName').value = '';
         document.getElementById('memberPhone').value = '';
@@ -938,10 +938,10 @@ async function addMember() {
         
         closeModal('addMemberModal');
         await loadAllData();
-        alert('✅ Member added successfully!');
+        alert(' Member added successfully!');
         
     } catch (error) {
-        console.error('❌ Error adding member:', error);
+        console.error(' Error adding member:', error);
         alert('Error adding member. Please try again.');
     }
 }
@@ -958,7 +958,7 @@ async function addContribution() {
     }
 
     try {
-        console.log('➕ Adding contribution to Firebase...');
+        console.log('Adding contribution to Firebase...');
         
         const newContrib = {
             member: member,
@@ -971,17 +971,17 @@ async function addContribution() {
 
         await contributionsCollection.add(newContrib);
         
-        console.log('✅ Contribution added successfully!');
+        console.log(' Contribution added successfully!');
         
         document.getElementById('contribMember').value = '';
         document.getElementById('contribAmount').value = '';
         
         closeModal('addContributionModal');
         await loadAllData();
-        alert('✅ Contribution recorded successfully!');
+        alert(' Contribution recorded successfully!');
         
     } catch (error) {
-        console.error('❌ Error adding contribution:', error);
+        console.error(' Error adding contribution:', error);
         alert('Error recording contribution. Please try again.');
     }
 }
@@ -998,7 +998,7 @@ async function addEvent() {
     }
 
     try {
-        console.log('➕ Adding event to Firebase...');
+        console.log('Adding event to Firebase...');
         
         const newEvent = {
             name: name,
@@ -1010,7 +1010,7 @@ async function addEvent() {
 
         await eventsCollection.add(newEvent);
         
-        console.log('✅ Event added successfully!');
+        console.log(' Event added successfully!');
         
         document.getElementById('eventName').value = '';
         document.getElementById('eventDate').value = '';
@@ -1019,10 +1019,10 @@ async function addEvent() {
         
         closeModal('addEventModal');
         await loadAllData();
-        alert('✅ Event added successfully!');
+        alert(' Event added successfully!');
         
     } catch (error) {
-        console.error('❌ Error adding event:', error);
+        console.error('Error adding event:', error);
         alert('Error adding event. Please try again.');
     }
 }
@@ -1030,13 +1030,13 @@ async function addEvent() {
 async function deleteMember(id) {
     if (confirm('Are you sure you want to delete this member?')) {
         try {
-            console.log('🗑️ Deleting member from Firebase...');
+            console.log('Deleting member from Firebase...');
             await membersCollection.doc(id).delete();
-            console.log('✅ Member deleted successfully!');
+            console.log('Member deleted successfully!');
             await loadAllData();
-            alert('✅ Member deleted successfully!');
+            alert('Member deleted successfully!');
         } catch (error) {
-            console.error('❌ Error deleting member:', error);
+            console.error('Error deleting member:', error);
             alert('Error deleting member. Please try again.');
         }
     }
@@ -1045,13 +1045,13 @@ async function deleteMember(id) {
 async function deleteContribution(id) {
     if (confirm('Are you sure you want to delete this contribution?')) {
         try {
-            console.log('🗑️ Deleting contribution from Firebase...');
+            console.log(' Deleting contribution from Firebase...');
             await contributionsCollection.doc(id).delete();
-            console.log('✅ Contribution deleted successfully!');
+            console.log('Contribution deleted successfully!');
             await loadAllData();
-            alert('✅ Contribution deleted successfully!');
+            alert(' Contribution deleted successfully!');
         } catch (error) {
-            console.error('❌ Error deleting contribution:', error);
+            console.error(' Error deleting contribution:', error);
             alert('Error deleting contribution. Please try again.');
         }
     }
@@ -1060,13 +1060,13 @@ async function deleteContribution(id) {
 async function deleteEvent(id) {
     if (confirm('Are you sure you want to delete this event?')) {
         try {
-            console.log('🗑️ Deleting event from Firebase...');
+            console.log('Deleting event from Firebase...');
             await eventsCollection.doc(id).delete();
-            console.log('✅ Event deleted successfully!');
+            console.log(' Event deleted successfully!');
             await loadAllData();
-            alert('✅ Event deleted successfully!');
+            alert(' Event deleted successfully!');
         } catch (error) {
-            console.error('❌ Error deleting event:', error);
+            console.error(' Error deleting event:', error);
             alert('Error deleting event. Please try again.');
         }
     }
@@ -1078,17 +1078,17 @@ async function deleteEvent(id) {
 
 // CRITICAL: Initialize app AFTER authentication
 window.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 SimamiaKanisa starting...');
-    console.log('🔗 Connecting to Firebase...');
+    console.log(' SimamiaKanisa starting...');
+    console.log(' Connecting to Firebase...');
     
     // Wait for auth to complete
-    console.log('⏳ Waiting for authentication...');
+    console.log(' Waiting for authentication...');
     
     // Give auth.js time to initialize
     setTimeout(async () => {
         // Check if user is authenticated by checking if currentUser exists
         if (typeof currentUser !== 'undefined' && currentUser !== null) {
-            console.log('✅ User authenticated:', currentUser.email);
+            console.log(' User authenticated:', currentUser.email);
             await loadAllData();
         } else {
             console.log('⚠️ User not authenticated or auth not loaded yet');
