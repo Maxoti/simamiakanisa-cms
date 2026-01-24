@@ -103,38 +103,23 @@
         }
 
         .password-container input {
-            padding-right: 50px;
+            width: 100%;
         }
 
-        .toggle-password {
-            position: absolute;
-            right: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            color: #6b7280;
-            padding: 6px;
-            line-height: 1;
+        .show-password-checkbox {
             display: flex;
             align-items: center;
-            justify-content: center;
-            transition: color 0.2s;
-            z-index: 5;
+            gap: 6px;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
         }
 
-        .toggle-password:hover {
-            color: #2563eb;
-        }
-
-        .toggle-password:focus {
-            outline: none;
-        }
-
-        .toggle-password i {
-            font-size: 18px;
+        .show-password-checkbox input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+            cursor: pointer;
         }
 
         select {
@@ -353,14 +338,15 @@
             </div>
 
             <div class="form-group">
-                <label for="password"> Password *</label>
+                <label for="password">Password *</label>
                 <div style="position: relative;">
                     <div class="password-container">
                         <input type="password" id="password" placeholder="Enter strong password" required>
-                        <button type="button" class="toggle-password" onclick="togglePassword('password'); return false;">
-                            <i class="bi bi-eye"></i>
-                        </button>
                     </div>
+                    <label class="show-password-checkbox">
+                        <input type="checkbox" id="showPassword" onchange="togglePasswordVisibility('password', this.checked)">
+                        Show password
+                    </label>
                     <div class="password-strength">
                         <div id="passwordStrengthBar" class="password-strength-bar"></div>
                     </div>
@@ -376,10 +362,11 @@
                 <label for="confirmPassword"> Confirm Password *</label>
                 <div class="password-container">
                     <input type="password" id="confirmPassword" placeholder="Re-enter password" required>
-                    <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword'); return false;">
-                        <i class="bi bi-eye"></i>
-                    </button>
                 </div>
+                <label class="show-password-checkbox">
+                    <input type="checkbox" id="showConfirmPassword" onchange="togglePasswordVisibility('confirmPassword', this.checked)">
+                    Show password
+                </label>
             </div>
 
             <div class="form-group">
@@ -458,24 +445,9 @@
         });
 
         // Toggle password visibility
-        function togglePassword(fieldId) {
+        function togglePasswordVisibility(fieldId, show) {
             const field = document.getElementById(fieldId);
-            const button = field.nextElementSibling;
-            const icon = button.querySelector('i');
-            
-            if (field.type === 'password') {
-                field.type = 'text';
-                icon.classList.remove('bi-eye');
-                icon.classList.add('bi-eye-slash');
-            } else {
-                field.type = 'password';
-                icon.classList.remove('bi-eye-slash');
-                icon.classList.add('bi-eye');
-            }
-            
-            // Prevent any focus changes
-            field.focus();
-            return false;
+            field.type = show ? 'text' : 'password';
         }
 
         // Form submission
@@ -517,7 +489,7 @@
         });
 
         function showError(message) {
-            errorMessage.textContent = '❌ ' + message;
+            errorMessage.textContent = ' ' + message;
             errorMessage.style.display = 'block';
             setTimeout(() => {
                 errorMessage.style.display = 'none';
@@ -558,7 +530,7 @@
                     console.error("Registration error:", error.message);
                     loading.style.display = 'none';
                     registerBtn.disabled = false;
-                    registerBtn.textContent = ' Create Account';
+                    registerBtn.textContent = 'Create Account';
                     
                     let errorMsg = "Registration failed. ";
                     switch(error.code) {
