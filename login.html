@@ -100,10 +100,12 @@
 
     .password-container {
         position: relative;
+        display: block;
     }
 
     .password-container input {
         padding-right: 50px;
+        width: 100%;
     }
 
     .toggle-password {
@@ -302,7 +304,7 @@
             </div>
 
             <div class="form-group">
-                <label for="password"> Password</label>
+                <label for="password">Password</label>
                 <div class="password-container">
                     <input type="password" id="password" placeholder="Enter your password" required>
                     <button type="button" class="toggle-password" onclick="togglePassword(); return false;">
@@ -311,10 +313,14 @@
                 </div>
             </div>
 
-            
+            <div class="remember-forgot">
+                <label class="remember-me">
+                    <input type="checkbox" id="rememberMe">
+                    Remember me
+            </div>
 
             <button type="submit" id="loginBtn">
-                 Sign In
+                Sign In
             </button>
         </form>
 
@@ -340,20 +346,10 @@
         const form = document.getElementById('loginForm');
         const emailInput = document.getElementById('email');
         const passwordInput = document.getElementById('password');
-        const rememberMeCheckbox = document.getElementById('rememberMe');
         const loginBtn = document.getElementById('loginBtn');
         const errorMessage = document.getElementById('errorMessage');
         const successMessage = document.getElementById('successMessage');
         const loading = document.getElementById('loading');
-
-        // Check if user was remembered
-        window.addEventListener('load', function() {
-            const rememberedEmail = localStorage.getItem('rememberedEmail');
-            if (rememberedEmail) {
-                emailInput.value = rememberedEmail;
-                rememberMeCheckbox.checked = true;
-            }
-        });
 
         // Toggle password visibility
         function togglePassword() {
@@ -376,15 +372,12 @@
             return false;
         }
 
-      
-
         // Form submission
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
             const email = emailInput.value.trim();
             const password = passwordInput.value;
-            const rememberMe = rememberMeCheckbox.checked;
 
             // Hide previous messages
             errorMessage.style.display = 'none';
@@ -394,13 +387,6 @@
             if (!email || !password) {
                 showError('Please enter both email and password');
                 return;
-            }
-
-            // Remember email if checked
-            if (rememberMe) {
-                localStorage.setItem('rememberedEmail', email);
-            } else {
-                localStorage.removeItem('rememberedEmail');
             }
 
             // Show loading
