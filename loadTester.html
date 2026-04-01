@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SimamiaKanisa — Load Tester</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+
+  :root {
+    --bg:       #0a0c10;
+    --surface:  #111318;
+    --border:   #1e2228;
+    --accent:   #00e5a0;
+    --warn:     #ffb347;
+    --danger:   #ff4757;
+    --info:     #3d9eff;
+    --text:     #e8eaf0;
+    --muted:    #5a6070;
+    --mono:     'JetBrains Mono', monospace;
+    --sans:     'Syne', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* grid bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,160,.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,160,.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .shell { position: relative; z-index: 1; max-width: 960px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  /* header */
+  header { margin-bottom: 32px; }
+  .logo { font-family: var(--sans); font-size: 22px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; }
+  .logo span { color: var(--muted); font-weight: 400; }
+  .tagline { color: var(--muted); font-size: 11px; margin-top: 4px; letter-spacing: 2px; text-transform: uppercase; }
+
+  /* cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .card-title {
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+
+  /* config grid */
+  .config-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .field label { display: block; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .field input, .field select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 8px 10px;
+    outline: none;
+    transition: border-color .2s;
+  }
+  .field input:focus, .field select:focus { border-color: var(--accent); }
+
+  /* url field full width */
+  .field-full { grid-column: 1 / -1; }
+
+  /* stat row */
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .stat {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+    transition: border-color .3s;
+  }
+  .stat.good  { border-color: var(--accent); }
+  .stat.warn  { border-color: var(--warn); }
+  .stat.bad   { border-color: var(--danger); }
+  .stat-val {
+    font-family: var(--sans);
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .stat-val.good  { color: var(--accent); }
+  .stat-val.warn  { color: var(--warn); }
+  .stat-val.bad   { color: var(--danger); }
+  .stat-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+
+  /* progress bar */
+  .progress-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    width: 0%;
+    transition: width .3s;
+  }
+
+  /* latency chart */
+  #latencyCanvas {
+    width: 100%;
+    height: 120px;
+    display: block;
+    border-radius: 6px;
+  }
+
+  /* log */
+  .log-wrap {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    height: 220px;
+    overflow-y: auto;
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.7;
+  }
+  .log-wrap::-webkit-scrollbar { width: 4px; }
+  .log-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .log-line { display: flex; gap: 10px; }
+  .log-time { color: var(--muted); min-width: 72px; }
+  .log-ok   { color: var(--accent); }
+  .log-err  { color: var(--danger); }
+  .log-info { color: var(--info); }
+  .log-warn { color: var(--warn); }
+
+  /* buttons */
+  .btn-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+  .btn {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: opacity .2s, transform .1s;
+  }
+  .btn:hover  { opacity: .85; }
+  .btn:active { transform: scale(.97); }
+  .btn-start  { background: var(--accent); color: #0a0c10; }
+  .btn-stop   { background: var(--danger); color: #fff; }
+  .btn-clear  { background: var(--border); color: var(--muted); }
+  .btn:disabled { opacity: .35; cursor: not-allowed; }
+
+  /* pulse dot */
+  .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--muted);
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .dot.running { background: var(--accent); animation: pulse 1s infinite; }
+  .dot.done    { background: var(--info); }
+  .dot.error   { background: var(--danger); }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,229,160,.4); }
+    50%      { opacity: .7; box-shadow: 0 0 0 5px rgba(0,229,160,0); }
+  }
+
+  /* status bar */
+  .status-bar {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* percentile table */
+  .pct-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .pct-table th { color: var(--muted); text-align: left; padding: 4px 8px; font-weight: 400; letter-spacing: 1px; text-transform: uppercase; font-size: 10px; }
+  .pct-table td { padding: 5px 8px; border-top: 1px solid var(--border); }
+  .pct-table .bar-cell { width: 60%; }
+  .pct-bar { height: 6px; border-radius: 3px; background: var(--accent); opacity: .7; }
+
+  /* two col layout */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:600px) {
+    .stat-row { grid-template-columns: repeat(2,1fr); }
+    .two-col { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <header>
+    <div class="logo">SimamiaKanisa <span>// load tester</span></div>
+    <div class="tagline">stress test · latency · throughput · error rate</div>
+  </header>
+
+  <!-- Config -->
+  <div class="card">
+    <div class="card-title">Target & Parameters</div>
+    <div class="config-grid">
+      <div class="field field-full">
+        <label>Target URL</label>
+        <input id="targetUrl" type="url" value="https://simamiakanisa-cms.vercel.app" placeholder="https://your-app.vercel.app">
+      </div>
+      <div class="field">
+        <label>Virtual Users</label>
+        <input id="vUsers" type="number" value="10" min="1" max="100">
+      </div>
+      <div class="field">
+        <label>Duration (seconds)</label>
+        <input id="duration" type="number" value="30" min="5" max="300">
+      </div>
+      <div class="field">
+        <label>Ramp-up (seconds)</label>
+        <input id="rampUp" type="number" value="5" min="0" max="60">
+      </div>
+      <div class="field">
+        <label>Think time (ms)</label>
+        <input id="thinkTime" type="number" value="500" min="0" max="5000">
+      </div>
+      <div class="field">
+        <label>Timeout (ms)</label>
+        <input id="timeout" type="number" value="10000" min="1000" max="30000">
+      </div>
+      <div class="field">
+        <label>HTTP Method</label>
+        <select id="method">
+          <option>GET</option>
+          <option>POST</option>
+          <option>HEAD</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-start" id="btnStart" onclick="startTest()">▶ Start Test</button>
+      <button class="btn btn-stop"  id="btnStop"  onclick="stopTest()" disabled>■ Stop</button>
+      <button class="btn btn-clear"               onclick="clearResults()">↺ Clear</button>
+    </div>
+  </div>
+
+  <!-- Status -->
+  <div class="status-bar">
+    <span class="dot" id="statusDot"></span>
+    <span id="statusText">Idle — configure and start a test</span>
+  </div>
+
+  <!-- Live stats -->
+  <div class="stat-row">
+    <div class="stat" id="statRequests">
+      <div class="stat-val" id="valRequests">0</div>
+      <div class="stat-label">Requests</div>
+    </div>
+    <div class="stat" id="statRps">
+      <div class="stat-val" id="valRps">0</div>
+      <div class="stat-label">Req / sec</div>
+    </div>
+    <div class="stat" id="statAvgMs">
+      <div class="stat-val" id="valAvgMs">—</div>
+      <div class="stat-label">Avg latency</div>
+    </div>
+    <div class="stat" id="statErrors">
+      <div class="stat-val" id="valErrors">0</div>
+      <div class="stat-label">Errors</div>
+    </div>
+  </div>
+
+  <!-- Progress -->
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <!-- Chart + Percentiles -->
+  <div class="two-col">
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title">Latency over time (ms)</div>
+      <canvas id="latencyCanvas"></canvas>
+    </div>
+    <div class="card" style="margin-bottom:0">
+      <div class="card-title">Percentiles</div>
+      <table class="pct-table" id="pctTable">
+        <thead><tr><th>Percentile</th><th>ms</th><th class="bar-cell"></th></tr></thead>
+        <tbody id="pctBody">
+          <tr><td colspan="3" style="color:var(--muted);padding:20px 8px;text-align:center">Run a test to see percentiles</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Log -->
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">Request log</div>
+    <div class="log-wrap" id="logWrap"></div>
+  </div>
+
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────────
+let running      = false;
+let workers      = [];
+let startTime    = 0;
+let totalReq     = 0;
+let totalErr     = 0;
+let latencies    = [];
+let chartPoints  = [];   // {t, avg} per second
+let timerId      = null;
+let tickerId     = null;
+let canvas, ctx, W, H;
+
+const PROXY = 'https://corsproxy.io/?';   // fallback for CORS
+
+// ── DOM refs ───────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+// ── Canvas setup ───────────────────────────────────────────────────────────────
+function initCanvas() {
+  canvas = $('latencyCanvas');
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+}
+
+function resizeCanvas() {
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width  = rect.width  * devicePixelRatio;
+  canvas.height = rect.height * devicePixelRatio;
+  W = canvas.width; H = canvas.height;
+  ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  drawChart();
+}
+
+function drawChart() {
+  if (!ctx) return;
+  const w = W / devicePixelRatio;
+  const h = H / devicePixelRatio;
+  ctx.clearRect(0, 0, w, h);
+
+  // bg
+  ctx.fillStyle = '#0a0c10';
+  ctx.fillRect(0, 0, w, h);
+
+  if (chartPoints.length < 2) {
+    ctx.fillStyle = '#5a6070';
+    ctx.font = '11px JetBrains Mono';
+    ctx.textAlign = 'center';
+    ctx.fillText('Latency data will appear here', w/2, h/2);
+    return;
+  }
+
+  const maxV = Math.max(...chartPoints.map(p => p.avg), 1);
+  const pad  = { t:10, r:10, b:24, l:44 };
+  const cw   = w - pad.l - pad.r;
+  const ch   = h - pad.t - pad.b;
+
+  // grid lines
+  ctx.strokeStyle = '#1e2228';
+  ctx.lineWidth = 1;
+  [0, .25, .5, .75, 1].forEach(f => {
+    const y = pad.t + ch * (1 - f);
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + cw, y); ctx.stroke();
+    ctx.fillStyle = '#5a6070';
+    ctx.font = '9px JetBrains Mono';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(maxV * f), pad.l - 4, y + 3);
+  });
+
+  // area fill
+  const pts = chartPoints.map((p, i) => ({
+    x: pad.l + (i / (chartPoints.length - 1)) * cw,
+    y: pad.t + ch * (1 - p.avg / maxV)
+  }));
+
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pad.t + ch);
+  pts.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(pts[pts.length-1].x, pad.t + ch);
+  ctx.closePath();
+  const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + ch);
+  grad.addColorStop(0, 'rgba(0,229,160,.25)');
+  grad.addColorStop(1, 'rgba(0,229,160,.02)');
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // line
+  ctx.beginPath();
+  ctx.strokeStyle = '#00e5a0';
+  ctx.lineWidth = 1.5;
+  ctx.lineJoin = 'round';
+  pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+  ctx.stroke();
+
+  // time axis
+  ctx.fillStyle = '#5a6070';
+  ctx.font = '9px JetBrains Mono';
+  ctx.textAlign = 'center';
+  const dur = parseInt($('duration').value) || 30;
+  [0, .25, .5, .75, 1].forEach(f => {
+    ctx.fillText(`${Math.round(f * dur)}s`, pad.l + cw * f, h - 6);
+  });
+}
+
+// ── Logging ────────────────────────────────────────────────────────────────────
+function log(msg, cls = 'log-info') {
+  const wrap = $('logWrap');
+  const now  = new Date();
+  const ts   = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}.${String(now.getMilliseconds()).padStart(3,'0')}`;
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  line.innerHTML = `<span class="log-time">${ts}</span><span class="${cls}">${msg}</span>`;
+  wrap.appendChild(line);
+  if (wrap.children.length > 300) wrap.removeChild(wrap.firstChild);
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+// ── Single request ─────────────────────────────────────────────────────────────
+async function makeRequest(url, method, timeoutMs) {
+  const t0 = performance.now();
+  const controller = new AbortController();
+  const tid = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch(url, {
+      method,
+      signal: controller.signal,
+      mode:   'no-cors',          // avoids CORS block for simple load check
+      cache:  'no-store'
+    });
+    clearTimeout(tid);
+    const ms = Math.round(performance.now() - t0);
+    // no-cors gives opaque response — treat as success if no throw
+    return { ok: true, status: 0, ms };
+  } catch (e) {
+    clearTimeout(tid);
+    const ms = Math.round(performance.now() - t0);
+    return { ok: false, status: 0, ms, error: e.name === 'AbortError' ? 'TIMEOUT' : e.message };
+  }
+}
+
+// ── Worker loop ────────────────────────────────────────────────────────────────
+async function workerLoop(id, url, method, thinkMs, timeoutMs, endAt) {
+  while (running && Date.now() < endAt) {
+    const result = await makeRequest(url, method, timeoutMs);
+    if (!running) break;
+
+    totalReq++;
+    if (!result.ok) {
+      totalErr++;
+      log(`[U${id}] ✗ ${result.error} (${result.ms}ms)`, 'log-err');
+    } else {
+      latencies.push(result.ms);
+      if (totalReq % 10 === 0)
+        log(`[U${id}] ✓ ${result.ms}ms`, 'log-ok');
+    }
+
+    if (thinkMs > 0) {
+      await new Promise(r => setTimeout(r, thinkMs + Math.random() * thinkMs * .5));
+    }
+  }
+}
+
+// ── Test orchestration ─────────────────────────────────────────────────────────
+async function startTest() {
+  const url       = $('targetUrl').value.trim();
+  const vUsers    = parseInt($('vUsers').value)    || 10;
+  const duration  = parseInt($('duration').value)  || 30;
+  const rampUp    = parseInt($('rampUp').value)    || 0;
+  const thinkMs   = parseInt($('thinkTime').value) || 500;
+  const timeoutMs = parseInt($('timeout').value)   || 10000;
+  const method    = $('method').value;
+
+  if (!url) { alert('Please enter a target URL'); return; }
+
+  // reset
+  running    = true;
+  totalReq   = 0;
+  totalErr   = 0;
+  latencies  = [];
+  chartPoints= [];
+  startTime  = Date.now();
+  const endAt = startTime + duration * 1000;
+
+  $('btnStart').disabled = true;
+  $('btnStop').disabled  = false;
+  $('statusDot').className = 'dot running';
+  $('statusText').textContent = `Running — ${vUsers} virtual users · ${duration}s · ramp ${rampUp}s`;
+  $('progressFill').style.width = '0%';
+  $('logWrap').innerHTML = '';
+  drawChart();
+
+  log(`Test started → ${url}`, 'log-info');
+  log(`${vUsers} users · ${duration}s · think ${thinkMs}ms · timeout ${timeoutMs}ms`, 'log-info');
+
+  // spawn workers with ramp-up
+  const delay = rampUp > 0 ? (rampUp * 1000) / vUsers : 0;
+  for (let i = 0; i < vUsers; i++) {
+    if (!running) break;
+    const p = workerLoop(i + 1, url, method, thinkMs, timeoutMs, endAt);
+    workers.push(p);
+    if (delay > 0) await new Promise(r => setTimeout(r, delay));
+  }
+  log(`All ${vUsers} users active`, 'log-info');
+
+  // progress ticker
+  let lastReq = 0;
+  let lastBucket = [];
+
+  tickerId = setInterval(() => {
+    const elapsed = (Date.now() - startTime) / 1000;
+    const pct     = Math.min(elapsed / duration * 100, 100);
+    $('progressFill').style.width = pct + '%';
+
+    const rps   = Math.round((totalReq - lastReq));
+    lastReq     = totalReq;
+    const recent = latencies.slice(-50);
+    const avg   = recent.length ? Math.round(recent.reduce((a,b)=>a+b,0)/recent.length) : 0;
+    const errPct= totalReq ? Math.round(totalErr/totalReq*100) : 0;
+
+    $('valRequests').textContent = totalReq;
+    $('valRps').textContent      = rps;
+    $('valAvgMs').textContent    = avg ? avg + 'ms' : '—';
+    $('valErrors').textContent   = `${totalErr} (${errPct}%)`;
+
+    // color coding
+    colorStat('statAvgMs', 'valAvgMs', avg, 500, 2000);
+    colorStat('statErrors', 'valErrors', errPct, 5, 20);
+
+    chartPoints.push({ t: elapsed, avg });
+    if (chartPoints.length > 60) chartPoints.shift();
+    drawChart();
+    updatePercentiles();
+  }, 1000);
+
+  // auto-stop
+  timerId = setTimeout(() => stopTest(true), duration * 1000 + 500);
+}
+
+function colorStat(cardId, valId, val, warnThreshold, badThreshold) {
+  const card = $(cardId);
+  const valEl = $(valId);
+  card.className = 'stat';
+  valEl.className = 'stat-val';
+  if (val === 0 || !val) return;
+  if (val >= badThreshold)       { card.classList.add('bad');  valEl.classList.add('bad'); }
+  else if (val >= warnThreshold) { card.classList.add('warn'); valEl.classList.add('warn'); }
+  else                           { card.classList.add('good'); valEl.classList.add('good'); }
+}
+
+function stopTest(natural = false) {
+  running = false;
+  clearInterval(tickerId);
+  clearTimeout(timerId);
+  workers = [];
+
+  $('btnStart').disabled = false;
+  $('btnStop').disabled  = true;
+  $('statusDot').className = natural ? 'dot done' : 'dot error';
+  $('progressFill').style.width = natural ? '100%' : $('progressFill').style.width;
+
+  const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+  const errPct  = totalReq ? Math.round(totalErr / totalReq * 100) : 0;
+  const avg     = latencies.length ? Math.round(latencies.reduce((a,b)=>a+b,0)/latencies.length) : 0;
+  const verdict = errPct > 20 ? '🔴 POOR' : errPct > 5 ? '🟡 DEGRADED' : '🟢 HEALTHY';
+
+  $('statusText').textContent = natural
+    ? `Completed — ${totalReq} requests in ${elapsed}s · ${errPct}% errors · avg ${avg}ms`
+    : `Stopped at ${elapsed}s — ${totalReq} requests`;
+
+  log('─'.repeat(50), 'log-info');
+  log(`Test ${natural ? 'complete' : 'stopped'} after ${elapsed}s`, 'log-info');
+  log(`Total requests : ${totalReq}`, 'log-info');
+  log(`Errors         : ${totalErr} (${errPct}%)`, totalErr > 0 ? 'log-err' : 'log-ok');
+  log(`Avg latency    : ${avg}ms`, 'log-info');
+  log(`Verdict        : ${verdict}`, errPct > 5 ? 'log-warn' : 'log-ok');
+  log('─'.repeat(50), 'log-info');
+
+  updatePercentiles();
+  drawChart();
+}
+
+function clearResults() {
+  if (running) stopTest();
+  totalReq = totalErr = 0;
+  latencies = []; chartPoints = [];
+  $('valRequests').textContent = '0';
+  $('valRps').textContent      = '0';
+  $('valAvgMs').textContent    = '—';
+  $('valErrors').textContent   = '0';
+  $('progressFill').style.width = '0%';
+  $('statusDot').className = 'dot';
+  $('statusText').textContent = 'Idle — configure and start a test';
+  $('logWrap').innerHTML = '';
+  $('pctBody').innerHTML = '<tr><td colspan="3" style="color:var(--muted);padding:20px 8px;text-align:center">Run a test to see percentiles</td></tr>';
+  ['statRequests','statRps','statAvgMs','statErrors'].forEach(id => $(id).className = 'stat');
+  ['valRequests','valRps','valAvgMs','valErrors'].forEach(id => $(id).className = 'stat-val');
+  drawChart();
+}
+
+// ── Percentiles ────────────────────────────────────────────────────────────────
+function updatePercentiles() {
+  if (!latencies.length) return;
+  const sorted = [...latencies].sort((a,b) => a-b);
+  const pct = p => sorted[Math.floor(p/100 * sorted.length)] || 0;
+  const rows = [
+    ['p50 (median)', pct(50)],
+    ['p75',          pct(75)],
+    ['p90',          pct(90)],
+    ['p95',          pct(95)],
+    ['p99',          pct(99)],
+    ['max',          sorted[sorted.length-1]]
+  ];
+  const max = rows[rows.length-1][1] || 1;
+  $('pctBody').innerHTML = rows.map(([label, val]) => `
+    <tr>
+      <td>${label}</td>
+      <td style="color:${val>2000?'var(--danger)':val>500?'var(--warn)':'var(--accent)'}">${val}ms</td>
+      <td class="bar-cell"><div class="pct-bar" style="width:${Math.round(val/max*100)}%"></div></td>
+    </tr>`).join('');
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  initCanvas();
+  log('Load tester ready. Configure target and press Start.', 'log-info');
+  log('Note: uses no-cors mode — latency measured end-to-end.', 'log-warn');
+});
+</script>
+</body>
+</html>

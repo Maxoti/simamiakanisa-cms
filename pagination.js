@@ -1,4 +1,4 @@
-﻿// pagination.js â€” shared paginator + controls
+﻿// pagination.js — shared paginator + controls
 // Depends on: state.js
 
 function _paginate(filtered, state, section, pageSizes, placeholder) {
@@ -25,10 +25,10 @@ function _paginate(filtered, state, section, pageSizes, placeholder) {
       </div>
       <div class="pagination-controls">
         <button onclick="changePage('${section}', ${state.currentPage - 1})"
-                ${state.currentPage === 1 ? 'disabled' : ''}>â† Previous</button>
+                ${state.currentPage === 1 ? 'disabled' : ''}>← Previous</button>
         <span class="page-info">Page ${state.currentPage} of ${totalPages || 1}</span>
         <button onclick="changePage('${section}', ${state.currentPage + 1})"
-                ${state.currentPage >= totalPages ? 'disabled' : ''}>Next â†’</button>
+                ${state.currentPage >= totalPages ? 'disabled' : ''}>Next →</button>
       </div>
     </div>`;
 
@@ -62,9 +62,8 @@ function updatePaginationControls(section) {
   if (el(`${section}NextBtn`)) el(`${section}NextBtn`).disabled = state.currentPage >= totalPages || totalPages === 0;
 }
 
-// Legacy aliases
-const searchMembers          = () => searchItems('members',       document.getElementById('memberSearch')?.value ?? '');
-const searchEvents           = () => searchItems('events',        document.getElementById('eventSearch')?.value  ?? '');
-const loadContributionsPage  = () => renderContributions();
-const nextPledgesPage        = () => { const s = paginationState.pledges; if (s.currentPage < Math.ceil(s.totalItems / s.itemsPerPage)) { s.currentPage++; loadPledgesPage(); window.scrollTo({ top:0, behavior:'smooth' }); } };
-const previousPledgesPage    = () => { const s = paginationState.pledges; if (s.currentPage > 1) { s.currentPage--; loadPledgesPage(); window.scrollTo({ top:0, behavior:'smooth' }); } };
+// Legacy aliases — members + events search only
+// nextPledgesPage / previousPledgesPage / loadContributionsPage REMOVED
+// — those now live in Pledges.table.js and contributions.js respectively
+const searchMembers = () => searchItems('members', document.getElementById('memberSearch')?.value ?? '');
+const searchEvents  = () => searchItems('events',  document.getElementById('eventSearch')?.value  ?? '');

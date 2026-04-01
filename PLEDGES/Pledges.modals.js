@@ -154,16 +154,3 @@ function openPaymentHistoryModal(pledgeId) {
 
 // ── Shared helpers ────────────────────────────────────────────────────────────
 
-function closeModal(id) {
-    document.getElementById(id)?.classList.remove('active');
-}
-
-function setText(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value;
-}
-
-function clearField(id) {
-    const el = document.getElementById(id);
-    if (el) el.value = '';
-}

@@ -2,7 +2,6 @@
 // ANALYTICS.CHARTS.JS — All 5 Chart.js renderers
 // ============================================
 
-import { state } from '../analytics.state.js';
 
 const KSH_TICK  = value => `KSh ${value.toLocaleString()}`;
 const KSH_TIP   = ctx   => `KSh ${ctx.parsed.y.toLocaleString()}`;
@@ -23,7 +22,7 @@ function destroyAndStore(key, chart) {
 
 // ── 1. Monthly trends (line) ──────────────────────────────────────────────────
 
-export function renderMonthlyTrends(contributions) {
+ function renderMonthlyTrends(contributions) {
     const monthly = {};
     contributions.forEach(c => {
         const key = `${c.date.getFullYear()}-${String(c.date.getMonth() + 1).padStart(2, '0')}`;
@@ -66,7 +65,7 @@ export function renderMonthlyTrends(contributions) {
 
 // ── 2. Category breakdown (doughnut) ─────────────────────────────────────────
 
-export function renderCategoryChart(contributions) {
+ function renderCategoryChart(contributions) {
     const categories = {};
     contributions.forEach(c => {
         const cat = c.category || 'Other';
@@ -108,7 +107,7 @@ export function renderCategoryChart(contributions) {
 
 // ── 3. Top 5 contributors (horizontal bar) ───────────────────────────────────
 
-export function renderTopContributors(contributions) {
+ function renderTopContributors(contributions) {
     const members = {};
     contributions.forEach(c => {
         members[c.memberName || 'Unknown'] = (members[c.memberName || 'Unknown'] || 0) + c.amount;
@@ -141,7 +140,7 @@ export function renderTopContributors(contributions) {
 
 // ── 4. Weekly breakdown (bar) ─────────────────────────────────────────────────
 
-export function renderWeeklyChart(contributions) {
+ function renderWeeklyChart(contributions) {
     const weeks = {};
     contributions.forEach(c => {
         const key = `Week ${Math.ceil(c.date.getDate() / 7)}`;
@@ -173,7 +172,7 @@ export function renderWeeklyChart(contributions) {
 
 // ── 5. Participation rate (pie) ───────────────────────────────────────────────
 
-export function renderParticipationChart(contributions) {
+ function renderParticipationChart(contributions) {
     const participating    = new Set(contributions.map(c => c.memberName)).size;
     const total            = state.members.length;
     const notParticipating = Math.max(0, total - participating);

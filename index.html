@@ -267,32 +267,36 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════
+   <!-- ═══════════════════════════════════════════════════════════════
          SCRIPTS — ORDER IS CRITICAL, DO NOT REARRANGE
     ═══════════════════════════════════════════════════════════════ -->
 
-    <!-- 1. Firebase config + TENANT_ID resolution (no type=module — compat SDK uses globals) -->
+    <!-- 1. Firebase config + TENANT_ID -->
     <script src="firebase-config.js"></script>
 
-    <!-- 2. Root-level legacy modules (use firebase globals: db, auth) -->
+    <!-- 2. Auth (dispatches authReady event) -->
     <script src="auth.js"></script>
+
+    <!-- 3. Shared state + pagination MUST come before any module that uses them -->
+    <script src="state.js"></script>
+    <script src="pagination.js"></script>
+
+    <!-- 4. Feature modules (depend on state + pagination) -->
     <script src="members.js"></script>
     <script src="contributions.js"></script>
     <script src="events.js"></script>
-    <script src="pagination.js"></script>
-    <script src="state.js"></script>
 
-    <!-- 3. PLEDGES module bundle -->
+    <!-- 5. PLEDGES module bundle -->
     <script src="PLEDGES/Pledges.db.js"></script>
     <script src="PLEDGES/Pledges.state.js"></script>
-    <script src="PLEDGES/Pledges.data.js"></script>
     <script src="PLEDGES/Pledges.stats.js"></script>
     <script src="PLEDGES/Pledges.table.js"></script>
-    <script src="PLEDGES/Pledges.modals.js"></script>
     <script src="PLEDGES/Pledges.ui.js"></script>
+    <script src="PLEDGES/Pledges.modals.js"></script>
+    <script src="PLEDGES/Pledges.data.js"></script>
     <script src="PLEDGES/Pledges.js"></script>
 
-    <!-- 4. ANALYTICS module bundle -->
+    <!-- 6. ANALYTICS module bundle -->
     <script src="ANALYTICS/Analytics.db.js"></script>
     <script src="ANALYTICS/Analytics.state.js"></script>
     <script src="ANALYTICS/Analytics.data.js"></script>
@@ -302,13 +306,8 @@
     <script src="ANALYTICS/Analytics.ui.js"></script>
     <script src="ANALYTICS/Analytics.js"></script>
 
-    <!-- 5. Main app controller (must be last — depends on everything above) -->
+    <!-- 7. Main app controller (must be last) -->
     <script src="main.js"></script>
-
-    <!-- ═══════════════════════════════════════════════════════════════
-         INLINE SCRIPTS — mobile nav + auth guard + permission hooks
-         These run after all modules are loaded.
-    ═══════════════════════════════════════════════════════════════ -->
 
     <!-- Mobile Navigation -->
     <script>
@@ -320,7 +319,6 @@
             document.body.style.overflow = nav.classList.contains('active') ? 'hidden' : '';
         }
 
-        // Wrap switchTab to also close the mobile drawer
         const _switchTab = window.switchTab;
         window.switchTab = function(tabName) {
             if (window.innerWidth <= 768) {
@@ -330,9 +328,7 @@
                 overlay.classList.remove('active');
                 document.body.style.overflow = '';
             }
-            if (typeof _switchTab === 'function') {
-                _switchTab(tabName);
-            }
+            if (typeof _switchTab === 'function') _switchTab(tabName);
         };
 
         window.addEventListener('resize', () => {
@@ -346,23 +342,21 @@
 
     <!-- Auth guard + role-based UI -->
     <script>
-        auth.onAuthStateChanged((user) => {
-            if (!user) {
-                window.location.href = 'register.html';
-                return;
-            }
-            console.log(' User authenticated:', user.email);
-            initializeSecureUI();
+        // ── Wait for authReady (fired by auth.js after Firestore role is loaded)
+        // This fixes ROLE: NULL — role is guaranteed to exist at this point
+        document.addEventListener('authReady', ({ detail }) => {
+            console.log('✅ authReady received in index.html');
+            initializeSecureUI(detail.member);
         });
 
-        function initializeSecureUI() {
-            const userRole  = getCurrentUserRole();
-            const userEmail = getCurrentUserEmail();
+        function initializeSecureUI(member) {
+            const userRole  = member?.role  || getCurrentUserRole();
+            const userEmail = member?.email || getCurrentUserEmail();
 
             const emailEl = document.getElementById('userEmail');
             const roleEl  = document.getElementById('userRole');
-            if (emailEl) emailEl.textContent = userEmail;
-            if (roleEl)  roleEl.textContent  = `Role: ${userRole}`;
+            if (emailEl) emailEl.textContent = userEmail || '';
+            if (roleEl)  roleEl.textContent  = `Role: ${userRole || 'member'}`;
 
             const isEditor = ['admin', 'editor'].includes(userRole);
             const isAdmin  = userRole === 'admin';
@@ -371,7 +365,7 @@
             document.querySelectorAll('.admin-only').forEach(el  => el.style.display = isAdmin  ? '' : 'none');
         }
 
-        // Permission guards on write actions
+        // ── Permission guards on write actions
         function guardWrite(fn) {
             return function() {
                 if (!hasRole(['admin', 'editor'])) {
@@ -382,13 +376,15 @@
             };
         }
 
-        // Apply guards after all scripts have loaded
         window.addEventListener('load', () => {
             window.addMember       = guardWrite(window.addMember);
             window.addContribution = guardWrite(window.addContribution);
             window.addEvent        = guardWrite(window.addEvent);
         });
     </script>
+
+</body>
+</html>
 
 </body>
 </html>

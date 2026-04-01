@@ -5,7 +5,7 @@
 
 // ── Build the full analytics tab layout ──────────────────────────────────────
 
-export function buildAnalyticsHTML() {
+function buildAnalyticsHTML() {
     const container = document.querySelector('.analytics-container');
     if (!container) { console.error(' Analytics container not found!'); return; }
 
@@ -82,7 +82,7 @@ export function buildAnalyticsHTML() {
 
 // ── Error display ─────────────────────────────────────────────────────────────
 
-export function showError(message) {
+ function showError(message) {
     const container = document.querySelector('.analytics-container');
     if (container) {
         container.innerHTML = `

@@ -2,7 +2,7 @@
 // ANALYTICS.STATE.JS — Shared in-memory state
 // ============================================
 
-export const state = {
+ const state = {
     contributions: [],
     members:       [],
     events:        [],

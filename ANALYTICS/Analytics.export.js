@@ -2,12 +2,10 @@
 // ANALYTICS.EXPORT.JS — CSV + PDF export
 // ============================================
 
-import { filterByPeriod } from '../analytics.data.js';
-import { state }          from '../analytics.state.js';
 
 // ── CSV / Excel export ────────────────────────────────────────────────────────
 
-export function exportToExcel() {
+ function exportToExcel() {
     const { period, year, contributions } = getExportData();
 
     if (!contributions.length) { alert('No data to export for selected period'); return; }
@@ -39,11 +37,11 @@ export function exportToExcel() {
 
 // ── PDF export ────────────────────────────────────────────────────────────────
 
-export async function exportToPDF(event) {
+ async function exportToPDF(event) {
     const btn          = event?.target;
-    const originalText = btn?.textContent || '📄 Export PDF';
+    const originalText = btn?.textContent || ' Export PDF';
 
-    setBtn(btn, true, '⏳ Generating PDF...');
+    setBtn(btn, true, ' Generating PDF...');
 
     try {
         if (typeof window.jspdf === 'undefined') throw new Error('PDF library not loaded');
