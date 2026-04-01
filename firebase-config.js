@@ -83,4 +83,4 @@ auth.onAuthStateChanged(async (user) => {
   }
 });
 
-console.log(`🏢 Firebase initialized — tenant: "${TENANT_ID}"`);
+console.log(` Firebase initialized — tenant: "${TENANT_ID}"`);
