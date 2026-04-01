@@ -62,13 +62,6 @@ const membersCollection       = () => tenantRef().collection("members");
 const contributionsCollection = () => tenantRef().collection("contributions");
 const eventsCollection        = () => tenantRef().collection("events");
 
-// ─── Auth helper: get current user's tenantId from custom claim ───────────────
-async function getCurrentTenantId() {
-  const user = auth.currentUser;
-  if (!user) return null;
-  const token = await user.getIdTokenResult();
-  return token.claims.tenantId ?? TENANT_ID;
-}
 
 // ─── Guard: abort if the signed-in user doesn't belong to this tenant ─────────
 auth.onAuthStateChanged(async (user) => {

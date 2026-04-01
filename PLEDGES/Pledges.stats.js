@@ -2,9 +2,8 @@
 // PLEDGES.STATS.JS — Summary card updates
 // ============================================
 
-import { state } from './pledges.state.js';
 
-export function updatePledgeStats() {
+ function updatePledgeStats() {
     const { pledges } = state;
 
     const total          = pledges.reduce((s, p) => s + p.totalAmount,     0);

@@ -2,12 +2,11 @@
 // ANALYTICS.DATA.JS — Filtering + growth logic
 // ============================================
 
-import { state } from '../analytics.state.js';
 
 // ── Load global arrays into analytics state ───────────────────────────────────
 // Global `members`, `contributions`, `events` are populated by the main app.
 
-export function loadFromGlobals() {
+ async function loadFromGlobals() {
     state.members = [...(window.members || [])];
     state.events  = [...(window.events  || [])];
 
@@ -22,7 +21,7 @@ export function loadFromGlobals() {
 
 // ── Period filter ─────────────────────────────────────────────────────────────
 
-export function filterByPeriod(contributions, period, year) {
+async function filterByPeriod(contributions, period, year) {
     const selectedYear = parseInt(year);
     const now          = new Date();
 
@@ -41,7 +40,7 @@ export function filterByPeriod(contributions, period, year) {
 
 // ── Growth rate (first half vs second half of filtered set) ───────────────────
 
-export function calculateGrowthRate(contributions) {
+ function calculateGrowthRate(contributions) {
     if (contributions.length < 2) return 0;
 
     const sorted   = [...contributions].sort((a, b) => a.date - b.date);
@@ -54,7 +53,7 @@ export function calculateGrowthRate(contributions) {
 
 // ── Year range helpers ────────────────────────────────────────────────────────
 
-export function getEarliestYear() {
+function getEarliestYear() {
     let earliest = new Date().getFullYear();
 
     state.contributions.forEach(c => {
@@ -72,7 +71,7 @@ export function getEarliestYear() {
     return Math.max(earliest, 2020);
 }
 
-export function generateYearOptions() {
+ function generateYearOptions() {
     const currentYear = new Date().getFullYear();
     const startYear   = getEarliestYear();
 

@@ -1,13 +1,12 @@
 // ============================================
 // PLEDGES.MODALS.JS — Create, pay, history
 // ============================================
-
-import { state } from '../pledges.state.js';
-import { createPledge, recordPayment, loadPledgesData } from '../pledges.data.js';
+// Depends on: pledges.state.js (pledgeState), pledges.data.js (createPledge,
+//             recordPayment, loadPledgesData)
 
 // ── Create pledge modal ───────────────────────────────────────────────────────
 
-export function openCreatePledgeModal() {
+function openCreatePledgeModal() {
     const modal = document.getElementById('createPledgeModal');
     if (!modal) return;
 
@@ -22,7 +21,7 @@ export function openCreatePledgeModal() {
         });
     }
 
-    const today = new Date().toISOString().split('T')[0];
+    const today   = new Date().toISOString().split('T')[0];
     const nextYear = new Date();
     nextYear.setFullYear(nextYear.getFullYear() + 1);
 
@@ -32,7 +31,7 @@ export function openCreatePledgeModal() {
     modal.classList.add('active');
 }
 
-export async function createPledgeFromModal() {
+async function createPledgeFromModal() {
     const memberName = document.getElementById('pledgeMemberSelect').value;
     const category   = document.getElementById('pledgeCategory').value;
     const amount     = parseFloat(document.getElementById('pledgeAmount').value);
@@ -69,9 +68,9 @@ export async function createPledgeFromModal() {
 
 // ── Record payment modal ──────────────────────────────────────────────────────
 
-export function openRecordPaymentModal(pledgeId) {
-    state.currentPledgeId = pledgeId;
-    const pledge = state.pledges.find(p => p.id === pledgeId);
+function openRecordPaymentModal(pledgeId) {
+    pledgeState.currentPledgeId = pledgeId;
+    const pledge = pledgeState.pledges.find(p => p.id === pledgeId);
     if (!pledge) return;
 
     const modal = document.getElementById('recordPaymentModal');
@@ -90,8 +89,8 @@ export function openRecordPaymentModal(pledgeId) {
     modal.classList.add('active');
 }
 
-export async function submitPayment() {
-    const pledge = state.pledges.find(p => p.id === state.currentPledgeId);
+async function submitPayment() {
+    const pledge = pledgeState.pledges.find(p => p.id === pledgeState.currentPledgeId);
     if (!pledge) return;
 
     const amount    = parseFloat(document.getElementById('paymentAmount').value);
@@ -120,8 +119,8 @@ export async function submitPayment() {
 
 // ── Payment history modal ─────────────────────────────────────────────────────
 
-export function openPaymentHistoryModal(pledgeId) {
-    const pledge = state.pledges.find(p => p.id === pledgeId);
+function openPaymentHistoryModal(pledgeId) {
+    const pledge = pledgeState.pledges.find(p => p.id === pledgeId);
     if (!pledge) return;
 
     const modal = document.getElementById('paymentHistoryModal');
@@ -132,7 +131,7 @@ export function openPaymentHistoryModal(pledgeId) {
     setText('historyPledgePaid',      `KSh ${pledge.paidAmount.toLocaleString()}`);
     setText('historyPledgeRemaining', `KSh ${pledge.remainingAmount.toLocaleString()}`);
 
-    const payments  = state.pledgePayments.filter(p => p.pledgeId === pledgeId);
+    const payments  = pledgeState.pledgePayments.filter(p => p.pledgeId === pledgeId);
     const container = document.getElementById('paymentsListContainer');
 
     container.innerHTML = payments.length === 0
@@ -155,7 +154,7 @@ export function openPaymentHistoryModal(pledgeId) {
 
 // ── Shared helpers ────────────────────────────────────────────────────────────
 
-export function closeModal(id) {
+function closeModal(id) {
     document.getElementById(id)?.classList.remove('active');
 }
 

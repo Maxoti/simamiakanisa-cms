@@ -2,13 +2,12 @@
 // ANALYTICS.UI.JS — Layout HTML + error display
 // ============================================
 
-import { generateYearOptions } from '../analytics.data.js';
 
 // ── Build the full analytics tab layout ──────────────────────────────────────
 
 export function buildAnalyticsHTML() {
     const container = document.querySelector('.analytics-container');
-    if (!container) { console.error('❌ Analytics container not found!'); return; }
+    if (!container) { console.error(' Analytics container not found!'); return; }
 
     container.innerHTML = `
         <div class="analytics-header">

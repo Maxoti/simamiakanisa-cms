@@ -1,16 +1,15 @@
 // ============================================
 // PLEDGES.TABLE.JS — Table render + pagination
 // ============================================
-
-import { state } from './pledges.state.js';
+// Depends on: pledges.state.js (pledgeState)
 
 // ── Public entry points ───────────────────────────────────────────────────────
 
-export function renderPledgesTable() {
+function renderPledgesTable() {
     const container = document.getElementById('pledgesTable');
     if (!container) return;
 
-    const { pagination, pledges } = state;
+    const { pagination, pledges } = pledgeState;
     const data = pagination.filteredPledges.length ? pagination.filteredPledges : pledges;
 
     pagination.totalItems = data.length;
@@ -25,37 +24,37 @@ export function renderPledgesTable() {
     const start    = (currentPage - 1) * itemsPerPage;
     const pageData = data.slice(start, start + itemsPerPage);
 
-    console.log(`📄 Page ${currentPage}: showing ${pageData.length} of ${data.length} pledges`);
+    console.log(` Page ${currentPage}: showing ${pageData.length} of ${data.length} pledges`);
 
     container.innerHTML = buildTableHTML(pageData);
     updatePaginationControls();
 }
 
-export function filterPledges() {
+function filterPledges() {
     const status   = document.getElementById('pledgeStatusFilter')?.value   || 'all';
     const category = document.getElementById('pledgeCategoryFilter')?.value || 'all';
 
-    let filtered = [...state.pledges];
+    let filtered = [...pledgeState.pledges];
     if (status   !== 'all') filtered = filtered.filter(p => p.status   === status);
     if (category !== 'all') filtered = filtered.filter(p => p.category === category);
 
-    state.pagination.filteredPledges = filtered;
-    state.pagination.currentPage     = 1;
+    pledgeState.pagination.filteredPledges = filtered;
+    pledgeState.pagination.currentPage     = 1;
 
-    console.log(`🔍 Filtered: ${filtered.length} of ${state.pledges.length} pledges`);
+    console.log(`🔍 Filtered: ${filtered.length} of ${pledgeState.pledges.length} pledges`);
     renderPledgesTable();
 }
 
-export function changePledgesPerPage() {
+function changePledgesPerPage() {
     const select = document.getElementById('pledgesPerPageSelect');
     if (!select) return;
-    state.pagination.itemsPerPage = parseInt(select.value);
-    state.pagination.currentPage  = 1;
+    pledgeState.pagination.itemsPerPage = parseInt(select.value);
+    pledgeState.pagination.currentPage  = 1;
     renderPledgesTable();
 }
 
-export function nextPledgesPage() {
-    const { pagination } = state;
+function nextPledgesPage() {
+    const { pagination } = pledgeState;
     const totalPages = Math.ceil(pagination.totalItems / pagination.itemsPerPage);
     if (pagination.currentPage < totalPages) {
         pagination.currentPage++;
@@ -64,8 +63,8 @@ export function nextPledgesPage() {
     }
 }
 
-export function previousPledgesPage() {
-    const { pagination } = state;
+function previousPledgesPage() {
+    const { pagination } = pledgeState;
     if (pagination.currentPage > 1) {
         pagination.currentPage--;
         renderPledgesTable();
@@ -76,7 +75,7 @@ export function previousPledgesPage() {
 // ── Internal helpers ──────────────────────────────────────────────────────────
 
 function updatePaginationControls() {
-    const { pagination } = state;
+    const { pagination } = pledgeState;
     const totalPages = Math.ceil(pagination.totalItems / pagination.itemsPerPage) || 1;
 
     setText('pledgesPageInfo',    `Page ${pagination.currentPage} of ${totalPages}`);
@@ -130,7 +129,7 @@ function buildTableHTML(pageData) {
 function emptyStateHTML() {
     return `
     <div class="empty-state">
-        <div class="empty-state-icon">📋</div>
+        <div class="empty-state-icon"></div>
         <p>No pledges found.</p>
         <button class="btn btn-primary" onclick="openCreatePledgeModal()" style="margin-top:15px">+ Create First Pledge</button>
     </div>`;

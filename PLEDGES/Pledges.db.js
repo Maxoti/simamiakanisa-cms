@@ -1,12 +1,9 @@
 // ============================================
 // PLEDGES.DB.JS — Tenant-scoped Firestore refs
 // ============================================
+// Depends on: firebase-config.js  (db, TENANT_ID — already globals)
 
-import { db, TENANT_ID } from '../firebase-config.js';
-import { collection, doc } from 'firebase/firestore';
-
-// All pledge data lives under tenants/{tenantId}/
-export const pledgesRef     = () => collection(db, 'tenants', TENANT_ID, 'pledges');
-export const paymentsRef    = () => collection(db, 'tenants', TENANT_ID, 'pledge_payments');
-export const pledgeDoc      = (id) => doc(db, 'tenants', TENANT_ID, 'pledges', id);
-export const paymentDoc     = (id) => doc(db, 'tenants', TENANT_ID, 'pledge_payments', id);
+const pledgesRef  = () => db.collection('tenants').doc(TENANT_ID).collection('pledges');
+const paymentsRef = () => db.collection('tenants').doc(TENANT_ID).collection('pledge_payments');
+const pledgeDoc   = (id) => db.collection('tenants').doc(TENANT_ID).collection('pledges').doc(id);
+const paymentDoc  = (id) => db.collection('tenants').doc(TENANT_ID).collection('pledge_payments').doc(id);

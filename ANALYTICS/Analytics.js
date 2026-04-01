@@ -15,22 +15,9 @@
 
 console.log(' Analytics.js loading...');
 
-import { loadFromGlobals, filterByPeriod } from '../analytics.data.js';
-import { state }                            from '../analytics.state.js';
-import { buildAnalyticsHTML, showError }    from '../analytics.ui.js';
-import { updateSummaryCards }               from '../analytics.summary.js';
-import {
-    renderMonthlyTrends,
-    renderCategoryChart,
-    renderTopContributors,
-    renderWeeklyChart,
-    renderParticipationChart
-}                                           from '../analytics.charts.js';
-import { exportToExcel, exportToPDF }       from '../analytics.export.js';
-
 // ── Tab initialiser ───────────────────────────────────────────────────────────
 
-export function initAnalyticsTab() {
+async function initAnalyticsTab() {
     console.log('✅ Analytics tab opened!');
 
     if (typeof window.members === 'undefined' || typeof window.contributions === 'undefined') {
@@ -52,7 +39,7 @@ export function initAnalyticsTab() {
 
 // ── Refresh all charts + cards (called by period/year dropdowns) ──────────────
 
-export function updateAnalytics() {
+async function updateAnalytics() {
     console.log(' Updating analytics...');
 
     const period = document.getElementById('periodSelect')?.value || 'year';

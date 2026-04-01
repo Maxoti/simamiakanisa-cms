@@ -2,7 +2,7 @@
 // PLEDGES.STATE.JS — Shared in-memory state
 // ============================================
 
-export const state = {
+ const state = {
     pledges: [],
     pledgePayments: [],
     initialized: false,

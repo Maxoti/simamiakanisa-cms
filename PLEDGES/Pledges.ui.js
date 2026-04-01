@@ -1,37 +1,36 @@
 // ============================================
 // PLEDGES.UI.JS — Layout, export, WhatsApp, error
 // ============================================
-
-import { state } from './pledges.state.js';
+// Depends on: pledges.state.js (pledgeState)
 
 // ── Build the full pledges tab HTML ───────────────────────────────────────────
 
-export function buildPledgesHTML() {
+function buildPledgesHTML() {
     const container = document.querySelector('.pledges-container');
     if (!container) { console.error('❌ Pledges container not found!'); return; }
 
     container.innerHTML = `
         <div class="pledges-header">
-            <h1 class="pledges-title">📋 Pledges Management</h1>
+            <h1 class="pledges-title"> Pledges Management</h1>
             <div style="display:flex;gap:8px">
-                <button class="btn btn-secondary" onclick="exportPledgesReport()">📥 Export CSV</button>
+                <button class="btn btn-secondary" onclick="exportPledgesReport()"> Export CSV</button>
                 <button class="btn btn-primary"   onclick="openCreatePledgeModal()">+ New Pledge</button>
             </div>
         </div>
 
         <div class="pledges-summary">
             <div class="pledge-stat-card purple">
-                <h4>💜 Total Pledged</h4>
+                <h4> Total Pledged</h4>
                 <div class="value" id="totalPledged">KSh 0</div>
                 <div class="subtitle">across all pledges</div>
             </div>
             <div class="pledge-stat-card green">
-                <h4>✅ Total Paid</h4>
+                <h4> Total Paid</h4>
                 <div class="value" id="totalPaid">KSh 0</div>
                 <div class="subtitle" id="completionRate">0% completion</div>
             </div>
             <div class="pledge-stat-card orange">
-                <h4>📊 Remaining</h4>
+                <h4> Remaining</h4>
                 <div class="value" id="totalRemaining">KSh 0</div>
                 <div class="subtitle" id="activePledges">0 active pledges</div>
             </div>
@@ -89,8 +88,8 @@ export function buildPledgesHTML() {
 
 // ── Export CSV ────────────────────────────────────────────────────────────────
 
-export function exportPledgesReport() {
-    const { pledges, pagination } = state;
+function exportPledgesReport() {
+    const { pledges, pagination } = pledgeState;
     const data = pagination.filteredPledges.length ? pagination.filteredPledges : pledges;
 
     if (!data.length) { alert('No pledges to export'); return; }
@@ -126,19 +125,19 @@ export function exportPledgesReport() {
 
 // ── WhatsApp reminder ─────────────────────────────────────────────────────────
 
-export function sendPledgeReminder(pledgeId) {
-    const pledge = state.pledges.find(p => p.id === pledgeId);
+function sendPledgeReminder(pledgeId) {
+    const pledge = pledgeState.pledges.find(p => p.id === pledgeId);
     if (!pledge) return;
 
     const member = (window.members || []).find(m => m.name === pledge.memberName);
     if (!member) { alert('Member not found!'); return; }
 
     let phone = member.phone.replace(/\D/g, '');
-    if (phone.startsWith('0')) phone = '254' + phone.slice(1);
+    if (phone.startsWith('0'))    phone = '254' + phone.slice(1);
     else if (!phone.startsWith('254')) phone = '254' + phone;
 
     const message =
-` *Pledge Reminder*
+`🙏 *Pledge Reminder*
 
 Dear ${pledge.memberName},
 
@@ -163,12 +162,12 @@ SimamiaKanisa Church`;
 
 // ── Error display ─────────────────────────────────────────────────────────────
 
-export function showPledgeError(message) {
+function showPledgeError(message) {
     const container = document.querySelector('.pledges-container');
     if (container) {
         container.innerHTML = `
             <div style="background:#fee2e2;padding:30px;border-radius:15px;text-align:center">
-                <h2 style="color:#991b1b">❌ Error</h2>
+                <h2 style="color:#991b1b"> Error</h2>
                 <p style="color:#991b1b">${message}</p>
             </div>`;
     }

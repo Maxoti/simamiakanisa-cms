@@ -2,10 +2,8 @@
 // ANALYTICS.SUMMARY.JS — Summary card updates
 // ============================================
 
-import { state }                              from '../analytics.state.js';
-import { calculateGrowthRate }                from '../analytics.data.js';
 
-export function updateSummaryCards(contributions) {
+ function updateSummaryCards(contributions) {
     const total            = contributions.reduce((s, c) => s + c.amount, 0);
     const uniqueMembers    = new Set(contributions.map(c => c.memberName)).size;
     const average          = uniqueMembers > 0 ? Math.round(total / uniqueMembers) : 0;

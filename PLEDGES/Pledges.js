@@ -11,56 +11,29 @@
 //   pledges.modals.js  → create / pay / history modals
 //   pledges.ui.js      → layout HTML, export CSV, WhatsApp, errors
 //
-// All data lives under tenants/{TENANT_ID}/ — enforced in pledges.db.js.
+// Load order in index.html:
+//   pledges.db.js → pledges.state.js → pledges.stats.js →
+//   pledges.table.js → pledges.ui.js → pledges.modals.js →
+//   pledges.data.js → pledges.js  (this file, always last)
 
-console.log('📋 Pledges.js loading...');
-
-import { state }                                                    from './pledges.state.js';
-import { loadPledgesData }                                          from '../pledges.data.js';
-import { buildPledgesHTML }                                         from './pledges.ui.js';
-import { renderPledgesTable, filterPledges,
-         changePledgesPerPage, nextPledgesPage,
-         previousPledgesPage }                                      from './pledges.table.js';
-import { openCreatePledgeModal, createPledgeFromModal,
-         openRecordPaymentModal, submitPayment,
-         openPaymentHistoryModal, closeModal }                      from './pledges.modals.js';
-import { exportPledgesReport, sendPledgeReminder, showPledgeError } from './pledges.ui.js';
+console.log(' Pledges.js loading...');
 
 // ── Tab initialiser ───────────────────────────────────────────────────────────
 
-export async function renderPledgesTab() {
-    console.log('🏁 Pledges tab opened!');
+async function renderPledgesTab() {
+    console.log(' Pledges tab opened!');
 
     if (typeof db === 'undefined') {
         showPledgeError('Database not connected. Please reload the page.');
         return;
     }
 
-    if (!state.initialized) {
-        state.initialized = true;
+    if (!pledgeState.initialized) {
+        pledgeState.initialized = true;
     }
 
     buildPledgesHTML();
     await loadPledgesData();
 }
-
-// ── Expose to inline HTML onclick handlers ────────────────────────────────────
-// (Required because the HTML uses onclick="..." strings, not addEventListener)
-
-Object.assign(window, {
-    renderPledgesTab,
-    filterPledges,
-    changePledgesPerPage,
-    nextPledgesPage,
-    previousPledgesPage,
-    openCreatePledgeModal,
-    createPledgeFromModal,
-    openRecordPaymentModal,
-    submitPayment,
-    openPaymentHistoryModal,
-    closeModal,
-    exportPledgesReport,
-    sendPledgeReminder
-});
 
 console.log('✅ Pledges module loaded successfully!');
