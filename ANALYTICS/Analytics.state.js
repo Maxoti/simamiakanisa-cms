@@ -2,7 +2,7 @@
 // ANALYTICS.STATE.JS — Shared in-memory state
 // ============================================
 
- const state = {
+ const Analyticsstate = {
     contributions: [],
     members:       [],
     events:        [],

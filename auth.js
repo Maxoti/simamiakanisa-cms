@@ -1,7 +1,6 @@
 // ====== AUTHENTICATION — SimamiaKanisa (Multitenant) ======
 // Depends on: firebase-config.js  (TENANT_ID, membersCollection, tenantRef)
 
-const functions = firebase.functions();
 
 // ─── Internal helpers ──────────────────────────────────────────────────────────
 
@@ -40,12 +39,12 @@ async function registerUser(email, password, role = "member", displayName = "") 
   try {
     // 1. Create the Firebase Auth account
     const { user } = await auth.createUserWithEmailAndPassword(email, password);
-    console.log("✅ Auth account created:", user.uid);
+    console.log(" Auth account created:", user.uid);
 
     // 2. Stamp the tenant + role as a custom claim via Cloud Function
     const setTenantClaim = functions.httpsCallable("setTenantClaim");
     await setTenantClaim({ tenantId: TENANT_ID, role });
-    console.log(`✅ Custom claim set — tenant: ${TENANT_ID}, role: ${role}`);
+    console.log(` Custom claim set — tenant: ${TENANT_ID}, role: ${role}`);
 
     // 3. Force-refresh token so the claim is live immediately
     await _refreshToken(user);
