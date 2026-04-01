@@ -9,9 +9,7 @@
     <link rel="stylesheet" href="pledges.css">
     <link rel="stylesheet" href="analytics.css">
     <link rel="stylesheet" href="CSS/mobileNav.css">
-    
-   
-    
+
     <!-- ═══════════════════════════════════════════
          FIREBASE — compat SDK (must be first)
     ═══════════════════════════════════════════ -->
@@ -26,49 +24,49 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-</head>        
+</head>
+
+<!-- ✅ FIX 1: <body> tag was missing — everything was floating outside the document body -->
+<body>
+
+    <!-- Header -->
     <div class="header">
         <div class="container">
-            <!-- Hamburger Menu Button -->
-            <button class="hamburger" onclick="toggleNav()" aria-label="Toggle menu">
-                ☰
-            </button>
-            
-            <img src="images/church.jpeg" alt="Dove carrying fig tree" class="church-logo">
+            <button class="hamburger" onclick="toggleNav()" aria-label="Toggle menu">☰</button>
+            <img src="images/church.jpeg" alt="Church logo" class="church-logo">
             <h1>SimamiaKanisa</h1>
             <p>Modern Church Management System - Built for Kenyan Churches</p>
-            
-            <!-- User Info & Logout -->
-            <div class="user-info" style="position: absolute; right: 20px; top: 20px; display: flex; align-items: center; gap: 15px;">
-                <div style="text-align: right;">
-                    <div id="userEmail" style="font-size: 13px; color: #fff; opacity: 0.9;"></div>
-                    <div id="userRole" style="font-size: 11px; color: #fff; opacity: 0.7; text-transform: uppercase;"></div>
+
+            <div class="user-info" style="position:absolute;right:20px;top:20px;display:flex;align-items:center;gap:15px;">
+                <div style="text-align:right;">
+                    <div id="userEmail" style="font-size:13px;color:#fff;opacity:0.9;"></div>
+                    <div id="userRole"  style="font-size:11px;color:#fff;opacity:0.7;text-transform:uppercase;"></div>
                 </div>
-                <button onclick="logoutUser()" style="background: #dc3545; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.3s;">
-                     Logout
+                <button onclick="logoutUser()" style="background:#dc3545;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:600;">
+                    Logout
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- Navigation Overlay (for mobile) -->
+    <!-- Mobile nav overlay -->
     <div class="nav-overlay" onclick="toggleNav()"></div>
 
     <div class="container">
+
         <!-- Navigation Tabs -->
         <div class="tabs" id="navTabs">
             <button class="nav-close" onclick="toggleNav()" aria-label="Close menu">✕</button>
-            <button class="tab-btn active" onclick="switchTab('dashboard')"> Dashboard</button>
-            <button class="tab-btn" onclick="switchTab('members')"> Members</button>
-            <button class="tab-btn" onclick="switchTab('contributions')"> Contributions</button>
-            <button class="tab-btn" onclick="switchTab('events')">Events</button>
-            <button class="tab-btn" onclick="switchTab('pledges')"> Pledges</button>
-            <button class="tab-btn" onclick="switchTab('analytics')">Analytics</button>
+            <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="tab-btn"        onclick="switchTab('members')">Members</button>
+            <button class="tab-btn"        onclick="switchTab('contributions')">Contributions</button>
+            <button class="tab-btn"        onclick="switchTab('events')">Events</button>
+            <button class="tab-btn"        onclick="switchTab('pledges')">Pledges</button>
+            <button class="tab-btn"        onclick="switchTab('analytics')">Analytics</button>
         </div>
 
         <!-- DASHBOARD TAB -->
         <div id="dashboard" class="content active">
-            <!-- First Row: Main Stats -->
             <div class="stats-grid">
                 <div class="stat-card blue">
                     <div class="stat-label">Total Members</div>
@@ -88,8 +86,7 @@
                 </div>
             </div>
 
-            <!-- Second Row: Contribution Breakdown -->
-            <h3 style="margin: 30px 0 15px 0; color: #374151; font-size: 18px;"> Contribution Breakdown</h3>
+            <h3 style="margin:30px 0 15px;color:#374151;font-size:18px;">Contribution Breakdown</h3>
             <div class="stats-grid">
                 <div class="stat-card teal">
                     <div class="stat-label">Offerings</div>
@@ -110,9 +107,7 @@
             </div>
 
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title"> Quick Overview</h3>
-                </div>
+                <div class="card-header"><h3 class="card-title">Quick Overview</h3></div>
                 <div id="quickStats"></div>
             </div>
         </div>
@@ -121,7 +116,7 @@
         <div id="members" class="content">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"> Members Directory</h3>
+                    <h3 class="card-title">Members Directory</h3>
                     <button class="btn btn-primary editor-only" onclick="openAddMemberModal()">+ Add Member</button>
                 </div>
                 <div id="membersTable"></div>
@@ -132,7 +127,7 @@
         <div id="contributions" class="content">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"> Contributions & Tithes</h3>
+                    <h3 class="card-title">Contributions & Tithes</h3>
                     <button class="btn btn-success editor-only" onclick="openAddContributionModal()">+ Record Contribution</button>
                 </div>
                 <div id="contributionsTable"></div>
@@ -142,9 +137,8 @@
         <!-- PLEDGES TAB -->
         <div id="pledges" class="content">
             <div class="pledges-container">
-                <div style="text-align: center; padding: 50px;">
-                    <div style="font-size: 48px; margin-bottom: 20px;"></div>
-                    <p style="color: #666;">Loading pledges...</p>
+                <div style="text-align:center;padding:50px;">
+                    <p style="color:#666;">Loading pledges...</p>
                 </div>
             </div>
         </div>
@@ -153,7 +147,7 @@
         <div id="events" class="content">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"> Church Events</h3>
+                    <h3 class="card-title">Church Events</h3>
                     <button class="btn btn-primary editor-only" onclick="openAddEventModal()">+ Add Event</button>
                 </div>
                 <div id="eventsTable"></div>
@@ -163,16 +157,16 @@
         <!-- ANALYTICS TAB -->
         <div id="analytics" class="content">
             <div class="analytics-container">
-                <div style="text-align: center; padding: 50px;">
-                    <div style="font-size: 48px; margin-bottom: 20px;">📈</div>
-                    <p style="color: #666;">Loading analytics...</p>
+                <div style="text-align:center;padding:50px;">
+                    <p style="color:#666;">Loading analytics...</p>
                 </div>
             </div>
         </div>
 
     </div><!-- /.container -->
 
-    <!-- ADD MEMBER MODAL -->
+    <!-- ── MODALS ─────────────────────────────────────────── -->
+
     <div id="addMemberModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">Add New Member</div>
@@ -187,23 +181,17 @@
             <div class="form-group">
                 <label class="form-label">Ministry/Group</label>
                 <select class="form-input" id="memberGroup">
-                    <option>General</option>
-                    <option>Youth</option>
-                    <option>Choir</option>
-                    <option>Women</option>
-                    <option>Men</option>
-                    <option>Elders</option>
-                    <option>Ushers</option>
+                    <option>General</option><option>Youth</option><option>Choir</option>
+                    <option>Women</option><option>Men</option><option>Elders</option><option>Ushers</option>
                 </select>
             </div>
             <div class="form-actions">
                 <button class="btn btn-secondary" onclick="closeModal('addMemberModal')">Cancel</button>
-                <button class="btn btn-primary" onclick="addMember()">Add Member</button>
+                <button class="btn btn-primary"   onclick="addMember()">Add Member</button>
             </div>
         </div>
     </div>
 
-    <!-- ADD CONTRIBUTION MODAL -->
     <div id="addContributionModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">Record Contribution</div>
@@ -214,11 +202,8 @@
             <div class="form-group">
                 <label class="form-label">Type *</label>
                 <select class="form-input" id="contribType">
-                    <option>Tithe</option>
-                    <option>Offering</option>
-                    <option>Building Fund</option>
-                    <option>Mission</option>
-                    <option>Other</option>
+                    <option>Tithe</option><option>Offering</option><option>Building Fund</option>
+                    <option>Mission</option><option>Other</option>
                 </select>
             </div>
             <div class="form-group">
@@ -228,19 +213,16 @@
             <div class="form-group">
                 <label class="form-label">Payment Method</label>
                 <select class="form-input" id="contribMethod">
-                    <option>M-Pesa</option>
-                    <option>Cash</option>
-                    <option>Bank Transfer</option>
+                    <option>M-Pesa</option><option>Cash</option><option>Bank Transfer</option>
                 </select>
             </div>
             <div class="form-actions">
                 <button class="btn btn-secondary" onclick="closeModal('addContributionModal')">Cancel</button>
-                <button class="btn btn-success" onclick="addContribution()">Record</button>
+                <button class="btn btn-success"   onclick="addContribution()">Record</button>
             </div>
         </div>
     </div>
 
-    <!-- ADD EVENT MODAL -->
     <div id="addEventModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">Add New Event</div>
@@ -262,26 +244,27 @@
             </div>
             <div class="form-actions">
                 <button class="btn btn-secondary" onclick="closeModal('addEventModal')">Cancel</button>
-                <button class="btn btn-primary" onclick="addEvent()">Add Event</button>
+                <button class="btn btn-primary"   onclick="addEvent()">Add Event</button>
             </div>
         </div>
     </div>
 
-   <!-- ═══════════════════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════════════════
          SCRIPTS — ORDER IS CRITICAL, DO NOT REARRANGE
     ═══════════════════════════════════════════════════════════════ -->
 
     <!-- 1. Firebase config + TENANT_ID -->
     <script src="firebase-config.js"></script>
 
-    <!-- 2. Auth (dispatches authReady event) -->
+    <!-- 2. Auth — ✅ FIX 2: firebase.functions() now works because
+         firebase-functions-compat.js is loaded in <head> above -->
     <script src="auth.js"></script>
 
-    <!-- 3. Shared state + pagination MUST come before any module that uses them -->
+    <!-- 3. Shared state + pagination -->
     <script src="state.js"></script>
     <script src="pagination.js"></script>
 
-    <!-- 4. Feature modules (depend on state + pagination) -->
+    <!-- 4. Feature modules -->
     <script src="members.js"></script>
     <script src="contributions.js"></script>
     <script src="events.js"></script>
@@ -322,10 +305,8 @@
         const _switchTab = window.switchTab;
         window.switchTab = function(tabName) {
             if (window.innerWidth <= 768) {
-                const nav     = document.getElementById('navTabs');
-                const overlay = document.querySelector('.nav-overlay');
-                nav.classList.remove('active');
-                overlay.classList.remove('active');
+                document.getElementById('navTabs').classList.remove('active');
+                document.querySelector('.nav-overlay').classList.remove('active');
                 document.body.style.overflow = '';
             }
             if (typeof _switchTab === 'function') _switchTab(tabName);
@@ -342,21 +323,21 @@
 
     <!-- Auth guard + role-based UI -->
     <script>
-        // ── Wait for authReady (fired by auth.js after Firestore role is loaded)
-        // This fixes ROLE: NULL — role is guaranteed to exist at this point
+        // ✅ FIX 3: Listen for authReady event dispatched by auth.js
+        // This replaces auth.onAuthStateChanged here — role is guaranteed loaded
         document.addEventListener('authReady', ({ detail }) => {
-            console.log('✅ authReady received in index.html');
+            console.log('✅ authReady received:', detail);
             initializeSecureUI(detail.member);
         });
 
         function initializeSecureUI(member) {
-            const userRole  = member?.role  || getCurrentUserRole();
-            const userEmail = member?.email || getCurrentUserEmail();
+            const userRole  = member?.role  || getCurrentUserRole()  || 'member';
+            const userEmail = member?.email || getCurrentUserEmail() || '';
 
             const emailEl = document.getElementById('userEmail');
             const roleEl  = document.getElementById('userRole');
-            if (emailEl) emailEl.textContent = userEmail || '';
-            if (roleEl)  roleEl.textContent  = `Role: ${userRole || 'member'}`;
+            if (emailEl) emailEl.textContent = userEmail;
+            if (roleEl)  roleEl.textContent  = `Role: ${userRole}`;
 
             const isEditor = ['admin', 'editor'].includes(userRole);
             const isAdmin  = userRole === 'admin';
@@ -365,11 +346,11 @@
             document.querySelectorAll('.admin-only').forEach(el  => el.style.display = isAdmin  ? '' : 'none');
         }
 
-        // ── Permission guards on write actions
+        // Permission guards — applied after all modules define their functions
         function guardWrite(fn) {
             return function() {
                 if (!hasRole(['admin', 'editor'])) {
-                    alert(' You do not have permission to perform this action.');
+                    alert('⛔ You do not have permission to perform this action.');
                     return;
                 }
                 if (typeof fn === 'function') fn.apply(this, arguments);
@@ -382,9 +363,6 @@
             window.addEvent        = guardWrite(window.addEvent);
         });
     </script>
-
-</body>
-</html>
 
 </body>
 </html>
