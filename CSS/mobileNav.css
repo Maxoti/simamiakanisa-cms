@@ -1,0 +1,249 @@
+        /* Hamburger Menu Styles */
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background 0.3s;
+            position: absolute;
+            left: 15px;
+            top: 20px;
+            z-index: 101;
+        }
+
+        .hamburger:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .hamburger:active {
+            transform: scale(0.95);
+        }
+
+        /* Navigation Overlay */
+        .nav-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Mobile Navigation Close Button */
+        .nav-close {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 10px;
+            color: #374151;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            /* Make header responsive */
+            .header .container {
+                padding-left: 60px !important;
+            }
+
+            .header h1 {
+                font-size: 1.3rem !important;
+            }
+
+            .header p {
+                font-size: 0.75rem !important;
+            }
+
+            .church-logo {
+                width: 40px !important;
+                height: 40px !important;
+            }
+
+            /* User info in header - stack vertically */
+            .user-info {
+                position: absolute !important;
+                right: 10px !important;
+                top: 15px !important;
+                flex-direction: column !important;
+                align-items: flex-end !important;
+                gap: 8px !important;
+            }
+
+            .user-info > div {
+                display: none; /* Hide email/role on very small screens */
+            }
+
+            /* Slide-out Navigation */
+            .tabs {
+                position: fixed !important;
+                top: 0;
+                left: -100%;
+                width: 280px;
+                max-width: 85%;
+                height: 100vh;
+                background: white;
+                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+                transition: left 0.3s ease;
+                z-index: 999;
+                padding: 60px 15px 20px 15px;
+                overflow-y: auto;
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+
+            .tabs.active {
+                left: 0;
+            }
+
+            .nav-close {
+                display: block;
+            }
+
+            .tab-btn {
+                width: 100% !important;
+                text-align: left !important;
+                padding: 15px 20px !important;
+                border-radius: 8px !important;
+                margin: 0 !important;
+                font-size: 1rem !important;
+                border: none !important;
+                background: #f3f4f6 !important;
+            }
+
+            .tab-btn:hover {
+                background: #e5e7eb !important;
+            }
+
+            .tab-btn.active {
+                background: #2563eb !important;
+                color: white !important;
+            }
+
+            /* Container adjustments */
+            .container {
+                padding: 10px !important;
+            }
+
+            /* Stats grid - single column on mobile */
+            .stats-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            /* Card headers */
+            .card-header {
+                flex-direction: column !important;
+                gap: 10px !important;
+                align-items: stretch !important;
+            }
+
+            .card-header .btn {
+                width: 100% !important;
+            }
+
+            /* Table responsiveness */
+            .table-wrapper {
+                overflow-x: auto;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 8px 6px !important;
+                white-space: nowrap;
+            }
+
+            /* Hide less important columns on mobile */
+            table th:nth-child(3),
+            table td:nth-child(3),
+            table th:nth-child(4),
+            table td:nth-child(4) {
+                display: none;
+            }
+
+            /* Action buttons - make them stack */
+            td button {
+                display: block;
+                width: 100%;
+                margin: 3px 0;
+                font-size: 0.75rem !important;
+                padding: 6px 10px !important;
+            }
+
+            /* Modal adjustments */
+            .modal-content {
+                width: 95% !important;
+                max-width: 95% !important;
+                margin: 20px auto !important;
+            }
+
+            .form-actions {
+                flex-direction: column !important;
+            }
+
+            .form-actions .btn {
+                width: 100% !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.1rem !important;
+            }
+
+            .header p {
+                display: none;
+            }
+
+            .stat-card .stat-value {
+                font-size: 1.5rem !important;
+            }
+
+            .stat-card .stat-label {
+                font-size: 0.75rem !important;
+            }
+        }
+
+        /* Ensure tables have proper action button layout */
+        table td:last-child {
+            min-width: 150px;
+        }
+
+        table td:last-child > * {
+            display: inline-block;
+            margin: 2px;
+        }
+
+        @media (max-width: 768px) {
+            table td:last-child {
+                min-width: auto;
+            }
+            
+            table td:last-child > * {
+                display: block;
+                width: 100%;
+                margin: 3px 0;
+            }
+        }

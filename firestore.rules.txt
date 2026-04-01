@@ -1,0 +1,46 @@
+// firestore.rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: caller's tenantId claim matches the path segment
+    function ownTenant(tenantId) {
+      return request.auth != null
+          && request.auth.token.tenantId == tenantId;
+    }
+
+    function hasRole(tenantId, role) {
+      return ownTenant(tenantId)
+          && request.auth.token.role == role;
+    }
+
+    // Tenant metadata — only super-admin writes
+    match /tenants/{tenantId} {
+      allow read:  if ownTenant(tenantId);
+      allow write: if request.auth.token.role == "superadmin";
+
+      // All sub-collections inherit the ownTenant check
+      match /members/{memberId} {
+        allow read:   if ownTenant(tenantId);
+        allow create: if ownTenant(tenantId);
+        allow update, delete: if hasRole(tenantId, "admin")
+                              || request.auth.uid == memberId;
+      }
+
+      match /pledges/{pledgeId} {
+        allow read:   if ownTenant(tenantId);
+        allow write:  if ownTenant(tenantId);
+      }
+
+      match /analytics/{docId} {
+        allow read:  if ownTenant(tenantId);
+        allow write: if hasRole(tenantId, "admin");
+      }
+    }
+
+    // Block everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

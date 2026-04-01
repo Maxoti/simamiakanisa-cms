@@ -8,267 +8,25 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="pledges.css">
     <link rel="stylesheet" href="analytics.css">
+    <link rel="stylesheet" href="CSS/mobileNav.css">
     
-    <!-- Mobile Responsive Styles -->
-    <style>
-        /* Hamburger Menu Styles */
-        .hamburger {
-            display: none;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.8rem;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 4px;
-            transition: background 0.3s;
-            position: absolute;
-            left: 15px;
-            top: 20px;
-            z-index: 101;
-        }
-
-        .hamburger:hover {
-            background: rgba(255,255,255,0.1);
-        }
-
-        .hamburger:active {
-            transform: scale(0.95);
-        }
-
-        /* Navigation Overlay */
-        .nav-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: rgba(0,0,0,0.5);
-            z-index: 998;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .nav-overlay.active {
-            display: block;
-            opacity: 1;
-        }
-
-        /* Mobile Navigation Close Button */
-        .nav-close {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 2rem;
-            cursor: pointer;
-            padding: 10px;
-            color: #374151;
-            position: absolute;
-            right: 10px;
-            top: 10px;
-        }
-
-        /* Mobile Responsive Adjustments */
-        @media (max-width: 768px) {
-            .hamburger {
-                display: block;
-            }
-
-            /* Make header responsive */
-            .header .container {
-                padding-left: 60px !important;
-            }
-
-            .header h1 {
-                font-size: 1.3rem !important;
-            }
-
-            .header p {
-                font-size: 0.75rem !important;
-            }
-
-            .church-logo {
-                width: 40px !important;
-                height: 40px !important;
-            }
-
-            /* User info in header - stack vertically */
-            .user-info {
-                position: absolute !important;
-                right: 10px !important;
-                top: 15px !important;
-                flex-direction: column !important;
-                align-items: flex-end !important;
-                gap: 8px !important;
-            }
-
-            .user-info > div {
-                display: none; /* Hide email/role on very small screens */
-            }
-
-            /* Slide-out Navigation */
-            .tabs {
-                position: fixed !important;
-                top: 0;
-                left: -100%;
-                width: 280px;
-                max-width: 85%;
-                height: 100vh;
-                background: white;
-                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-                transition: left 0.3s ease;
-                z-index: 999;
-                padding: 60px 15px 20px 15px;
-                overflow-y: auto;
-                flex-direction: column !important;
-                gap: 8px !important;
-            }
-
-            .tabs.active {
-                left: 0;
-            }
-
-            .nav-close {
-                display: block;
-            }
-
-            .tab-btn {
-                width: 100% !important;
-                text-align: left !important;
-                padding: 15px 20px !important;
-                border-radius: 8px !important;
-                margin: 0 !important;
-                font-size: 1rem !important;
-                border: none !important;
-                background: #f3f4f6 !important;
-            }
-
-            .tab-btn:hover {
-                background: #e5e7eb !important;
-            }
-
-            .tab-btn.active {
-                background: #2563eb !important;
-                color: white !important;
-            }
-
-            /* Container adjustments */
-            .container {
-                padding: 10px !important;
-            }
-
-            /* Stats grid - single column on mobile */
-            .stats-grid {
-                grid-template-columns: 1fr !important;
-            }
-
-            /* Card headers */
-            .card-header {
-                flex-direction: column !important;
-                gap: 10px !important;
-                align-items: stretch !important;
-            }
-
-            .card-header .btn {
-                width: 100% !important;
-            }
-
-            /* Table responsiveness */
-            .table-wrapper {
-                overflow-x: auto;
-            }
-
-            table {
-                font-size: 0.85rem;
-            }
-
-            th, td {
-                padding: 8px 6px !important;
-                white-space: nowrap;
-            }
-
-            /* Hide less important columns on mobile */
-            table th:nth-child(3),
-            table td:nth-child(3),
-            table th:nth-child(4),
-            table td:nth-child(4) {
-                display: none;
-            }
-
-            /* Action buttons - make them stack */
-            td button {
-                display: block;
-                width: 100%;
-                margin: 3px 0;
-                font-size: 0.75rem !important;
-                padding: 6px 10px !important;
-            }
-
-            /* Modal adjustments */
-            .modal-content {
-                width: 95% !important;
-                max-width: 95% !important;
-                margin: 20px auto !important;
-            }
-
-            .form-actions {
-                flex-direction: column !important;
-            }
-
-            .form-actions .btn {
-                width: 100% !important;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.1rem !important;
-            }
-
-            .header p {
-                display: none;
-            }
-
-            .stat-card .stat-value {
-                font-size: 1.5rem !important;
-            }
-
-            .stat-card .stat-label {
-                font-size: 0.75rem !important;
-            }
-        }
-
-        /* Ensure tables have proper action button layout */
-        table td:last-child {
-            min-width: 150px;
-        }
-
-        table td:last-child > * {
-            display: inline-block;
-            margin: 2px;
-        }
-
-        @media (max-width: 768px) {
-            table td:last-child {
-                min-width: auto;
-            }
-            
-            table td:last-child > * {
-                display: block;
-                width: 100%;
-                margin: 3px 0;
-            }
-        }
-    </style>
+   
     
-    <!-- Firebase Scripts - REQUIRED -->
+    <!-- ═══════════════════════════════════════════
+         FIREBASE — compat SDK (must be first)
+    ═══════════════════════════════════════════ -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-</head>
-<body>
-    <!-- Header -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions-compat.js"></script>
+
+    <!-- ═══════════════════════════════════════════
+         THIRD-PARTY LIBRARIES
+    ═══════════════════════════════════════════ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>        
     <div class="header">
         <div class="container">
             <!-- Hamburger Menu Button -->
@@ -337,7 +95,7 @@
                     <div class="stat-label">Offerings</div>
                     <div class="stat-value" id="offeringsTotal">KSh 0</div>
                 </div>
-                <div class="stat-card indigo">
+                <div class="stat-card blue">
                     <div class="stat-label">Building Fund</div>
                     <div class="stat-value" id="buildingTotal">KSh 0</div>
                 </div>
@@ -412,7 +170,7 @@
             </div>
         </div>
 
-        
+    </div><!-- /.container -->
 
     <!-- ADD MEMBER MODAL -->
     <div id="addMemberModal" class="modal">
@@ -509,188 +267,128 @@
         </div>
     </div>
 
-    <!-- Firebase Configuration - Load FIRST -->
-    <script src="firebase-config.js"></script>
-        <script src="main.js"></script>
+    <!-- ═══════════════════════════════════════════════════════════════
+         SCRIPTS — ORDER IS CRITICAL, DO NOT REARRANGE
+    ═══════════════════════════════════════════════════════════════ -->
 
-    
-    <!-- Mobile Navigation Script -->
+    <!-- 1. Firebase config + TENANT_ID resolution (no type=module — compat SDK uses globals) -->
+    <script src="firebase-config.js"></script>
+
+    <!-- 2. Root-level legacy modules (use firebase globals: db, auth) -->
+    <script src="auth.js"></script>
+    <script src="members.js"></script>
+    <script src="contributions.js"></script>
+    <script src="events.js"></script>
+    <script src="pagination.js"></script>
+    <script src="state.js"></script>
+
+    <!-- 3. PLEDGES module bundle -->
+    <script src="PLEDGES/Pledges.db.js"></script>
+    <script src="PLEDGES/Pledges.state.js"></script>
+    <script src="PLEDGES/Pledges.data.js"></script>
+    <script src="PLEDGES/Pledges.stats.js"></script>
+    <script src="PLEDGES/Pledges.table.js"></script>
+    <script src="PLEDGES/Pledges.modals.js"></script>
+    <script src="PLEDGES/Pledges.ui.js"></script>
+    <script src="PLEDGES/Pledges.js"></script>
+
+    <!-- 4. ANALYTICS module bundle -->
+    <script src="ANALYTICS/Analytics.db.js"></script>
+    <script src="ANALYTICS/Analytics.state.js"></script>
+    <script src="ANALYTICS/Analytics.data.js"></script>
+    <script src="ANALYTICS/Analytics.summary.js"></script>
+    <script src="ANALYTICS/Analytics.charts.js"></script>
+    <script src="ANALYTICS/Analytics.export.js"></script>
+    <script src="ANALYTICS/Analytics.ui.js"></script>
+    <script src="ANALYTICS/Analytics.js"></script>
+
+    <!-- 5. Main app controller (must be last — depends on everything above) -->
+    <script src="main.js"></script>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         INLINE SCRIPTS — mobile nav + auth guard + permission hooks
+         These run after all modules are loaded.
+    ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- Mobile Navigation -->
     <script>
-        // Toggle mobile navigation
         function toggleNav() {
-            const nav = document.getElementById('navTabs');
+            const nav     = document.getElementById('navTabs');
             const overlay = document.querySelector('.nav-overlay');
-            
             nav.classList.toggle('active');
             overlay.classList.toggle('active');
-            
-            // Prevent body scroll when menu is open
-            if (nav.classList.contains('active')) {
-                document.body.style.overflow = 'hidden';
-            } else {
-                document.body.style.overflow = '';
-            }
+            document.body.style.overflow = nav.classList.contains('active') ? 'hidden' : '';
         }
 
-        // Enhanced switchTab function that closes mobile menu
-        const originalSwitchTab = window.switchTab;
+        // Wrap switchTab to also close the mobile drawer
+        const _switchTab = window.switchTab;
         window.switchTab = function(tabName) {
-            // Close mobile nav if open
             if (window.innerWidth <= 768) {
-                const nav = document.getElementById('navTabs');
-                const overlay = document.querySelector('.nav-overlay');
-                if (nav.classList.contains('active')) {
-                    nav.classList.remove('active');
-                    overlay.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-            }
-            
-            // Call original switchTab if it exists, otherwise use basic logic
-            if (originalSwitchTab && typeof originalSwitchTab === 'function') {
-                originalSwitchTab(tabName);
-            } else {
-                // Basic tab switching logic as fallback
-                document.querySelectorAll('.content').forEach(c => {
-                    c.classList.remove('active');
-                    c.style.display = 'none';
-                });
-                
-                document.querySelectorAll('.tab-btn').forEach(b => {
-                    b.classList.remove('active');
-                });
-                
-                const selectedTab = document.getElementById(tabName);
-                if (selectedTab) {
-                    selectedTab.classList.add('active');
-                    selectedTab.style.display = 'block';
-                }
-                
-                if (event && event.target) {
-                    event.target.classList.add('active');
-                }
-            }
-        };
-        
-
-        // Close nav on window resize if transitioning to desktop
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 768) {
-                const nav = document.getElementById('navTabs');
+                const nav     = document.getElementById('navTabs');
                 const overlay = document.querySelector('.nav-overlay');
                 nav.classList.remove('active');
                 overlay.classList.remove('active');
                 document.body.style.overflow = '';
             }
+            if (typeof _switchTab === 'function') {
+                _switchTab(tabName);
+            }
+        };
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                document.getElementById('navTabs').classList.remove('active');
+                document.querySelector('.nav-overlay').classList.remove('active');
+                document.body.style.overflow = '';
+            }
         });
     </script>
-    
-    <!-- Security & Initialization Script -->
+
+    <!-- Auth guard + role-based UI -->
     <script>
-        // SECURITY: Protect this page - must be logged in
-        // Check authentication IMMEDIATELY when page loads
         auth.onAuthStateChanged((user) => {
             if (!user) {
-                // No user logged in, redirect to register page
-                console.log("No user logged in, redirecting to register...");
-                window.location.href = "register.html";
-            } else {
-                // User is logged in, initialize the dashboard
-                console.log("User authenticated:", user.email);
-                initializeSecureUI();
+                window.location.href = 'register.html';
+                return;
             }
+            console.log(' User authenticated:', user.email);
+            initializeSecureUI();
         });
 
-        // Initialize UI based on user role
         function initializeSecureUI() {
-            const userRole = getCurrentUserRole();
+            const userRole  = getCurrentUserRole();
             const userEmail = getCurrentUserEmail();
-            
-            console.log(' Initializing secure UI. Role:', userRole, 'Email:', userEmail);
-            
-            // Display user info in header
-            if (userEmail) {
-                document.getElementById('userEmail').textContent = userEmail;
-            }
-            if (userRole) {
-                document.getElementById('userRole').textContent = `Role: ${userRole}`;
-            }
-            
-            // Show/hide elements based on role
-            if (userRole === 'admin') {
-                // Show all admin elements
-                const adminElements = document.querySelectorAll('.admin-only');
-                adminElements.forEach(el => el.style.display = '');
-                
-                // Show editor elements too (admin can do everything)
-                const editorElements = document.querySelectorAll('.editor-only');
-                editorElements.forEach(el => el.style.display = '');
-                
-                console.log('Admin access granted');
-            } else if (userRole === 'editor') {
-                // Show only editor elements
-                const editorElements = document.querySelectorAll('.editor-only');
-                editorElements.forEach(el => el.style.display = '');
-                
-                // Hide admin-only elements
-                const adminElements = document.querySelectorAll('.admin-only');
-                adminElements.forEach(el => el.style.display = 'none');
-                
-                console.log(' Editor access granted');
-            } else {
-                // Regular user - hide all edit/add buttons
-                const editorElements = document.querySelectorAll('.editor-only');
-                editorElements.forEach(el => el.style.display = 'none');
-                
-                const adminElements = document.querySelectorAll('.admin-only');
-                adminElements.forEach(el => el.style.display = 'none');
-                
-                console.log(' User (read-only) access');
-            }
+
+            const emailEl = document.getElementById('userEmail');
+            const roleEl  = document.getElementById('userRole');
+            if (emailEl) emailEl.textContent = userEmail;
+            if (roleEl)  roleEl.textContent  = `Role: ${userRole}`;
+
+            const isEditor = ['admin', 'editor'].includes(userRole);
+            const isAdmin  = userRole === 'admin';
+
+            document.querySelectorAll('.editor-only').forEach(el => el.style.display = isEditor ? '' : 'none');
+            document.querySelectorAll('.admin-only').forEach(el  => el.style.display = isAdmin  ? '' : 'none');
         }
 
-        // Override addMember to check permissions
-        const originalAddMember = window.addMember;
-        window.addMember = function() {
-            if (!hasRole(['admin', 'editor'])) {
-                alert(' You do not have permission to add members.');
-                return;
-            }
-            if (originalAddMember) originalAddMember();
-        };
+        // Permission guards on write actions
+        function guardWrite(fn) {
+            return function() {
+                if (!hasRole(['admin', 'editor'])) {
+                    alert(' You do not have permission to perform this action.');
+                    return;
+                }
+                if (typeof fn === 'function') fn.apply(this, arguments);
+            };
+        }
 
-        // Override addContribution to check permissions
-        const originalAddContribution = window.addContribution;
-        window.addContribution = function() {
-            if (!hasRole(['admin', 'editor'])) {
-                alert(' You do not have permission to add contributions.');
-                return;
-            }
-            if (originalAddContribution) originalAddContribution();
-        };
-
-        // Override addEvent to check permissions
-        const originalAddEvent = window.addEvent;
-        window.addEvent = function() {
-            if (!hasRole(['admin', 'editor'])) {
-                alert(' You do not have permission to add events.');
-                return;
-            }
-            if (originalAddEvent) originalAddEvent();
-        };
+        // Apply guards after all scripts have loaded
+        window.addEventListener('load', () => {
+            window.addMember       = guardWrite(window.addMember);
+            window.addContribution = guardWrite(window.addContribution);
+            window.addEvent        = guardWrite(window.addEvent);
+        });
     </script>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-
-    <!-- Feature modules (define functions) -->
-    <script src="pledges.js"></script>
-    <script src="analytics.js"></script>
-
-    <!-- Main controller (uses all functions above) -->
-        <script src="auth.js"></script>
-
 
 </body>
 </html>
