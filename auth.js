@@ -1,17 +1,15 @@
 // ====== AUTHENTICATION — SimamiaKanisa (Multitenant) ======
-// Depends on: firebase-config.js  (TENANT_ID, membersCollection, tenantRef)
-
+// Depends on: firebase-config.js  (TENANT_ID, membersCollection, db, auth)
 
 // ─── Internal helpers ──────────────────────────────────────────────────────────
 
 async function _getTokenClaims(user) {
-  const result = await user.getIdTokenResult(/* forceRefresh = */ false);
+  const result = await user.getIdTokenResult(false);
   return result.claims;
 }
 
-/** Force-refresh the JWT so freshly-set custom claims are available immediately */
 async function _refreshToken(user) {
-  await user.getIdToken(/* forceRefresh = */ true);
+  await user.getIdToken(true);
   return user.getIdTokenResult();
 }
 
@@ -22,44 +20,67 @@ function _friendlyAuthError(code, fallback) {
     'auth/weak-password':        "Password is too weak — use at least 6 characters.",
     'auth/user-not-found':       "No account found with this email.",
     'auth/wrong-password':       "Incorrect password.",
+    'auth/invalid-credential':   "Email or password is incorrect.",
     'auth/user-disabled':        "This account has been disabled.",
     'auth/too-many-requests':    "Too many failed attempts. Please try again later.",
   };
   return map[code] ?? fallback;
 }
 
+// ─── Tenant discovery ──────────────────────────────────────────────────────────
+// When TENANT_ID is "default" (no ?tenant= in URL), search all tenants for the
+// user's member document and redirect them to their correct church automatically.
+
+async function _findTenantForUser(uid) {
+  try {
+    const tenantsSnap = await db.collection('tenants').get();
+    for (const tenantDoc of tenantsSnap.docs) {
+      const memberDoc = await db.collection('tenants').doc(tenantDoc.id)
+                                .collection('members').doc(uid).get();
+      if (memberDoc.exists) {
+        console.log('✅ Found member in tenant:', tenantDoc.id);
+        return { tenantId: tenantDoc.id, data: memberDoc.data() };
+      }
+    }
+  } catch (err) {
+    console.warn('⚠ Tenant search failed:', err.message);
+  }
+  return null;
+}
+
 // ─── Register ──────────────────────────────────────────────────────────────────
 
 async function registerUser(email, password, role = "member", displayName = "") {
-  // --- Validation ---
-  if (!email || !password) { alert("Email and password are required!"); return; }
-  if (password.length < 6)  { alert("Password must be at least 6 characters!"); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert("Please enter a valid email address!"); return; }
+  if (!email || !password)                          { alert("Email and password are required!"); return; }
+  if (password.length < 6)                          { alert("Password must be at least 6 characters!"); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))   { alert("Please enter a valid email address!"); return; }
 
   try {
-    // 1. Create the Firebase Auth account
     const { user } = await auth.createUserWithEmailAndPassword(email, password);
-    console.log(" Auth account created:", user.uid);
+    console.log("✅ Auth account created:", user.uid);
 
-    // 2. Stamp the tenant + role as a custom claim via Cloud Function
-    const setTenantClaim = functions.httpsCallable("setTenantClaim");
-    await setTenantClaim({ tenantId: TENANT_ID, role });
-    console.log(` Custom claim set — tenant: ${TENANT_ID}, role: ${role}`);
+    // Set custom claim via Cloud Function (may not be deployed yet — non-fatal)
+    try {
+      const setTenantClaim = firebase.functions().httpsCallable("setTenantClaim");
+      await setTenantClaim({ tenantId: TENANT_ID, role });
+      await _refreshToken(user);
+      console.log(`✅ Claim set — tenant: ${TENANT_ID}, role: ${role}`);
+    } catch (claimErr) {
+      console.warn("⚠ Could not set claim:", claimErr.message);
+    }
 
-    // 3. Force-refresh token so the claim is live immediately
-    await _refreshToken(user);
-
-    // 4. Write the member document under tenants/{tenantId}/members/{uid}
+    // Write member document under tenants/{tenantId}/members/{uid}
     await membersCollection().doc(user.uid).set({
       displayName,
       email,
       role,
-      tenantId: TENANT_ID,       // denormalized for queries
-      createdAt:  firebase.firestore.FieldValue.serverTimestamp(),
-      lastLogin:  firebase.firestore.FieldValue.serverTimestamp(),
-      active: true
+      tenantId:  TENANT_ID,
+      active:    true,
+      joined:    new Date().toISOString().split('T')[0],
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      lastLogin: firebase.firestore.FieldValue.serverTimestamp()
     });
-    console.log(" Member document saved under tenant:", TENANT_ID);
+    console.log("✅ Member document saved under tenant:", TENANT_ID);
 
     alert("Registration successful! Please log in.");
     window.location.href = `login.html?tenant=${TENANT_ID}`;
@@ -73,87 +94,110 @@ async function registerUser(email, password, role = "member", displayName = "") 
 // ─── Login ─────────────────────────────────────────────────────────────────────
 
 async function loginUser(email, password) {
-    if (!email || !password) { alert("Email and password are required!"); return; }
+  if (!email || !password) { alert("Email and password are required!"); return; }
+
+  try {
+    const { user } = await auth.signInWithEmailAndPassword(email, password);
+    console.log("✅ Signed in:", user.uid);
+
+    // 1. Check JWT claim
+    let claims = await _getTokenClaims(user);
+
+    // 2. Claim exists and points to a different tenant — redirect there
+    if (claims.tenantId && claims.tenantId !== TENANT_ID && TENANT_ID !== 'default') {
+      console.warn(`Tenant mismatch — claim: ${claims.tenantId}, page: ${TENANT_ID}`);
+      await auth.signOut();
+      window.location.href = `login.html?tenant=${claims.tenantId}`;
+      return;
+    }
+
+    // 3. Try to read member doc from current tenant
+    let memberDoc;
+    let resolvedTenantId = TENANT_ID;
 
     try {
-        const { user } = await auth.signInWithEmailAndPassword(email, password);
-        console.log(" Signed in:", user.uid);
-
-        // 1. Check if JWT has a tenantId claim
-        let claims = await _getTokenClaims(user);
-
-        // 2. If claim exists but doesn't match current tenant — wrong church
-        if (claims.tenantId && claims.tenantId !== TENANT_ID) {
-            alert(`This account belongs to a different church. Redirecting...`);
-            await auth.signOut();
-            window.location.href = `login.html?tenant=${claims.tenantId}`;
-            return;
-        }
-
-        // 3. Read member doc — works even without claim (rules allow own UID)
-        let memberDoc;
-        try {
-            memberDoc = await membersCollection().doc(user.uid).get();
-        } catch (rulesError) {
-            // Rules still blocked it — token may be stale, force refresh and retry
-            console.warn("⚠ Rules blocked read, refreshing token and retrying...");
-            await _refreshToken(user);
-            memberDoc = await membersCollection().doc(user.uid).get();
-        }
-
-        if (!memberDoc.exists) {
-            alert("Member record not found. Contact your church admin.");
-            await auth.signOut();
-            return;
-        }
-
-        const data = memberDoc.data();
-
-        if (data.active === false) {
-            alert("Your account has been deactivated. Contact your church admin.");
-            await auth.signOut();
-            return;
-        }
-
-        // 4. Update last login
-        await membersCollection().doc(user.uid).update({
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-        });
-
-        // 5. If no claim yet, set it now (first login after registration)
-        if (!claims.tenantId) {
-            console.log("⚠ No tenant claim found — setting now...");
-            try {
-                const setTenantClaim = firebase.functions().httpsCallable('setTenantClaim');
-                await setTenantClaim({ tenantId: TENANT_ID, role: data.role });
-                await _refreshToken(user);
-                console.log(" Claim set on first login");
-            } catch (claimErr) {
-                // Function not deployed — continue anyway, rules fallback handles it
-                console.warn("⚠ Could not set claim:", claimErr.message);
-            }
-        }
-
-        // 6. Cache session
-        _setSession({ uid: user.uid, email: data.email, role: data.role, tenantId: TENANT_ID });
-
-        console.log(` Login OK — tenant: ${TENANT_ID}, role: ${data.role}`);
-        window.location.href = `index.html?tenant=${TENANT_ID}`;
-
-    } catch (error) {
-        console.error("Login error:", error);
-        throw error; // let login.html handle the UI error display
+      memberDoc = await membersCollection().doc(user.uid).get();
+    } catch {
+      // Rules blocked it — force refresh and retry once
+      console.warn("⚠ Rules blocked read, refreshing token...");
+      await _refreshToken(user);
+      try {
+        memberDoc = await membersCollection().doc(user.uid).get();
+      } catch {
+        memberDoc = { exists: false };
+      }
     }
+
+    // 4. Not found in current tenant — search all tenants (handles no-?tenant= case)
+    if (!memberDoc || !memberDoc.exists) {
+      console.warn(`⚠ Member not found in tenant "${TENANT_ID}" — searching all tenants...`);
+      const found = await _findTenantForUser(user.uid);
+
+      if (found) {
+        resolvedTenantId = found.tenantId;
+        memberDoc        = { exists: true, data: () => found.data };
+        // Save the correct tenant so future visits work without ?tenant=
+        localStorage.setItem('simamia_tenant', resolvedTenantId);
+        console.log(`✅ Auto-resolved tenant: ${resolvedTenantId}`);
+      } else {
+        alert("Member record not found. Contact your church admin.");
+        await auth.signOut();
+        return;
+      }
+    }
+
+    const data = memberDoc.data();
+
+    // 5. Check active flag
+    if (data.active === false) {
+      alert("Your account has been deactivated. Contact your church admin.");
+      await auth.signOut();
+      return;
+    }
+
+    // 6. Update last login timestamp
+    try {
+      await db.collection('tenants').doc(resolvedTenantId)
+              .collection('members').doc(user.uid).update({
+        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } catch (e) {
+      console.warn("⚠ Could not update lastLogin:", e.message);
+    }
+
+    // 7. Set claim if missing (self-heal on first login)
+    if (!claims.tenantId) {
+      console.log("⚠ No tenant claim — setting now...");
+      try {
+        const setTenantClaim = firebase.functions().httpsCallable('setTenantClaim');
+        await setTenantClaim({ tenantId: resolvedTenantId, role: data.role });
+        await _refreshToken(user);
+        console.log("✅ Claim set on first login");
+      } catch (claimErr) {
+        console.warn("⚠ Could not set claim:", claimErr.message);
+      }
+    }
+
+    // 8. Cache session and redirect to correct church
+    _setSession({ uid: user.uid, email: data.email, role: data.role, tenantId: resolvedTenantId });
+    console.log(`✅ Login OK — tenant: ${resolvedTenantId}, role: ${data.role}`);
+    window.location.href = `index.html?tenant=${resolvedTenantId}`;
+
+  } catch (error) {
+    console.error("Login error:", error);
+    throw error;
+  }
 }
 
 // ─── Logout ────────────────────────────────────────────────────────────────────
 
 async function logoutUser() {
   try {
+    const tenantId = getCurrentTenantId() || TENANT_ID;
     await auth.signOut();
     _clearSession();
-    console.log(" Logged out");
-    window.location.href = `login.html?tenant=${TENANT_ID}`;
+    console.log("✅ Logged out");
+    window.location.href = `login.html?tenant=${tenantId}`;
   } catch (error) {
     console.error("Logout error:", error.message);
     alert("Error logging out. Please try again.");
@@ -171,27 +215,48 @@ function protectPage(requiredRole = null) {
     }
 
     try {
-      // 1. Verify tenant claim
+      // 1. Check JWT claim
       const claims = await _getTokenClaims(user);
-      if (claims.tenantId && claims.tenantId !== TENANT_ID) {
-        console.warn(`Tenant mismatch: claim=${claims.tenantId} page=${TENANT_ID}`);
+      if (claims.tenantId && claims.tenantId !== TENANT_ID && TENANT_ID !== 'default') {
+        console.warn(`Tenant mismatch — claim: ${claims.tenantId}, page: ${TENANT_ID}`);
         await auth.signOut();
         window.location.href = `login.html?tenant=${claims.tenantId}`;
         return;
       }
 
-      // 2. Load the member document from this tenant
-      const doc = await membersCollection().doc(user.uid).get();
+      // 2. Load member document
+      let doc;
+      let resolvedTenantId = TENANT_ID;
+
+      try {
+        doc = await membersCollection().doc(user.uid).get();
+      } catch {
+        doc = { exists: false };
+      }
+
+      // 3. Not found — search all tenants
       if (!doc.exists) {
-        alert("Member record not found. Contact your church admin.");
-        await auth.signOut();
-        window.location.href = `login.html?tenant=${TENANT_ID}`;
-        return;
+        const found = await _findTenantForUser(user.uid);
+        if (found) {
+          resolvedTenantId = found.tenantId;
+          doc = { exists: true, data: () => found.data };
+          localStorage.setItem('simamia_tenant', resolvedTenantId);
+          // Reload with correct tenant in URL
+          if (TENANT_ID !== resolvedTenantId) {
+            window.location.href = `index.html?tenant=${resolvedTenantId}`;
+            return;
+          }
+        } else {
+          alert("Member record not found. Contact your church admin.");
+          await auth.signOut();
+          window.location.href = `login.html?tenant=${TENANT_ID}`;
+          return;
+        }
       }
 
       const data = doc.data();
 
-      // 3. Check active flag
+      // 4. Active check
       if (data.active === false) {
         alert("Your account has been deactivated.");
         await auth.signOut();
@@ -199,7 +264,7 @@ function protectPage(requiredRole = null) {
         return;
       }
 
-      // 4. Role check
+      // 5. Role check
       if (requiredRole) {
         const allowed = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
         if (!allowed.includes(data.role)) {
@@ -209,11 +274,11 @@ function protectPage(requiredRole = null) {
         }
       }
 
-      // 5. Hydrate session
-      _setSession({ uid: user.uid, email: data.email, role: data.role, tenantId: TENANT_ID });
-      console.log(` Page protected — tenant: ${TENANT_ID}, role: ${data.role}`);
+      // 6. Hydrate session
+      _setSession({ uid: user.uid, email: data.email, role: data.role, tenantId: resolvedTenantId });
+      console.log(`✅ Page protected — tenant: ${resolvedTenantId}, role: ${data.role}`);
 
-      // 6. Signal the rest of the app that auth is ready
+      // 7. Signal app that auth is ready
       _dispatchAuthReady(user, data);
 
     } catch (err) {
@@ -223,26 +288,19 @@ function protectPage(requiredRole = null) {
   });
 }
 
-// ─── Auth-ready event (replaces brittle retry loop) ───────────────────────────
-// main.js / pledges.js listen for this instead of polling for loadAllData()
-//
-//   document.addEventListener('authReady', (e) => {
-//     const { user, member } = e.detail;
-//     loadAllData();
-//   });
+// ─── Auth-ready event ──────────────────────────────────────────────────────────
 
 function _dispatchAuthReady(user, memberData) {
-  const event = new CustomEvent("authReady", {
+  document.dispatchEvent(new CustomEvent("authReady", {
     detail: { user, member: memberData }
-  });
-  document.dispatchEvent(event);
+  }));
   console.log(" authReady dispatched");
 }
 
 // ─── Session helpers ───────────────────────────────────────────────────────────
 
 function _setSession({ uid, email, role, tenantId }) {
-  sessionStorage.setItem("userId",   uid);
+  sessionStorage.setItem("userId",    uid);
   sessionStorage.setItem("userEmail", email);
   sessionStorage.setItem("userRole",  role);
   sessionStorage.setItem("tenantId",  tenantId);
@@ -250,18 +308,17 @@ function _setSession({ uid, email, role, tenantId }) {
 
 function _clearSession() {
   sessionStorage.clear();
-  // Keep tenant so the login page knows where to send them
   localStorage.removeItem("simamia_tenant");
 }
 
-// ─── Public role/identity helpers ─────────────────────────────────────────────
+// ─── Public helpers ────────────────────────────────────────────────────────────
 
 function hasRole(requiredRole) {
   const role = sessionStorage.getItem("userRole");
   if (!role) return false;
   if (Array.isArray(requiredRole)) return requiredRole.includes(role);
-  if (requiredRole === "admin")  return role === "admin";
-  if (requiredRole === "editor") return role === "admin" || role === "editor";
+  if (requiredRole === "admin")    return role === "admin";
+  if (requiredRole === "editor")   return role === "admin" || role === "editor";
   return true;
 }
 
@@ -287,7 +344,7 @@ async function resetPassword(email) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const page        = window.location.pathname.split("/").pop();
-  const publicPages = ["login.html", "register.html", ""];
+  const publicPages = ["login.html", "register.html", "register-church.html", ""];
 
   if (!publicPages.includes(page)) {
     console.log(` Protecting page: ${page} (tenant: ${TENANT_ID})`);
