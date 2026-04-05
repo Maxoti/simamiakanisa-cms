@@ -10,62 +10,50 @@
     <link rel="stylesheet" href="analytics.css">
     <link rel="stylesheet" href="CSS/mobileNav.css">
 
-    <!-- ═══════════════════════════════════════════
-         FIREBASE — compat SDK (must be first)
-    ═══════════════════════════════════════════ -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions-compat.js"></script>
-
-    <!-- ═══════════════════════════════════════════
-         THIRD-PARTY LIBRARIES
-    ═══════════════════════════════════════════ -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 </head>
-
-<!-- ✅ FIX 1: <body> tag was missing — everything was floating outside the document body -->
 <body>
 
-    <!-- Header -->
+    <!-- ── Header ── -->
     <div class="header">
         <div class="container">
             <button class="hamburger" onclick="toggleNav()" aria-label="Toggle menu">☰</button>
             <img src="images/church.jpeg" alt="Church logo" class="church-logo">
             <h1>SimamiaKanisa</h1>
             <p>Modern Church Management System - Built for Kenyan Churches</p>
-
-            <div class="user-info" style="position:absolute;right:20px;top:20px;display:flex;align-items:center;gap:15px;">
-                <div style="text-align:right;">
-                    <div id="userEmail" style="font-size:13px;color:#fff;opacity:0.9;"></div>
-                    <div id="userRole"  style="font-size:11px;color:#fff;opacity:0.7;text-transform:uppercase;"></div>
+            <!-- FIX 1: removed inline position:absolute — CSS handles positioning -->
+            <div class="user-info">
+                <div>
+                    <div id="userEmail"></div>
+                    <div id="userRole"></div>
                 </div>
-                <button onclick="logoutUser()" style="background:#dc3545;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:600;">
-                    Logout
-                </button>
+                <button onclick="logoutUser()">Logout</button>
             </div>
         </div>
     </div>
 
-    <!-- Mobile nav overlay -->
     <div class="nav-overlay" onclick="toggleNav()"></div>
 
     <div class="container">
 
-        <!-- Navigation Tabs -->
+        <!-- FIX 2: nav-close button added INSIDE tabs so it shows in the drawer -->
         <div class="tabs" id="navTabs">
-           <button class="tab-btn active" data-tab="dashboard" onclick="handleTabClick('dashboard')">Dashboard</button>
-<button class="tab-btn" data-tab="members" onclick="handleTabClick('members')">Members</button>
-<button class="tab-btn" data-tab="contributions" onclick="handleTabClick('contributions')">Contributions</button>
-<button class="tab-btn" data-tab="events" onclick="handleTabClick('events')">Events</button>
-<button class="tab-btn" data-tab="pledges" onclick="handleTabClick('pledges')">Pledges</button>
-<button class="tab-btn" data-tab="analytics" onclick="handleTabClick('analytics')">Analytics</button>
-
+            <button class="nav-close" onclick="toggleNav()" aria-label="Close menu">✕</button>
+            <button class="tab-btn active" onclick="handleTabClick('dashboard')">Dashboard</button>
+            <button class="tab-btn" onclick="handleTabClick('members')">Members</button>
+            <button class="tab-btn" onclick="handleTabClick('contributions')">Contributions</button>
+            <button class="tab-btn" onclick="handleTabClick('events')">Events</button>
+            <button class="tab-btn" onclick="handleTabClick('pledges')">Pledges</button>
+            <button class="tab-btn" onclick="handleTabClick('analytics')">Analytics</button>
         </div>
 
-        <!-- DASHBOARD TAB -->
+        <!-- DASHBOARD -->
         <div id="dashboard" class="content active">
             <div class="stats-grid">
                 <div class="stat-card blue">
@@ -112,7 +100,7 @@
             </div>
         </div>
 
-        <!-- MEMBERS TAB -->
+        <!-- MEMBERS -->
         <div id="members" class="content">
             <div class="card">
                 <div class="card-header">
@@ -123,7 +111,7 @@
             </div>
         </div>
 
-        <!-- CONTRIBUTIONS TAB -->
+        <!-- CONTRIBUTIONS -->
         <div id="contributions" class="content">
             <div class="card">
                 <div class="card-header">
@@ -134,7 +122,7 @@
             </div>
         </div>
 
-        <!-- PLEDGES TAB -->
+        <!-- PLEDGES -->
         <div id="pledges" class="content">
             <div class="pledges-container">
                 <div style="text-align:center;padding:50px;">
@@ -143,7 +131,7 @@
             </div>
         </div>
 
-        <!-- EVENTS TAB -->
+        <!-- EVENTS -->
         <div id="events" class="content">
             <div class="card">
                 <div class="card-header">
@@ -154,7 +142,7 @@
             </div>
         </div>
 
-        <!-- ANALYTICS TAB -->
+        <!-- ANALYTICS -->
         <div id="analytics" class="content">
             <div class="analytics-container">
                 <div style="text-align:center;padding:50px;">
@@ -163,10 +151,9 @@
             </div>
         </div>
 
-    </div><!-- /.container -->
+    </div>
 
-    <!-- ── MODALS ─────────────────────────────────────────── -->
-
+    <!-- ── Modals ── -->
     <div id="addMemberModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">Add New Member</div>
@@ -249,27 +236,16 @@
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         SCRIPTS — ORDER IS CRITICAL, DO NOT REARRANGE
-    ═══════════════════════════════════════════════════════════════ -->
-
-    <!-- 1. Firebase config + TENANT_ID -->
+    <!-- ═══════════════════════════════════════════════════
+         SCRIPTS — ORDER IS CRITICAL
+    ═══════════════════════════════════════════════════ -->
     <script src="firebase-config.js"></script>
-
-    <!-- 2. Auth —  FIX 2: firebase.functions() now works because
-         firebase-functions-compat.js is loaded in <head> above -->
     <script src="auth.js"></script>
-
-    <!-- 3. Shared state + pagination -->
     <script src="state.js"></script>
     <script src="pagination.js"></script>
-
-    <!-- 4. Feature modules -->
     <script src="members.js"></script>
     <script src="contributions.js"></script>
     <script src="events.js"></script>
-
-    <!-- 5. PLEDGES module bundle -->
     <script src="PLEDGES/Pledges.db.js"></script>
     <script src="PLEDGES/Pledges.state.js"></script>
     <script src="PLEDGES/Pledges.stats.js"></script>
@@ -278,8 +254,6 @@
     <script src="PLEDGES/Pledges.modals.js"></script>
     <script src="PLEDGES/Pledges.data.js"></script>
     <script src="PLEDGES/Pledges.js"></script>
-
-    <!-- 6. ANALYTICS module bundle -->
     <script src="ANALYTICS/Analytics.db.js"></script>
     <script src="ANALYTICS/Analytics.state.js"></script>
     <script src="ANALYTICS/Analytics.data.js"></script>
@@ -288,21 +262,33 @@
     <script src="ANALYTICS/Analytics.export.js"></script>
     <script src="ANALYTICS/Analytics.ui.js"></script>
     <script src="ANALYTICS/Analytics.js"></script>
-
-    <!-- 7. Main app controller (must be last) -->
     <script src="main.js"></script>
 
-    <!-- Mobile Navigation -->
     <script>
+        // ── Mobile nav ────────────────────────────────────────────────────────
         function toggleNav() {
             const nav     = document.getElementById('navTabs');
             const overlay = document.querySelector('.nav-overlay');
-            nav.classList.toggle('active');
-            overlay.classList.toggle('active');
-            document.body.style.overflow = nav.classList.contains('active') ? 'hidden' : '';
+            if (!nav || !overlay) return;
+            const opening = !nav.classList.contains('active');
+            nav.classList.toggle('active', opening);
+            overlay.classList.toggle('active', opening);
+            document.body.style.overflow = opening ? 'hidden' : '';
         }
 
-      
+        // Close drawer when a tab is clicked on mobile
+        function handleTabClick(tabName) {
+            if (window.innerWidth <= 768) {
+                const nav     = document.getElementById('navTabs');
+                const overlay = document.querySelector('.nav-overlay');
+                nav.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+            switchTab(tabName);
+        }
+
+        // Close drawer on resize to desktop
         window.addEventListener('resize', () => {
             if (window.innerWidth > 768) {
                 document.getElementById('navTabs').classList.remove('active');
@@ -310,65 +296,48 @@
                 document.body.style.overflow = '';
             }
         });
-    </script>
 
-    <!-- Auth guard + role-based UI -->
-    <script>
-        //  FIX 3: Listen for authReady event dispatched by auth.js
-        // This replaces auth.onAuthStateChanged here — role is guaranteed loaded
+        // ── Auth guard ────────────────────────────────────────────────────────
+        // FIX 3: authReady fires AFTER member doc is loaded — role is guaranteed
         document.addEventListener('authReady', ({ detail }) => {
-            console.log(' authReady received:', detail);
             initializeSecureUI(detail.member);
-        });
 
-        function initializeSecureUI(member) {
-            const userRole  = member?.role  || getCurrentUserRole()  || 'member';
-            const userEmail = member?.email || getCurrentUserEmail() || '';
-
-            const emailEl = document.getElementById('userEmail');
-            const roleEl  = document.getElementById('userRole');
-            if (emailEl) emailEl.textContent = userEmail;
-            if (roleEl)  roleEl.textContent  = `Role: ${userRole}`;
-
-            const isEditor = ['admin', 'editor'].includes(userRole);
-            const isAdmin  = userRole === 'admin';
-
-            document.querySelectorAll('.editor-only').forEach(el => el.style.display = isEditor ? '' : 'none');
-            document.querySelectorAll('.admin-only').forEach(el  => el.style.display = isAdmin  ? '' : 'none');
-        }
-
-        // Permission guards — applied after all modules define their functions
-        function guardWrite(fn) {
-            return function() {
-                 const role = sessionStorage.getItem('userRole');
-                if (!hasRole(['admin', 'editor'])) {
-                    alert(' You do not have permission to perform this action.');
-                    return;
-                }
-                if (typeof fn === 'function') fn.apply(this, arguments);
-            };
-        }
-        function handleTabClick(tabName) {
-    // Close mobile nav first
-    if (window.innerWidth <= 768) {
-        document.getElementById('navTabs').classList.remove('active');
-        document.querySelector('.nav-overlay').classList.remove('active');
-        document.body.style.overflow = '';
-    }
-
-    // Then switch tab
-    switchTab(tabName);
-}
-
-        window.addEventListener('load', () => {
+            // FIX 4: Apply write guards HERE not at window.load
+            // By now addMember/addContribution/addEvent are defined AND
+            // sessionStorage has the role — no timing race
             window.addMember       = guardWrite(window.addMember);
             window.addContribution = guardWrite(window.addContribution);
             window.addEvent        = guardWrite(window.addEvent);
         });
 
-        window.addEventListener('beforeunload', () => {
-    console.log(' PAGE IS RELOADING');
-});
+        function initializeSecureUI(member) {
+            const role  = member?.role  || getCurrentUserRole()  || 'member';
+            const email = member?.email || getCurrentUserEmail() || '';
+
+            // FIX 5: show role on mobile — removed inline display:none from CSS
+            const emailEl = document.getElementById('userEmail');
+            const roleEl  = document.getElementById('userRole');
+            if (emailEl) emailEl.textContent = email;
+            if (roleEl)  roleEl.textContent  = `Role: ${role}`;
+
+            const isEditor = ['admin', 'editor'].includes(role);
+            const isAdmin  = role === 'admin';
+
+            document.querySelectorAll('.editor-only')
+                    .forEach(el => el.style.display = isEditor ? '' : 'none');
+            document.querySelectorAll('.admin-only')
+                    .forEach(el => el.style.display = isAdmin  ? '' : 'none');
+        }
+
+        function guardWrite(fn) {
+            return function () {
+                if (!hasRole(['admin', 'editor'])) {
+                    alert('You do not have permission to perform this action.');
+                    return;
+                }
+                if (typeof fn === 'function') fn.apply(this, arguments);
+            };
+        }
     </script>
 
 </body>
