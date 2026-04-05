@@ -56,13 +56,13 @@
 
         <!-- Navigation Tabs -->
         <div class="tabs" id="navTabs">
-            <button class="nav-close" onclick="toggleNav()" aria-label="Close menu">✕</button>
-            <button class="tab-btn active" onclick="switchTab('dashboard')">Dashboard</button>
-            <button class="tab-btn"        onclick="switchTab('members')">Members</button>
-            <button class="tab-btn"        onclick="switchTab('contributions')">Contributions</button>
-            <button class="tab-btn"        onclick="switchTab('events')">Events</button>
-            <button class="tab-btn"        onclick="switchTab('pledges')">Pledges</button>
-            <button class="tab-btn"        onclick="switchTab('analytics')">Analytics</button>
+           <button class="tab-btn active" data-tab="dashboard" onclick="handleTabClick('dashboard')">Dashboard</button>
+<button class="tab-btn" data-tab="members" onclick="handleTabClick('members')">Members</button>
+<button class="tab-btn" data-tab="contributions" onclick="handleTabClick('contributions')">Contributions</button>
+<button class="tab-btn" data-tab="events" onclick="handleTabClick('events')">Events</button>
+<button class="tab-btn" data-tab="pledges" onclick="handleTabClick('pledges')">Pledges</button>
+<button class="tab-btn" data-tab="analytics" onclick="handleTabClick('analytics')">Analytics</button>
+
         </div>
 
         <!-- DASHBOARD TAB -->
@@ -256,7 +256,7 @@
     <!-- 1. Firebase config + TENANT_ID -->
     <script src="firebase-config.js"></script>
 
-    <!-- 2. Auth — ✅ FIX 2: firebase.functions() now works because
+    <!-- 2. Auth —  FIX 2: firebase.functions() now works because
          firebase-functions-compat.js is loaded in <head> above -->
     <script src="auth.js"></script>
 
@@ -302,16 +302,7 @@
             document.body.style.overflow = nav.classList.contains('active') ? 'hidden' : '';
         }
 
-        const _switchTab = window.switchTab;
-        window.switchTab = function(tabName) {
-            if (window.innerWidth <= 768) {
-                document.getElementById('navTabs').classList.remove('active');
-                document.querySelector('.nav-overlay').classList.remove('active');
-                document.body.style.overflow = '';
-            }
-            if (typeof _switchTab === 'function') _switchTab(tabName);
-        };
-
+      
         window.addEventListener('resize', () => {
             if (window.innerWidth > 768) {
                 document.getElementById('navTabs').classList.remove('active');
@@ -357,6 +348,17 @@
                 if (typeof fn === 'function') fn.apply(this, arguments);
             };
         }
+        function handleTabClick(tabName) {
+    // Close mobile nav first
+    if (window.innerWidth <= 768) {
+        document.getElementById('navTabs').classList.remove('active');
+        document.querySelector('.nav-overlay').classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    // Then switch tab
+    switchTab(tabName);
+}
 
         window.addEventListener('load', () => {
             window.addMember       = guardWrite(window.addMember);
