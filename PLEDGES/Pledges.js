@@ -35,5 +35,30 @@ async function renderPledgesTab() {
     buildPledgesHTML();
     await loadPledgesData();
 }
+// ── Expose all functions to window for onclick handlers ───────────────────────
 
+window.renderPledgesTab         = renderPledgesTab;
+
+// From Pledges.ui.js
+window.buildPledgesHTML         = buildPledgesHTML;
+window.exportPledgesReport      = exportPledgesReport;
+window.sendPledgeReminder       = sendPledgeReminder;
+window.showPledgeError          = showPledgeError;
+
+// From Pledges.table.js
+window.filterPledges            = filterPledges;
+window.changePledgesPerPage     = changePledgesPerPage;
+window.nextPledgesPage          = nextPledgesPage;
+window.previousPledgesPage      = previousPledgesPage;
+window.renderPledgesTable       = renderPledgesTable;
+
+// From Pledges.modals.js
+window.openCreatePledgeModal    = openCreatePledgeModal;
+window.createPledgeFromModal    = createPledgeFromModal;
+window.openRecordPaymentModal   = openRecordPaymentModal;
+window.submitPayment            = submitPayment;
+window.openPaymentHistoryModal  = openPaymentHistoryModal;
+window.closeModal               = closeModal;
+
+console.log('✅ Pledges functions exposed to window');
 console.log('✅ Pledges module loaded successfully!');

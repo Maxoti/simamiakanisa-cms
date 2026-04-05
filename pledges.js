@@ -2,7 +2,7 @@
 // PLEDGES.JS - With Pagination
 // ============================================
 
-console.log('📋 Pledges.js loading...');
+console.log(' Pledges.js loading...');
 
 // Global pledge data
 let pledges = [];
@@ -253,7 +253,7 @@ function insertModalTemplates() {
 
 async function loadPledgesData() {
     try {
-        console.log('📊 Loading pledges from Firebase...');
+        console.log(' Loading pledges from Firebase...');
         
         const pledgesSnapshot = await db.collection('pledges')
             .orderBy('createdAt', 'desc')
@@ -750,7 +750,7 @@ function sendPledgeReminder(pledgeId) {
         phone = '254' + phone;
     }
     
-    const message = `🙏 *Pledge Reminder*
+    const message = ` *Pledge Reminder*
 
 Dear ${pledge.memberName},
 

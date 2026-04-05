@@ -27,14 +27,14 @@ async function initAnalyticsTab() {
 
     loadFromGlobals();
     console.log(' Data loaded:', {
-        members:       state.members.length,
-        contributions: state.contributions.length,
-        events:        state.events.length
+        members:       analyticsState.members.length,
+        contributions: analyticsState.contributions.length,
+        events:        analyticsState.events.length
     });
 
     buildAnalyticsHTML();
     updateAnalytics();
-    state.initialized = true;
+    analyticsState.initialized = true;
 }
 
 // ── Refresh all charts + cards (called by period/year dropdowns) ──────────────
@@ -44,7 +44,7 @@ async function updateAnalytics() {
 
     const period = document.getElementById('periodSelect')?.value || 'year';
     const year   = document.getElementById('yearSelect')?.value   || new Date().getFullYear();
-    const data   = filterByPeriod(state.contributions, period, year);
+    const data   = filterByPeriod(analyticsState.contributions, period, year);
 
     console.log(` Filtered: ${data.length} contributions`);
 

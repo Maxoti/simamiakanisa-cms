@@ -41,7 +41,7 @@ function filterPledges() {
     pledgeState.pagination.filteredPledges = filtered;
     pledgeState.pagination.currentPage     = 1;
 
-    console.log(`🔍 Filtered: ${filtered.length} of ${pledgeState.pledges.length} pledges`);
+    console.log(` Filtered: ${filtered.length} of ${pledgeState.pledges.length} pledges`);
     renderPledgesTable();
 }
 
@@ -107,9 +107,9 @@ function buildTableHTML(pageData) {
             <td data-label="Status"><span class="badge ${statusClass}">${pledge.status}</span></td>
             <td data-label="End Date">${pledge.endDate}</td>
             <td data-label="Actions" class="actions-cell">
-                <button class="btn btn-success btn-sm" onclick="openRecordPaymentModal('${pledge.id}')" ${isComplete ? 'disabled' : ''}>💳 Pay</button>
-                <button class="btn btn-whatsapp btn-sm" onclick="sendPledgeReminder('${pledge.id}')">💬 WhatsApp</button>
-                <button class="btn btn-primary btn-sm" onclick="openPaymentHistoryModal('${pledge.id}')">📊 History</button>
+                <button class="btn btn-success btn-sm" onclick="openRecordPaymentModal('${pledge.id}')" ${isComplete ? 'disabled' : ''}> Pay</button>
+                <button class="btn btn-whatsapp btn-sm" onclick="sendPledgeReminder('${pledge.id}')"> WhatsApp</button>
+                <button class="btn btn-primary btn-sm" onclick="openPaymentHistoryModal('${pledge.id}')"> History</button>
             </td>
         </tr>`;
     }).join('');

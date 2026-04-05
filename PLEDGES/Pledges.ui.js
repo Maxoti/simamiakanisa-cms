@@ -1,41 +1,38 @@
 // ============================================
 // PLEDGES.UI.JS — Layout, export, WhatsApp, error
 // ============================================
-// Depends on: pledges.state.js (pledgeState)
-
-// ── Build the full pledges tab HTML ───────────────────────────────────────────
 
 function buildPledgesHTML() {
     const container = document.querySelector('.pledges-container');
-    if (!container) { console.error('❌ Pledges container not found!'); return; }
+    if (!container) { console.error(' Pledges container not found!'); return; }
 
     container.innerHTML = `
         <div class="pledges-header">
-            <h1 class="pledges-title"> Pledges Management</h1>
+            <h1 class="pledges-title">Pledges Management</h1>
             <div style="display:flex;gap:8px">
-                <button class="btn btn-secondary" onclick="exportPledgesReport()"> Export CSV</button>
+                <button class="btn btn-secondary" onclick="exportPledgesReport()">Export CSV</button>
                 <button class="btn btn-primary"   onclick="openCreatePledgeModal()">+ New Pledge</button>
             </div>
         </div>
 
         <div class="pledges-summary">
             <div class="pledge-stat-card purple">
-                <h4> Total Pledged</h4>
+                <h4>Total Pledged</h4>
                 <div class="value" id="totalPledged">KSh 0</div>
                 <div class="subtitle">across all pledges</div>
             </div>
             <div class="pledge-stat-card green">
-                <h4> Total Paid</h4>
+                <h4>Total Paid</h4>
                 <div class="value" id="totalPaid">KSh 0</div>
                 <div class="subtitle" id="completionRate">0% completion</div>
             </div>
             <div class="pledge-stat-card orange">
-                <h4> Remaining</h4>
+                <h4>Remaining</h4>
                 <div class="value" id="totalRemaining">KSh 0</div>
                 <div class="subtitle" id="activePledges">0 active pledges</div>
             </div>
             <div class="pledge-stat-card red">
-                <h4>⚠️ Overdue</h4>
+                <h4>Overdue</h4>
                 <div class="value" id="overduePledges">0</div>
                 <div class="subtitle">need attention</div>
             </div>
@@ -83,7 +80,139 @@ function buildPledgesHTML() {
                 <div class="loading-spinner"><div class="spinner"></div><p>Loading pledges...</p></div>
             </div>
         </div>
+
+        <!-- ══ CREATE PLEDGE MODAL ══════════════════════════════════════ -->
+        <div id="createPledgeModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">New Pledge</div>
+                <div class="form-group">
+                    <label class="form-label">Member *</label>
+                    <select class="form-input" id="pledgeMemberSelect">
+                        <option value="">Select Member</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Category *</label>
+                    <select class="form-input" id="pledgeCategory">
+                        <option>Building Fund</option>
+                        <option>Mission</option>
+                        <option>Equipment</option>
+                        <option>Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Amount (KSh) *</label>
+                    <input type="number" class="form-input" id="pledgeAmount" min="0" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Start Date *</label>
+                    <input type="date" class="form-input" id="pledgeStartDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">End Date *</label>
+                    <input type="date" class="form-input" id="pledgeEndDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Payment Frequency</label>
+                    <select class="form-input" id="pledgeFrequency">
+                        <option>Monthly</option>
+                        <option>Weekly</option>
+                        <option>Quarterly</option>
+                        <option>One-time</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-input" id="pledgeNotes" rows="2" placeholder="Optional notes..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="closeModal('createPledgeModal')">Cancel</button>
+                    <button class="btn btn-primary"   onclick="createPledgeFromModal()">Create Pledge</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ RECORD PAYMENT MODAL ═════════════════════════════════════ -->
+        <div id="recordPaymentModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">Record Payment</div>
+                <div style="background:#f9fafb;padding:15px;border-radius:8px;margin-bottom:15px">
+                    <div style="font-weight:600" id="paymentPledgeMember"></div>
+                    <div style="font-size:13px;color:#6b7280;margin-top:2px" id="paymentPledgeCategory"></div>
+                    <div style="display:flex;gap:20px;font-size:13px;margin-top:8px">
+                        <span>Total: <strong id="paymentPledgeTotal"></strong></span>
+                        <span>Remaining: <strong id="paymentPledgeRemaining"></strong></span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Amount (KSh) *</label>
+                    <input type="number" class="form-input" id="paymentAmount" min="0" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Payment Date *</label>
+                    <input type="date" class="form-input" id="paymentDate">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Payment Method</label>
+                    <select class="form-input" id="paymentMethod">
+                        <option>M-Pesa</option>
+                        <option>Cash</option>
+                        <option>Bank Transfer</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Reference / Transaction ID</label>
+                    <input type="text" class="form-input" id="paymentReference" placeholder="e.g. QJK7X2...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Notes</label>
+                    <textarea class="form-input" id="paymentNotes" rows="2"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="closeModal('recordPaymentModal')">Cancel</button>
+                    <button class="btn btn-success"   onclick="submitPayment()">Record Payment</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ PAYMENT HISTORY MODAL ════════════════════════════════════ -->
+        <div id="paymentHistoryModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">Payment History</div>
+                <div style="background:#f9fafb;padding:15px;border-radius:8px;margin-bottom:15px">
+                    <div style="font-weight:600" id="historyPledgeMember"></div>
+                    <div style="display:flex;gap:20px;font-size:13px;margin-top:8px;flex-wrap:wrap">
+                        <span>Total: <strong id="historyPledgeTotal"></strong></span>
+                        <span>Paid: <strong id="historyPledgePaid"></strong></span>
+                        <span>Remaining: <strong id="historyPledgeRemaining"></strong></span>
+                    </div>
+                </div>
+                <div id="paymentsListContainer">
+                    <p style="text-align:center;color:#6b7280;padding:20px">No payments recorded yet.</p>
+                </div>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="closeModal('paymentHistoryModal')">Close</button>
+                </div>
+            </div>
+        </div>
     `;
+}
+
+// ── Modal helpers (used by Pledges.modals.js) ─────────────────────────────────
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.classList.remove('active');
+}
+
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
+
+function clearField(id) {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
 }
 
 // ── Export CSV ────────────────────────────────────────────────────────────────
@@ -114,12 +243,10 @@ function exportPledgesReport() {
         download: `pledges_report_${new Date().toISOString().split('T')[0]}.csv`,
         style:    'visibility:hidden'
     });
-
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(link.href);
-
     alert(`✅ ${data.length} pledges exported successfully!`);
 }
 
@@ -130,14 +257,14 @@ function sendPledgeReminder(pledgeId) {
     if (!pledge) return;
 
     const member = (window.members || []).find(m => m.name === pledge.memberName);
-    if (!member) { alert('Member not found!'); return; }
+    if (!member) { alert('Member phone number not found!'); return; }
 
     let phone = member.phone.replace(/\D/g, '');
-    if (phone.startsWith('0'))    phone = '254' + phone.slice(1);
+    if (phone.startsWith('0'))         phone = '254' + phone.slice(1);
     else if (!phone.startsWith('254')) phone = '254' + phone;
 
     const message =
-`🙏 *Pledge Reminder*
+` *Pledge Reminder*
 
 Dear ${pledge.memberName},
 
@@ -152,7 +279,7 @@ Due Date:     ${pledge.endDate}
 *Payment Options:*
  M-Pesa: [Your Paybill]
  Bank: [Your Account]
- Cash: During service
+Cash: During service
 
 Thank you for your commitment!
 SimamiaKanisa Church`;
@@ -167,7 +294,7 @@ function showPledgeError(message) {
     if (container) {
         container.innerHTML = `
             <div style="background:#fee2e2;padding:30px;border-radius:15px;text-align:center">
-                <h2 style="color:#991b1b"> Error</h2>
+                <h2 style="color:#991b1b">Error</h2>
                 <p style="color:#991b1b">${message}</p>
             </div>`;
     }

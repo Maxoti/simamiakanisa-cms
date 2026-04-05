@@ -2,16 +2,15 @@
 // ANALYTICS.UI.JS — Layout HTML + error display
 // ============================================
 
-
-// ── Build the full analytics tab layout ──────────────────────────────────────
+// ── Build the full analytics tab layout ───────────────────────────────────────
 
 function buildAnalyticsHTML() {
     const container = document.querySelector('.analytics-container');
-    if (!container) { console.error(' Analytics container not found!'); return; }
+    if (!container) { console.error('Analytics container not found!'); return; }
 
     container.innerHTML = `
         <div class="analytics-header">
-            <h1 class="analytics-title"> Financial Analytics & Reports</h1>
+            <h1 class="analytics-title">Financial Analytics & Reports</h1>
 
             <div class="analytics-controls">
                 <select id="periodSelect" onchange="updateAnalytics()">
@@ -23,18 +22,18 @@ function buildAnalyticsHTML() {
 
                 <select id="yearSelect" onchange="updateAnalytics()"></select>
 
-                <button onclick="exportToExcel()"> Export Excel</button>
-                <button onclick="exportToPDF(event)"> Export PDF</button>
+                <button onclick="exportToExcel()">Export Excel</button>
+                <button onclick="exportToPDF(event)">Export PDF</button>
             </div>
         </div>
 
         <div class="analytics-summary">
-            <div class="analytics-card purple">
+            <div class="analytics-card gold">
                 <h4>Total Collections</h4>
                 <div class="value" id="analyticsTotal">KSh 0</div>
                 <div class="subtitle" id="analyticsChange">+0% vs last period</div>
             </div>
-            <div class="analytics-card pink">
+            <div class="analytics-card teal">
                 <h4>Contributing Members</h4>
                 <div class="value" id="analyticsMembers">0</div>
                 <div class="subtitle" id="analyticsMembersPercent">0% participation</div>
@@ -44,7 +43,7 @@ function buildAnalyticsHTML() {
                 <div class="value" id="analyticsAverage">KSh 0</div>
                 <div class="subtitle">monthly average</div>
             </div>
-            <div class="analytics-card green">
+            <div class="analytics-card coral">
                 <h4>Growth Rate</h4>
                 <div class="value" id="analyticsGrowth">+0%</div>
                 <div class="subtitle">compared to last period</div>
@@ -80,17 +79,22 @@ function buildAnalyticsHTML() {
     if (yearSelect) yearSelect.innerHTML = generateYearOptions();
 }
 
-// ── Error display ─────────────────────────────────────────────────────────────
+// ── Error display ──────────────────────────────────────────────────────────────
+// Named showAnalyticsError to avoid clashing with showPledgeError (pledges.ui.js)
 
- function showError(message) {
+function showAnalyticsError(message) {
     const container = document.querySelector('.analytics-container');
     if (container) {
         container.innerHTML = `
-            <div style="background:#fee2e2;padding:30px;border-radius:15px;text-align:center;margin:20px 0">
-                <h2 style="color:#991b1b;margin-bottom:15px"> Error</h2>
-                <p style="color:#991b1b">${message}</p>
+            <div style="background:#1a0f0f;border:1px solid #7a1c1c;padding:30px;
+                        border-radius:15px;text-align:center;margin:20px 0">
+                <h2 style="color:#c9a84c;margin-bottom:15px">Error</h2>
+                <p style="color:#e8e6df">${message}</p>
                 <button onclick="location.reload()"
-                    style="margin-top:20px;padding:10px 20px;background:#dc2626;color:#fff;border:none;border-radius:8px;cursor:pointer">
+                    style="margin-top:20px;padding:10px 24px;
+                           background:linear-gradient(135deg,#c9a84c,#e8c97a);
+                           color:#0f1117;border:none;border-radius:8px;
+                           cursor:pointer;font-weight:700">
                     Reload Page
                 </button>
             </div>`;

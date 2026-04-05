@@ -59,7 +59,7 @@ async function registerUser(email, password, role = "member", displayName = "") 
       lastLogin:  firebase.firestore.FieldValue.serverTimestamp(),
       active: true
     });
-    console.log("✅ Member document saved under tenant:", TENANT_ID);
+    console.log(" Member document saved under tenant:", TENANT_ID);
 
     alert("Registration successful! Please log in.");
     window.location.href = `login.html?tenant=${TENANT_ID}`;
@@ -73,55 +73,77 @@ async function registerUser(email, password, role = "member", displayName = "") 
 // ─── Login ─────────────────────────────────────────────────────────────────────
 
 async function loginUser(email, password) {
-  if (!email || !password) { alert("Email and password are required!"); return; }
+    if (!email || !password) { alert("Email and password are required!"); return; }
 
-  try {
-    const { user } = await auth.signInWithEmailAndPassword(email, password);
-    console.log(" Signed in:", user.uid);
+    try {
+        const { user } = await auth.signInWithEmailAndPassword(email, password);
+        console.log(" Signed in:", user.uid);
 
-    // 1. Read JWT claims
-    const claims = await _getTokenClaims(user);
+        // 1. Check if JWT has a tenantId claim
+        let claims = await _getTokenClaims(user);
 
-    // 2. If the claim has a tenantId, verify it matches this page's tenant
-    if (claims.tenantId && claims.tenantId !== TENANT_ID) {
-      alert(`This account belongs to a different church (${claims.tenantId}). Redirecting...`);
-      await auth.signOut();
-      window.location.href = `login.html?tenant=${claims.tenantId}`;
-      return;
+        // 2. If claim exists but doesn't match current tenant — wrong church
+        if (claims.tenantId && claims.tenantId !== TENANT_ID) {
+            alert(`This account belongs to a different church. Redirecting...`);
+            await auth.signOut();
+            window.location.href = `login.html?tenant=${claims.tenantId}`;
+            return;
+        }
+
+        // 3. Read member doc — works even without claim (rules allow own UID)
+        let memberDoc;
+        try {
+            memberDoc = await membersCollection().doc(user.uid).get();
+        } catch (rulesError) {
+            // Rules still blocked it — token may be stale, force refresh and retry
+            console.warn("⚠ Rules blocked read, refreshing token and retrying...");
+            await _refreshToken(user);
+            memberDoc = await membersCollection().doc(user.uid).get();
+        }
+
+        if (!memberDoc.exists) {
+            alert("Member record not found. Contact your church admin.");
+            await auth.signOut();
+            return;
+        }
+
+        const data = memberDoc.data();
+
+        if (data.active === false) {
+            alert("Your account has been deactivated. Contact your church admin.");
+            await auth.signOut();
+            return;
+        }
+
+        // 4. Update last login
+        await membersCollection().doc(user.uid).update({
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        // 5. If no claim yet, set it now (first login after registration)
+        if (!claims.tenantId) {
+            console.log("⚠ No tenant claim found — setting now...");
+            try {
+                const setTenantClaim = firebase.functions().httpsCallable('setTenantClaim');
+                await setTenantClaim({ tenantId: TENANT_ID, role: data.role });
+                await _refreshToken(user);
+                console.log(" Claim set on first login");
+            } catch (claimErr) {
+                // Function not deployed — continue anyway, rules fallback handles it
+                console.warn("⚠ Could not set claim:", claimErr.message);
+            }
+        }
+
+        // 6. Cache session
+        _setSession({ uid: user.uid, email: data.email, role: data.role, tenantId: TENANT_ID });
+
+        console.log(` Login OK — tenant: ${TENANT_ID}, role: ${data.role}`);
+        window.location.href = `index.html?tenant=${TENANT_ID}`;
+
+    } catch (error) {
+        console.error("Login error:", error);
+        throw error; // let login.html handle the UI error display
     }
-
-    // 3. Read the member document from the tenant sub-collection
-    const doc = await membersCollection().doc(user.uid).get();
-    if (!doc.exists) {
-      alert("Member record not found. Please contact your church admin.");
-      await auth.signOut();
-      return;
-    }
-
-    const data = doc.data();
-
-    // 4. Check active flag
-    if (data.active === false) {
-      alert("Your account has been deactivated. Please contact your church admin.");
-      await auth.signOut();
-      return;
-    }
-
-    // 5. Update last login timestamp
-    await membersCollection().doc(user.uid).update({
-      lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    // 6. Cache session data
-    _setSession({ uid: user.uid, email: data.email, role: data.role, tenantId: TENANT_ID });
-
-    console.log(` Login OK — tenant: ${TENANT_ID}, role: ${data.role}`);
-    window.location.href = "index.html";
-
-  } catch (error) {
-    console.error("Login error:", error);
-    alert("Login failed. " + _friendlyAuthError(error.code, error.message));
-  }
 }
 
 // ─── Logout ────────────────────────────────────────────────────────────────────

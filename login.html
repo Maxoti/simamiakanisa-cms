@@ -4,450 +4,421 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SimamiaKanisa - Login</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-    body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-        padding: 20px;
-    }
-
-    .login-container {
-        background: white;
-        padding: 40px;
-        border-radius: 16px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        width: 100%;
-        max-width: 420px;
-        animation: slideIn 0.5s ease-out;
-    }
-
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-30px);
+        :root {
+            --gold:    #c9a84c;
+            --gold-lt: #e8c97a;
+            --dark:    #0f1117;
+            --surface: #181c26;
+            --border:  #252a38;
+            --text:    #e8e6df;
+            --muted:   #7a7f8e;
+            --green:   #2d7a52;
+            --red:     #c0392b;
         }
-        to {
-            opacity: 1;
-            transform: translateY(0);
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
         }
-    }
 
-    .logo-container {
-        text-align: center;
-        margin-bottom: 30px;
-    }
+        /* decorative background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 50% at 50% -10%, rgba(201,168,76,.12) 0%, transparent 60%),
+                radial-gradient(ellipse 40% 40% at 90% 100%, rgba(201,168,76,.06) 0%, transparent 50%);
+            pointer-events: none;
+        }
 
-    .logo-container img {
-        width: 80px;
-        height: 80px;
-        margin-bottom: 15px;
-    }
+        /* grid pattern */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                repeating-linear-gradient(0deg,   transparent, transparent 39px, rgba(201,168,76,.04) 39px, rgba(201,168,76,.04) 40px),
+                repeating-linear-gradient(90deg,  transparent, transparent 39px, rgba(201,168,76,.04) 39px, rgba(201,168,76,.04) 40px);
+            pointer-events: none;
+        }
 
-    h2 {
-        text-align: center;
-        color: #1f2937;
-        margin-bottom: 10px;
-        font-size: 28px;
-        font-weight: 700;
-    }
+        .page {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 440px;
+        }
 
-    .subtitle {
-        text-align: center;
-        color: #6b7280;
-        margin-bottom: 30px;
-        font-size: 14px;
-    }
+        /* ── brand ── */
+        .brand {
+            text-align: center;
+            margin-bottom: 32px;
+            animation: fadeDown .6s ease both;
+        }
+        .brand-icon {
+            width: 64px; height: 64px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 32px rgba(201,168,76,.25);
+        }
+        .brand h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--gold);
+            letter-spacing: -.5px;
+            margin-bottom: 6px;
+        }
+        .brand p { color: var(--muted); font-size: 14px; font-weight: 300; }
 
-    .form-group {
-        margin-bottom: 20px;
-    }
+        /* ── card ── */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 36px;
+            animation: fadeUp .5s .1s ease both;
+        }
 
-    label {
-        display: block;
-        margin-bottom: 8px;
-        color: #374151;
-        font-weight: 500;
-        font-size: 14px;
-    }
+        /* ── church badge ── */
+        .church-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(201,168,76,.08);
+            border: 1px solid rgba(201,168,76,.2);
+            border-radius: 10px;
+            padding: 10px 16px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: var(--gold);
+            font-weight: 500;
+        }
 
-    input {
-        width: 100%;
-        padding: 12px 16px;
-        border: 2px solid #e5e7eb;
-        border-radius: 8px;
-        font-size: 15px;
-        transition: all 0.3s;
-        background: #f9fafb;
-    }
+        /* ── alerts ── */
+        .alert {
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 13px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .alert.show   { display: block; }
+        .alert-err    { background: rgba(192,57,43,.15); border: 1px solid rgba(192,57,43,.4); color: #e57373; }
+        .alert-ok     { background: rgba(45,122,82,.15);  border: 1px solid rgba(45,122,82,.4);  color: #81c995; }
 
-    input:focus {
-        outline: none;
-        border-color: #2563eb;
-        background: white;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-    }
+        /* ── form ── */
+        .field { margin-bottom: 20px; }
+        .field label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+        .field input {
+            width: 100%;
+            background: var(--dark);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            padding: 13px 16px;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .field input:focus {
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201,168,76,.1);
+        }
 
-    .password-container {
-        position: relative;
-        display: block;
-    }
+        .show-pw {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            font-size: 13px;
+            color: var(--muted);
+            cursor: pointer;
+            font-weight: 400;
+            user-select: none;
+        }
+        .show-pw input[type="checkbox"] { width: auto; accent-color: var(--gold); cursor: pointer; }
 
-    .password-container input {
-        width: 100%;
-    }
+        /* remember / forgot row */
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--muted);
+            cursor: pointer;
+        }
+        .remember-me input[type="checkbox"] { width: auto; accent-color: var(--gold); cursor: pointer; }
+        .forgot-link {
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 13px;
+            transition: opacity .2s;
+        }
+        .forgot-link:hover { opacity: .75; text-decoration: underline; }
 
-    .show-password-checkbox {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-top: 8px;
-        font-size: 13px;
-        color: #374151;
-        cursor: pointer;
-    }
+        /* ── submit button ── */
+        .btn-gold {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-lt));
+            color: #0f1117;
+            border: none;
+            border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: opacity .2s, transform .1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .btn-gold:hover   { opacity: .9; }
+        .btn-gold:active  { transform: scale(.98); }
+        .btn-gold:disabled{ opacity: .4; cursor: not-allowed; }
 
-    .show-password-checkbox input[type="checkbox"] {
-        width: auto;
-        margin: 0;
-        cursor: pointer;
-    }
+        .spinner {
+            width: 16px; height: 16px;
+            border: 2px solid rgba(0,0,0,.2);
+            border-top-color: #0f1117;
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            display: none;
+        }
+        .loading .spinner { display: block; }
 
-    .remember-forgot {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        font-size: 14px;
-    }
+        /* ── divider ── */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 24px 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-top: 1px solid var(--border);
+        }
 
-    .remember-me {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        color: #374151;
-    }
+        /* ── footer links ── */
+        .footer-links {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 2;
+            animation: fadeUp .5s .2s ease both;
+        }
+        .footer-links a { color: var(--gold); text-decoration: none; font-weight: 500; }
+        .footer-links a:hover { text-decoration: underline; }
 
-    .remember-me input[type="checkbox"] {
-        width: auto;
-        margin: 0;
-    }
-
-    .forgot-link {
-        color: #2563eb;
-        text-decoration: none;
-        font-weight: 500;
-        transition: color 0.3s;
-    }
-
-    .forgot-link:hover {
-        color: #1e40af;
-        text-decoration: underline;
-    }
-
-    button {
-        width: 100%;
-        padding: 14px;
-        background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-
-    button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
-    }
-
-    button:active {
-        transform: translateY(0);
-    }
-
-    button:disabled {
-        background: #9ca3af;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    .link {
-        text-align: center;
-        margin-top: 20px;
-        color: #6b7280;
-        font-size: 14px;
-    }
-
-    .link a {
-        color: #2563eb;
-        text-decoration: none;
-        font-weight: 600;
-        transition: color 0.3s;
-    }
-
-    .link a:hover {
-        color: #1e40af;
-        text-decoration: underline;
-    }
-
-    .error-message {
-        background: #fee2e2;
-        color: #dc2626;
-        padding: 12px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        font-size: 14px;
-        display: none;
-        border-left: 4px solid #dc2626;
-    }
-
-    .success-message {
-        background: #d1fae5;
-        color: #059669;
-        padding: 12px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        font-size: 14px;
-        display: none;
-        border-left: 4px solid #059669;
-    }
-
-    .loading {
-        display: none;
-        text-align: center;
-        margin: 10px 0;
-    }
-
-    .spinner {
-        border: 3px solid #f3f3f3;
-        border-top: 3px solid #2563eb;
-        border-radius: 50%;
-        width: 30px;
-        height: 30px;
-        animation: spin 1s linear infinite;
-        margin: 0 auto;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-
-    .divider {
-        display: flex;
-        align-items: center;
-        text-align: center;
-        margin: 20px 0;
-        color: #9ca3af;
-        font-size: 13px;
-    }
-
-    .divider::before,
-    .divider::after {
-        content: '';
-        flex: 1;
-        border-bottom: 1px solid #e5e7eb;
-    }
-
-    .divider span {
-        padding: 0 10px;
-    }
-</style>
+        /* ── animations ── */
+        @keyframes fadeDown { from { opacity:0; transform: translateY(-16px); } to { opacity:1; transform: none; } }
+        @keyframes fadeUp   { from { opacity:0; transform: translateY(16px);  } to { opacity:1; transform: none; } }
+        @keyframes spin     { to { transform: rotate(360deg); } }
+    </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="logo-container">
-            <img src="images/dove-fig.png" alt="SimamiaKanisa Logo" onerror="this.style.display='none'">
-            <h2>Welcome Back</h2>
-            <p class="subtitle">Sign in to SimamiaKanisa</p>
-        </div>
 
-        <div id="errorMessage" class="error-message"></div>
-        <div id="successMessage" class="success-message"></div>
-        <div id="loading" class="loading">
-            <div class="spinner"></div>
-            <p style="margin-top: 10px; color: #6b7280;">Logging you in...</p>
-        </div>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-functions-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="auth.js"></script>
 
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="email"> Email Address</label>
-                <input type="email" id="email" placeholder="your.email@example.com" required>
-            </div>
+<div class="page">
 
-            <div class="form-group">
-                <label for="password"> Password</label>
-                <div class="password-container">
-                    <input type="password" id="password" placeholder="Enter your password" required>
-                </div>
-                <label class="show-password-checkbox">
-                    <input type="checkbox" id="showPassword" onchange="togglePasswordVisibility(this.checked)">
-                    Show password
-                </label>
-            </div>
-
-            <div class="remember-forgot">
-                <label class="remember-me">
-                    <input type="checkbox" id="rememberMe">
-                    Remember me
-               
-            </div>
-
-            <button type="submit" id="loginBtn">
-                 Sign In
-            </button>
-        </form>
-
-        <div class="divider">
-            <span>OR</span>
-        </div>
-
-        <div class="link">
-            <p>Don't have an account? <a href="register.html">Create one now</a></p>
-        </div>
+    <!-- Brand -->
+    <div class="brand">
+        <div class="brand-icon">⛪</div>
+        <h1>SimamiaKanisa</h1>
+        <p>Church Management System</p>
     </div>
 
-    <!-- Firebase Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-functions.js"></script>
+    <!-- Card -->
+    <div class="card">
 
-    <!-- Your Firebase config and auth -->
-    <script src="firebase-config.js"></script>
-    <script src="auth.js"></script>
+        <!-- Church badge -->
+        <div class="church-badge" id="churchBadge" style="display:none">
+            <span>⛪</span>
+            <span id="churchBadgeText">Loading…</span>
+        </div>
 
-    <script>
-        const form = document.getElementById('loginForm');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const loginBtn = document.getElementById('loginBtn');
-        const errorMessage = document.getElementById('errorMessage');
-        const successMessage = document.getElementById('successMessage');
-        const loading = document.getElementById('loading');
+        <div class="alert alert-err" id="alertErr"></div>
+        <div class="alert alert-ok"  id="alertOk"></div>
 
-        // Toggle password visibility
-        function togglePasswordVisibility(show) {
-            const field = document.getElementById('password');
-            field.type = show ? 'text' : 'password';
-        }
+        <div class="field">
+            <label>Email Address</label>
+            <input type="email" id="email" placeholder="pastor@church.org" required>
+        </div>
 
-        // Form submission
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const email = emailInput.value.trim();
-            const password = passwordInput.value;
+        <div class="field">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Enter your password" required>
+            <label class="show-pw">
+                <input type="checkbox" onchange="document.getElementById('password').type = this.checked ? 'text' : 'password'">
+                Show password
+            </label>
+        </div>
 
-            // Hide previous messages
-            errorMessage.style.display = 'none';
-            successMessage.style.display = 'none';
+        <div class="remember-forgot">
+            <label class="remember-me">
+                <input type="checkbox" id="rememberMe"> Remember me
+            </label>
+            <a href="#" class="forgot-link" onclick="handleForgotPassword(); return false;">Forgot password?</a>
+        </div>
 
-            // Validation
-            if (!email || !password) {
-                showError('Please enter both email and password');
-                return;
-            }
+        <button class="btn-gold" id="submitBtn" onclick="handleLogin()">
+            <div class="spinner" id="spinner"></div>
+            <span id="btnLabel">Sign In</span>
+        </button>
 
-            // Show loading
-            loading.style.display = 'block';
-            loginBtn.disabled = true;
-            loginBtn.textContent = 'Signing in...';
+        <div class="divider">or</div>
 
-            // Login user
-            loginUserWithFeedback(email, password);
+        <div style="text-align:center;font-size:13px;color:var(--muted)">
+            New church admin? <a href="register-church.html" style="color:var(--gold);font-weight:500;text-decoration:none">Register your church →</a>
+        </div>
+
+    </div><!-- /.card -->
+
+    <div class="footer-links">
+        <div>Don't have a staff account? <a id="registerLink" href="register.html">Register here</a></div>
+        <div style="margin-top:4px;font-size:11px;opacity:.5">Your data is isolated and secure per church</div>
+    </div>
+
+</div>
+
+<script>
+// ── Tenant resolution ──────────────────────────────────────────────────────────
+const params   = new URLSearchParams(window.location.search);
+const tenantId = params.get('tenant') || localStorage.getItem('simamia_tenant');
+
+if (tenantId) {
+    localStorage.setItem('simamia_tenant', tenantId);
+    document.getElementById('registerLink').href = `register.html?tenant=${tenantId}`;
+
+    const badge = document.getElementById('churchBadge');
+    badge.style.display = 'flex';
+
+    db.collection('tenants').doc(tenantId).get()
+        .then(doc => {
+            const name = doc.exists ? doc.data().name : tenantId;
+            document.getElementById('churchBadgeText').textContent = name;
+            document.title = `Login — ${name}`;
+        })
+        .catch(() => {
+            document.getElementById('churchBadgeText').textContent = tenantId;
         });
+}
 
-        function loginUserWithFeedback(email, password) {
-            auth.signInWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
-                    console.log("User logged in:", user.uid);
+// ── UI helpers ─────────────────────────────────────────────────────────────────
+function showError(msg) {
+    const el = document.getElementById('alertErr');
+    el.textContent = '⚠ ' + msg;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 5000);
+}
 
-                    return db.collection("users").doc(user.uid).update({
-                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                    }).then(() => {
-                        return db.collection("users").doc(user.uid).get();
-                    });
-                })
-                .then((doc) => {
-                    if (doc.exists) {
-                        const userData = doc.data();
-                        
-                        if (userData.active === false) {
-                            showError('Your account has been deactivated. Please contact admin.');
-                            auth.signOut();
-                            loading.style.display = 'none';
-                            loginBtn.disabled = false;
-                            loginBtn.textContent = ' Sign In';
-                            return;
-                        }
+function showSuccess(msg) {
+    document.getElementById('alertOk').textContent = '✅ ' + msg;
+    document.getElementById('alertOk').classList.add('show');
+}
 
-                        sessionStorage.setItem('userRole', userData.role);
-                        sessionStorage.setItem('userEmail', userData.email);
-                        sessionStorage.setItem('userId', doc.id);
-                        
-                        showSuccess('Login successful! Redirecting...');
-                        
-                        setTimeout(() => {
-                            window.location.href = "index.html";
-                        }, 1500);
-                    }
-                })
-                .catch((error) => {
-                    console.error("Login error:", error.message);
-                    loading.style.display = 'none';
-                    loginBtn.disabled = false;
-                    loginBtn.textContent = ' Sign In';
-                    
-                    let errorMsg = "Login failed. ";
-                    switch(error.code) {
-                        case 'auth/user-not-found':
-                            errorMsg += "No account found with this email.";
-                            break;
-                        case 'auth/wrong-password':
-                            errorMsg += "Incorrect password.";
-                            break;
-                        case 'auth/invalid-email':
-                            errorMsg += "Invalid email address.";
-                            break;
-                        case 'auth/user-disabled':
-                            errorMsg += "This account has been disabled.";
-                            break;
-                        case 'auth/too-many-requests':
-                            errorMsg += "Too many failed attempts. Please try again later.";
-                            break;
-                        default:
-                            errorMsg += error.message;
-                    }
-                    showError(errorMsg);
-                });
-        }
+function setLoading(on) {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = on;
+    btn.classList.toggle('loading', on);
+    document.getElementById('spinner').style.display = on ? 'block' : 'none';
+    document.getElementById('btnLabel').textContent  = on ? 'Signing in…' : 'Sign In';
+}
 
-        function showError(message) {
-            errorMessage.textContent = '❌ ' + message;
-            errorMessage.style.display = 'block';
-            setTimeout(() => {
-                errorMessage.style.display = 'none';
-            }, 5000);
-        }
+// ── Login ──────────────────────────────────────────────────────────────────────
+async function handleLogin() {
+    document.getElementById('alertErr').classList.remove('show');
+    document.getElementById('alertOk').classList.remove('show');
 
-        function showSuccess(message) {
-            successMessage.textContent = '✅ ' + message;
-            successMessage.style.display = 'block';
-        }
-    </script>
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!email || !password) { showError('Please enter your email and password.'); return; }
+
+    setLoading(true);
+
+    try {
+        // loginUser is defined in auth.js and handles tenant verification + redirect
+        await loginUser(email, password);
+    } catch (error) {
+        const messages = {
+            'auth/user-not-found':         'No account found with this email.',
+            'auth/wrong-password':         'Incorrect password.',
+            'auth/invalid-email':          'Invalid email address.',
+            'auth/user-disabled':          'This account has been disabled.',
+            'auth/too-many-requests':      'Too many failed attempts. Try again later.',
+            'auth/network-request-failed': 'Network error. Check your connection.',
+            'auth/invalid-credential':     'Email or password is incorrect.'
+        };
+        showError(messages[error.code] || error.message);
+        setLoading(false);
+    }
+}
+
+// ── Forgot password ────────────────────────────────────────────────────────────
+async function handleForgotPassword() {
+    const email = document.getElementById('email').value.trim();
+    if (!email) { showError('Enter your email address first, then click Forgot password.'); return; }
+    try {
+        await auth.sendPasswordResetEmail(email);
+        showSuccess('Reset email sent — check your inbox.');
+    } catch {
+        showError('Could not send reset email. Check the address and try again.');
+    }
+}
+
+// ── Enter key ──────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleLogin();
+});
+</script>
+
 </body>
 </html>

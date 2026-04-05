@@ -2,10 +2,10 @@
 // ANALYTICS.STATE.JS — Shared in-memory state
 // ============================================
 
- const Analyticsstate = {
+window.analyticsState = {
     contributions: [],
     members:       [],
     events:        [],
-    charts:        {},       // keyed by chart name; destroyed before re-render
+    charts:        {},
     initialized:   false
 };

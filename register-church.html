@@ -315,7 +315,6 @@ body::after {
 
   <!-- Brand -->
   <div class="brand">
-    <div class="brand-icon">⛪</div>
     <h1>SimamiaKanisa</h1>
     <p>Register your church — get your own private workspace</p>
   </div>
@@ -431,7 +430,6 @@ body::after {
   </div>
 
 </div><!-- /.page -->
-
 <script>
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -439,8 +437,8 @@ function generateTenantId(name) {
   return name
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s]/g, '')   // strip special chars
-    .replace(/\s+/g, '');          // collapse spaces
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, '');
 }
 
 function previewId() {
@@ -487,10 +485,7 @@ function updateSteps(step) {
   });
 }
 
-function goToStep1() {
-  clearError();
-  updateSteps(1);
-}
+function goToStep1() { clearError(); updateSteps(1); }
 
 function goToStep2() {
   clearError();
@@ -519,23 +514,17 @@ function copyUrl() {
 async function createChurch() {
   clearError();
 
-  const churchName  = document.getElementById('churchName').value.trim();
-  const location    = document.getElementById('churchLocation').value.trim();
-  const denom       = document.getElementById('churchDenom').value.trim();
-  const email       = document.getElementById('adminEmail').value.trim();
-  const password    = document.getElementById('adminPassword').value;
-  const password2   = document.getElementById('adminPassword2').value;
+  const churchName = document.getElementById('churchName').value.trim();
+  const location   = document.getElementById('churchLocation').value.trim();
+  const denom      = document.getElementById('churchDenom').value.trim();
+  const email      = document.getElementById('adminEmail').value.trim();
+  const password   = document.getElementById('adminPassword').value;
+  const password2  = document.getElementById('adminPassword2').value;
 
   // ── Validation ────────────────────────────────────────────────────────────
-  if (!email || !password || !password2) {
-    showError('Please fill in all required fields.'); return;
-  }
-  if (password.length < 6) {
-    showError('Password must be at least 6 characters.'); return;
-  }
-  if (password !== password2) {
-    showError('Passwords do not match.'); return;
-  }
+  if (!email || !password || !password2) { showError('Please fill in all required fields.'); return; }
+  if (password.length < 6)               { showError('Password must be at least 6 characters.'); return; }
+  if (password !== password2)            { showError('Passwords do not match.'); return; }
 
   const tenantId = generateTenantId(churchName);
   if (!tenantId || tenantId.length < 3) {
@@ -545,27 +534,33 @@ async function createChurch() {
   setLoading(true);
 
   try {
-    // ── STEP A: Check if tenantId already exists ───────────────────────────
-    const existingTenant = await db.collection('tenants').doc(tenantId).get();
-    if (existingTenant.exists) {
-      showError(`A church with the ID "${tenantId}" already exists. Please use a different name.`);
-      setLoading(false); return;
-    }
-
-    // ── STEP B: Create Firebase Auth user ─────────────────────────────────
+    // ── STEP A: Create Firebase Auth user FIRST ────────────────────────────
+    // Must authenticate before any Firestore reads/writes
     const { user } = await auth.createUserWithEmailAndPassword(email, password);
     console.log('✅ Auth user created:', user.uid);
 
+    // ── STEP B: Now check if tenantId already exists (user is authenticated) ──
+    // ✅ FIX: moved AFTER auth so request.auth is not null
+    const existingTenant = await db.collection('tenants').doc(tenantId).get();
+    if (existingTenant.exists) {
+      // Clean up the auth account we just created since tenant is taken
+      await user.delete();
+      showError(`A church with the ID "${tenantId}" already exists. Please use a different name.`);
+      setLoading(false);
+      return;
+    }
+
     // ── STEP C: Create the tenant document ────────────────────────────────
     await db.collection('tenants').doc(tenantId).set({
-      name:       churchName,
-      location:   location  || '',
-      denomination: denom   || '',
-      ownerUid:   user.uid,
-      ownerEmail: email,
-      plan:       'free',
-      active:     true,
-      createdAt:  firebase.firestore.FieldValue.serverTimestamp()
+      name:         churchName,
+      location:     location || '',
+      denomination: denom    || '',
+      ownerUid:     user.uid,
+      ownerEmail:   email,
+      tenantId,                    // ✅ required by Firestore rule validation
+      plan:         'free',
+      active:       true,
+      createdAt:    firebase.firestore.FieldValue.serverTimestamp()
     });
     console.log('✅ Tenant document created:', tenantId);
 
@@ -573,11 +568,9 @@ async function createChurch() {
     try {
       const setTenantClaim = firebase.functions().httpsCallable('setTenantClaim');
       await setTenantClaim({ tenantId, role: 'admin' });
-      await user.getIdToken(true);   // force-refresh so claim is live
+      await user.getIdToken(true);  // force-refresh so claim is live
       console.log('✅ Custom claim set');
     } catch (claimErr) {
-      // Cloud Function may not be deployed yet — continue anyway
-      // Security Rules will still protect data via the Firestore path
       console.warn('⚠ Could not set custom claim (function may not be deployed):', claimErr.message);
     }
 
@@ -586,36 +579,34 @@ async function createChurch() {
             .collection('members').doc(user.uid).set({
       displayName: 'Admin',
       email,
-      role:     'admin',
+      role:      'admin',
       tenantId,
-      active:   true,
-      joined:   new Date().toISOString().split('T')[0],
+      active:    true,
+      joined:    new Date().toISOString().split('T')[0],
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     console.log('✅ Admin member document created');
 
-    // ── STEP F: Store tenantId in localStorage for this session ───────────
+    // ── STEP F: Store tenantId for this session ────────────────────────────
     localStorage.setItem('simamia_tenant', tenantId);
+    sessionStorage.setItem('tenantId', tenantId);
 
-    // ── STEP G: Build the shareable URL and show success ──────────────────
-    const baseUrl = window.location.origin + '/login.html';
-    const loginUrl = `${baseUrl}?tenant=${tenantId}`;
-
-    document.getElementById('tenantUrl').textContent = loginUrl;
-    document.getElementById('shareText').textContent = loginUrl;
+    // ── STEP G: Show success screen ────────────────────────────────────────
+    const loginUrl = `${window.location.origin}/login.html?tenant=${tenantId}`;
+    document.getElementById('tenantUrl').textContent  = loginUrl;
+    document.getElementById('shareText').textContent  = loginUrl;
     updateSteps(3);
 
   } catch (error) {
     console.error('❌ Church creation error:', error);
-
     const messages = {
-      'auth/email-already-in-use': 'This email is already registered. Try logging in instead.',
-      'auth/invalid-email':        'Please enter a valid email address.',
-      'auth/weak-password':        'Password is too weak — use at least 6 characters.',
-      'auth/network-request-failed': 'Network error. Check your internet connection.'
+      'auth/email-already-in-use':    'This email is already registered. Try logging in instead.',
+      'auth/invalid-email':           'Please enter a valid email address.',
+      'auth/weak-password':           'Password is too weak — use at least 6 characters.',
+      'auth/network-request-failed':  'Network error. Check your internet connection.',
+      'permission-denied':            'Database permission error. Please try again or contact support.'
     };
     showError(messages[error.code] || error.message);
-
   } finally {
     setLoading(false);
   }
@@ -624,10 +615,8 @@ async function createChurch() {
 // ── Keyboard support ─────────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (e.key !== 'Enter') return;
-  const s1 = document.getElementById('step1');
-  const s2 = document.getElementById('step2');
-  if (s1.classList.contains('active')) goToStep2();
-  if (s2.classList.contains('active')) createChurch();
+  if (document.getElementById('step1').classList.contains('active')) goToStep2();
+  if (document.getElementById('step2').classList.contains('active')) createChurch();
 });
 </script>
 </body>

@@ -1,406 +1,372 @@
 # 🕊️ SimamiaKanisa Church Management System
 
-> **Modern Church Management System - Built for Kenyan Churches**
+> **Multi-tenant Church Management Platform — Built for Kenyan Churches**
 
-SimamiaKanisa is a comprehensive, web-based church management system designed specifically for Kenyan churches. It helps churches efficiently manage members, track contributions, organize events, manage pledges, and gain valuable insights through analytics.
+SimamiaKanisa is a **multi-tenant** church management platform where each church gets its own private, isolated workspace. One deployment serves unlimited churches — each with their own members, contributions, pledges, and analytics — with zero data crossover between churches.
 
 ---
 
-##  Table of Contents
+## Table of Contents
 
 - [Features](#features)
+- [Multi-tenancy](#multi-tenancy)
 - [Tech Stack](#tech-stack)
-- [Prerequisites](#prerequisites)
+- [Project Structure](#project-structure)
 - [Installation](#installation)
 - [Configuration](#configuration)
+- [Firestore Security Rules](#firestore-security-rules)
+- [Cloud Functions](#cloud-functions)
+- [User Roles](#user-roles)
 - [Usage](#usage)
-- [Project Structure](#project-structure)
-- [Security Features](#security-features)
-- [Contributing](#contributing)
+- [Roadmap](#roadmap)
 - [License](#license)
-- [Support](#support)
 
 ---
 
-##  Features
+## Features
 
-###  **Member Management**
+### Member Management
 - Add, edit, and delete church members
-- Organize members by ministry/group (Youth, Choir, Women, Men, Elders, Ushers)
-- Store contact information (name, phone number)
-- Track member statistics
+- Organize by ministry/group (Youth, Choir, Women, Men, Elders, Ushers)
+- Store contact information with phone numbers
+- Member statistics on dashboard
 
-###  **Contributions & Tithes**
-- Record various types of contributions (Tithes, Offerings, Building Fund, Mission, Other)
-- Support multiple payment methods (M-Pesa, Cash, Bank Transfer)
-- Real-time contribution tracking
-- Monthly and annual contribution summaries
-- Detailed contribution breakdown by type
+### Contributions & Tithes
+- Record Tithes, Offerings, Building Fund, Mission, and other contributions
+- Support for M-Pesa, Cash, and Bank Transfer
+- Real-time contribution tracking and monthly summaries
+- Breakdown by contribution type
 
-###  **Event Management**
+### Event Management
 - Create and manage church events
-- Set event date, time, and expected attendance
-- Track upcoming and past events
-- Event calendar view
+- Track date, time, and expected attendance
+- Upcoming and past event views
 
-###  **Pledge Management**
-- Create member pledges with categories (Building Fund, Mission, Equipment, etc.)
-- Track pledge payments and balances
-- Monitor pledge status (Active, Completed, Overdue)
-- Payment history for each pledge
-- Progress tracking with visual indicators
-- WhatsApp reminder integration for pledge notifications
+### Pledge Management
+- Create pledges with categories (Building Fund, Mission, Equipment, Other)
+- Track payments, balances, and pledge status (Active, Completed, Overdue)
+- Payment history per pledge
+- WhatsApp reminder integration with pre-formatted messages
+- CSV export of pledge reports
 
-###  **Analytics & Reports**
+### Analytics & Reports
 - Real-time dashboard with key metrics
-- Monthly collection trends
-- Contribution breakdown by category
+- Monthly collection trends (Chart.js)
+- Category breakdown, top contributors, participation rate
 - Growth rate tracking
-- Visual charts and graphs using Chart.js
-- Export reports to Excel and PDF
+- Export to Excel (CSV) and PDF (jsPDF)
 
-###  **Security & Authentication**
-- Firebase Authentication integration
-- Role-based access control (Admin, Editor, User)
-- Protected routes and data
-- Session management
-- Secure login and registration
+### Security & Authentication
+- Firebase Authentication (email/password)
+- JWT custom claims for tenant isolation (`tenantId`, `role`)
+- Role-based access control (Admin, Editor, Member)
+- Protected routes with automatic redirect
+- Cloud Function enforces tenant claim on registration
 
-###  **WhatsApp Integration**
-- Send pledge reminders directly via WhatsApp
-- Pre-formatted messages with pledge details
-- One-click communication with members
+### WhatsApp Integration
+- One-click pledge reminders via WhatsApp
+- Pre-formatted messages with pledge balance and payment options
 
 ---
 
-##  Tech Stack
+## Multi-tenancy
 
-### **Frontend**
-- HTML5, CSS3, JavaScript (ES6+)
-- Responsive design (mobile-friendly)
-- Chart.js for data visualization
-- Modern UI with gradient cards and animations
+Each church is a **tenant** — completely isolated from all other churches.
 
-### **Backend & Database**
-- Firebase Authentication (User management)
-- Cloud Firestore (NoSQL database)
-- Real-time data synchronization
+```
+Firestore
+└── tenants/
+    ├── gracefellowship/
+    │     ├── members/
+    │     ├── contributions/
+    │     ├── events/
+    │     ├── pledges/
+    │     └── pledge_payments/
+    └── deliverance/
+          ├── members/
+          ├── contributions/
+          └── ...
+```
 
-### **Development Tools**
-- Visual Studio Code
-- Git for version control
-- Live Server for local development
+**How isolation works:**
+
+| Layer | Mechanism |
+|---|---|
+| URL | Each church accesses via `?tenant=churchid` or subdomain |
+| JWT | `tenantId` baked into Firebase Auth token as custom claim |
+| Firestore Rules | `request.auth.token.tenantId == tenantId` enforced on every read/write |
+| Client | All collection refs go through `tenantRef()` in `firebase-config.js` |
+
+**Onboarding a new church:**
+1. Church admin visits `register-church.html`
+2. Fills in church name and admin credentials
+3. System creates the tenant document and admin member doc
+4. Cloud Function stamps `tenantId` + `role: admin` into the JWT
+5. Church receives their login URL: `login.html?tenant=churchid`
 
 ---
 
-## Prerequisites
+## Tech Stack
 
-Before you begin, ensure you have:
-
-- A modern web browser (Chrome, Firefox, Safari, Edge)
-- A Firebase account ([Sign up here](https://firebase.google.com/))
-- Basic knowledge of HTML, CSS, and JavaScript
-- A code editor (VS Code recommended)
-- Live Server extension (for local development)
+| Layer | Technology |
+|---|---|
+| Frontend | HTML5, CSS3, Vanilla JavaScript |
+| Database | Cloud Firestore (NoSQL, real-time) |
+| Auth | Firebase Authentication + Custom Claims |
+| Functions | Firebase Cloud Functions v2 (Node 20) |
+| Charts | Chart.js 4 |
+| PDF export | jsPDF + jsPDF-AutoTable |
+| Hosting | Firebase Hosting / Vercel |
 
 ---
 
-##  Installation
+## Project Structure
 
-### 1. **Clone the Repository**
+```
+simamiakanisa/
+├── index.html                  # Main app shell
+├── login.html                  # Login page
+├── register.html               # Staff registration
+├── register-church.html        # New church onboarding
+│
+├── firebase-config.js          # Firebase init + tenant resolution + collection helpers
+├── auth.js                     # Auth: login, register, protectPage, authReady event
+├── main.js                     # Bootstrap, dashboard, tab switching
+├── state.js                    # Global state arrays (members, contributions, etc.)
+├── pagination.js               # Shared pagination logic
+├── members.js                  # Members tab
+├── contributions.js            # Contributions tab
+├── events.js                   # Events tab
+│
+├── PLEDGES/
+│   ├── Pledges.js              # Entry point
+│   ├── Pledges.db.js           # Tenant-scoped Firestore refs
+│   ├── Pledges.state.js        # Pledges in-memory state
+│   ├── Pledges.data.js         # Firebase load, create, record payment
+│   ├── Pledges.stats.js        # Summary card updates
+│   ├── Pledges.table.js        # Table render + pagination
+│   ├── Pledges.modals.js       # Create / pay / history modals
+│   └── Pledges.ui.js           # Layout HTML, export CSV, WhatsApp, modals HTML
+│
+├── ANALYTICS/
+│   ├── Analytics.js            # Entry point
+│   ├── Analytics.db.js         # Tenant-scoped Firestore refs
+│   ├── Analytics.state.js      # Analytics in-memory state
+│   ├── Analytics.data.js       # Filter, growth rate, year range
+│   ├── Analytics.summary.js    # Summary card updates
+│   ├── Analytics.charts.js     # All 5 Chart.js renderers
+│   ├── Analytics.export.js     # CSV + PDF export
+│   └── Analytics.ui.js         # Layout HTML + error display
+│
+├── functions/
+│   ├── index.js                # setTenantClaim + promoteUser Cloud Functions
+│   └── package.json
+│
+├── style.css                   # Global styles
+├── pledges.css                 # Pledges-specific styles
+├── analytics.css               # Analytics-specific styles
+├── CSS/
+│   └── mobileNav.css           # Mobile navigation styles
+│
+├── firestore.rules             # Firestore security rules
+├── storage.rules               # Firebase Storage rules
+├── firebase.json               # Firebase project config
+└── images/
+    └── church.jpeg             # Default church logo
+```
+
+---
+
+## Installation
+
+### 1. Clone the repository
 
 ```bash
 git clone https://github.com/maxoti/simamiakanisa.git
 cd simamiakanisa
 ```
 
-### 2. **Set Up Firebase**
+### 2. Set up Firebase
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Create a new project or select an existing one
-3. Enable **Authentication** → **Email/Password** sign-in method
+2. Create a project
+3. Enable **Authentication → Email/Password**
 4. Create a **Firestore Database** in production mode
-5. Get your Firebase configuration:
-   - Go to Project Settings → General
-   - Scroll down to "Your apps" → Web app
-   - Copy the configuration object
+5. Upgrade to **Blaze plan** (required for Cloud Functions)
 
-### 3. **Configure Firebase**
+### 3. Configure Firebase
 
-Open `firebase-config.js` and replace with your Firebase credentials:
+Open `firebase-config.js` and update:
 
 ```javascript
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT.firebaseapp.com",
+  projectId:         "YOUR_PROJECT",
+  storageBucket:     "YOUR_PROJECT.firebasestorage.app",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
 };
-
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
 ```
 
-### 4. **Set Up Firestore Security Rules**
+### 4. Install and deploy Cloud Functions
 
-In Firebase Console → Firestore Database → Rules, paste:
+```bash
+cd functions
+npm install
+cd ..
+firebase deploy --only "functions,firestore:rules"
+```
+
+### 5. Run locally
+
+```bash
+# VS Code Live Server (recommended)
+# Or:
+npx http-server -p 5501
+```
+
+Visit `http://127.0.0.1:5501/register-church.html` to register your first church.
+
+---
+
+## Firestore Security Rules
+
+All data is isolated by `tenantId` — enforced server-side so even a buggy client cannot access another church's data.
 
 ```javascript
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /members/{memberId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'editor'];
+
+    function ownTenant(tenantId) {
+      return request.auth != null
+          && request.auth.token.tenantId == tenantId;
     }
-    
-    match /contributions/{contribId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'editor'];
+
+    function hasRole(tenantId, role) {
+      return ownTenant(tenantId)
+          && request.auth.token.role == role;
     }
-    
-    match /events/{eventId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'editor'];
+
+    match /tenants/{tenantId} {
+      allow read:   if request.auth != null;
+      allow create: if request.auth != null
+                    && !exists(/databases/$(database)/documents/tenants/$(tenantId))
+                    && request.resource.data.tenantId == tenantId;
+      allow update, delete: if request.auth.token.role == "superadmin";
+
+      match /members/{memberId} {
+        allow read:   if request.auth != null
+                      && (ownTenant(tenantId) || request.auth.uid == memberId);
+        allow create: if request.auth != null && request.auth.uid == memberId;
+        allow update: if hasRole(tenantId, "admin") || request.auth.uid == memberId;
+        allow delete: if hasRole(tenantId, "admin");
+      }
+
+      match /contributions/{docId}    { allow read, write: if ownTenant(tenantId); }
+      match /pledges/{pledgeId}       { allow read, write: if ownTenant(tenantId); }
+      match /pledge_payments/{id}     { allow read, write: if ownTenant(tenantId); }
+      match /events/{eventId}         { allow read, write: if ownTenant(tenantId); }
+      match /analytics/{docId} {
+        allow read:  if ownTenant(tenantId);
+        allow write: if hasRole(tenantId, "admin");
+      }
     }
-    
-    match /pledges/{pledgeId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'editor'];
-    }
-    
-    match /pledge_payments/{paymentId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'editor'];
-    }
-    
-    match /users/{userId} {
-      allow read: if request.auth != null && request.auth.uid == userId;
-      allow write: if request.auth != null && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
+
+    match /{document=**} { allow read, write: if false; }
   }
 }
 ```
 
-### 5. **Run Locally**
+---
 
+## Cloud Functions
+
+Two functions in `functions/index.js`:
+
+| Function | Purpose |
+|---|---|
+| `setTenantClaim` | Called on registration — stamps `tenantId` + `role` into the user's JWT |
+| `promoteUser` | Called by admin — changes a member's role within the same tenant |
+
+Deploy:
 ```bash
-# Open with Live Server in VS Code
-# Or use Python's built-in server:
-python -m http.server 5501
-
-# Or use Node.js http-server:
-npx http-server -p 5501
+firebase deploy --only functions
 ```
-
-Navigate to `http://127.0.0.1:5501/register.html` to create your first account.
 
 ---
 
-##  Configuration
+## User Roles
 
-### **Customize Payment Details**
+| Role | Permissions |
+|---|---|
+| `admin` | Full access — manage members, contributions, events, pledges, analytics |
+| `editor` | Add/edit members, contributions, events, pledges |
+| `member` | Read-only access |
 
-Update WhatsApp pledge reminder message in `pledges.js`:
-
-```javascript
-// Find this section and update with your church details:
-*Payment Options:*
-• M-Pesa Paybill: [Your Paybill Number]
-• Bank Account: [Your Bank Details]
-• Cash: During church service
-```
-
-### **Customize Church Branding**
-
-1. Replace `images/dove-fig.png` with your church logo
-2. Update church name in `index.html` header
-3. Customize colors in CSS files
+Roles are enforced in both the UI (buttons shown/hidden) and Firestore Rules (server-side).
 
 ---
 
 ## Usage
 
-### **First Time Setup**
+### Register a new church
 
-1. **Register Admin Account**
-   - Navigate to `register.html`
-   - Create an account with **Admin** role
-   - This will be your primary admin account
+1. Visit `register-church.html`
+2. Enter church name — your workspace ID is auto-generated
+3. Enter admin email and password
+4. Click **Create Church Workspace**
+5. Share the login URL with your staff: `login.html?tenant=yourchurchid`
 
-2. **Add Church Members**
-   - Login with admin account
-   - Go to **Members** tab
-   - Click **+ Add Member**
-   - Fill in member details
+### Add members
 
-3. **Record Contributions**
-   - Go to **Contributions** tab
-   - Click **+ Record Contribution**
-   - Select member, type, amount, and payment method
+1. Login → **Members** tab → **+ Add Member**
 
-4. **Create Pledges**
-   - Go to **Pledges** tab
-   - Click **+ New Pledge**
-   - Fill in pledge details (member, category, amount, dates)
+### Record a contribution
 
-5. **Send Reminders**
-   - In Pledges table, click ** WhatsApp** button
-   - Pre-formatted message opens in WhatsApp
-   - Send to member
+1. **Contributions** tab → **+ Record Contribution**
+2. Select member, type, amount, and payment method
 
-### **User Roles**
+### Create a pledge
 
-- **Admin**: Full access - can manage everything including users
-- **Editor**: Can add/edit members, contributions, events, and pledges
-- **User**: Read-only access to view data
+1. **Pledges** tab → **+ New Pledge**
+2. Select member, category, amount, and dates
+
+### Send a pledge reminder
+
+1. In the Pledges table, click **WhatsApp**
+2. Pre-formatted message opens in WhatsApp Web
 
 ---
 
-##  Project Structure
+## Roadmap
 
-```
-simamiakanisa/
-├── index.html              # Main dashboard
-├── login.html              # Login page
-├── register.html           # Registration page
-├── firebase-config.js      # Firebase configuration
-├── auth.js                 # Authentication functions
-├── modal-helpers.js        # Modal utility functions
-├── members.js              # Member management
-├── contributions.js        # Contribution tracking
-├── events.js               # Event management
-├── pledges.js              # Pledge management
-├── analytics.js            # Analytics & charts
-├── main.js                 # Main application logic
-├── style.css               # Main stylesheet
-├── pledges.css             # Pledge-specific styles
-├── analytics.css           # Analytics-specific styles
-├── images/                 # Image assets
-│   └── dove-fig.png        # Church logo
-└── README.md               # This file
-```
+- [ ] Email reports (scheduled PDF delivery)
+- [ ] Attendance tracking
+- [ ] Mobile app (PWA)
+- [ ] Subdomain routing per church (`church.simamiakanisa.co.ke`)
+- [ ] Superadmin dashboard (manage all tenants)
+- [ ] Automated Firestore backups
+- [ ] Offline mode with sync
 
 ---
 
-## Security Features
+## License
 
-- ✅ Firebase Authentication with email/password
-- ✅ Role-based access control (RBAC)
-- ✅ Protected routes (automatic redirect to login)
-- ✅ Firestore security rules
-- ✅ Session management
-- ✅ Input validation and sanitization
-- ✅ Account activation/deactivation
-- ✅ Password reset functionality
-- ✅ Secure data transmission (HTTPS)
-
----
-
-## Screenshots
-
-### Dashboard
-![Dashboard](https://via.placeholder.com/800x400?text=Dashboard+Screenshot)
-
-### Pledges Management
-![Pledges](https://via.placeholder.com/800x400?text=Pledges+Screenshot)
-
-### Analytics
-![Analytics](https://via.placeholder.com/800x400?text=Analytics+Screenshot)
-
----
-
-##  Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-### **Coding Guidelines**
-
-- Use meaningful variable and function names
-- Comment your code where necessary
-- Follow existing code structure and style
-- Test thoroughly before submitting PR
-
----
-
-##  License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
 ## Support
 
-### **Getting Help**
-
--  Email: support@simamiakanisa.com
--  GitHub Issues: [Report a bug](https://github.com/yourusername/simamiakanisa/issues)
--  Documentation: [Wiki](https://github.com/yourusername/simamiakanisa/wiki)
-
-### **Donations**
-
-If you find SimamiaKanisa useful, consider supporting the project:
-
-- M-Pesa: [Your Number]
-- PayPal: [Your PayPal]
+- GitHub Issues: [Report a bug](https://github.com/maxoti/simamiakanisa/issues)
+- Email: support@simamiakanisa.com
 
 ---
 
-##  Acknowledgments
 
-- Built with ❤️ for Kenyan Churches
-- Firebase for backend infrastructure
-- Chart.js for beautiful visualizations
-- All contributors and supporters
+**Built with  for Kenyan Churches**
 
----
+ Star this repo if it's useful!
 
-##  Roadmap
-
-### **Planned Features**
-
-- [ ] SMS notifications
-- [ ] Email reports
-- [ ] Mobile app (Android/iOS)
-- [ ] Advanced analytics dashboard
-- [ ] Attendance tracking
-- [ ] Sermon management
-- [ ] Multi-church support
-- [ ] Offline mode with sync
-- [ ] Automated backup system
-- [ ] Financial forecasting
-
----
-
-##  Links
-
-- **Live Demo**: [https://simamiakanisa.web.app](https://simamiakanisa.web.app)
-- **Documentation**: [https://docs.simamiakanisa.com](https://docs.simamiakanisa.com)
-- **GitHub**: [https://github.com/yourusername/simamiakanisa](https://github.com/yourusername/simamiakanisa)
-
----
-
-<div align="center">
-
-**Made with  for the Church Community**
-
- Star this repo if you find it helpful!
-
-[Report Bug](https://github.com/yourusername/simamiakanisa/issues) · [Request Feature](https://github.com/yourusername/simamiakanisa/issues)
-
-</div>

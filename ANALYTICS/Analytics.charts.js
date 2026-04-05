@@ -16,8 +16,8 @@ function canvas(id) {
 }
 
 function destroyAndStore(key, chart) {
-    state.charts[key]?.destroy();
-    state.charts[key] = chart;
+    analyticsState.charts[key]?.destroy();
+    analyticsState.charts[key] = chart;
 }
 
 // ── 1. Monthly trends (line) ──────────────────────────────────────────────────
@@ -174,7 +174,7 @@ function destroyAndStore(key, chart) {
 
  function renderParticipationChart(contributions) {
     const participating    = new Set(contributions.map(c => c.memberName)).size;
-    const total            = state.members.length;
+    const total            = analyticsState.members.length;
     const notParticipating = Math.max(0, total - participating);
 
     const ctx = canvas('participationChart');
