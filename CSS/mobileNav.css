@@ -1,249 +1,227 @@
-        /* Hamburger Menu Styles */
-        .hamburger {
-            display: none;
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.8rem;
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 4px;
-            transition: background 0.3s;
-            position: absolute;
-            left: 15px;
-            top: 20px;
-            z-index: 101;
-        }
+/* ============================================
+   MOBILE NAVIGATION — SimamiaKanisa
+   ============================================ */
 
-        .hamburger:hover {
-            background: rgba(255,255,255,0.1);
-        }
+/* ── Hamburger button — hidden on desktop ── */
+.hamburger {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    font-size: 22px;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s;
+    z-index: 101;
+}
 
-        .hamburger:active {
-            transform: scale(0.95);
-        }
+.hamburger:hover  { background: rgba(255,255,255,0.25); }
+.hamburger:active { transform: scale(0.95); }
 
-        /* Navigation Overlay */
-        .nav-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            background: rgba(0,0,0,0.5);
-            z-index: 998;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
+/* ── Overlay backdrop ── */
+.nav-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
 
-        .nav-overlay.active {
-            display: block;
-            opacity: 1;
-        }
+.nav-overlay.active {
+    display: block;
+    opacity: 1;
+}
 
-        /* Mobile Navigation Close Button */
-        .nav-close {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 2rem;
-            cursor: pointer;
-            padding: 10px;
-            color: #374151;
-            position: absolute;
-            right: 10px;
-            top: 10px;
-        }
+/* ── Close button inside drawer ── */
+.nav-close {
+    display: none;
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #374151;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
 
-        /* Mobile Responsive Adjustments */
-        @media (max-width: 768px) {
-            .hamburger {
-                display: block;
-            }
+.nav-close:hover { background: #f3f4f6; }
 
-            /* Make header responsive */
-            .header .container {
-                padding-left: 60px !important;
-            }
+/* ============================================
+   MOBILE (≤ 768px)
+   ============================================ */
+@media (max-width: 768px) {
 
-            .header h1 {
-                font-size: 1.3rem !important;
-            }
+    /* ── Header — single flex row ── */
+    .header { padding: 0; }
 
-            .header p {
-                font-size: 0.75rem !important;
-            }
+    .header .container {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        padding: 12px 15px !important;
+        gap: 10px;
+        min-height: 64px;
+    }
 
-            .church-logo {
-                width: 40px !important;
-                height: 40px !important;
-            }
+    .hamburger { display: flex; }
 
-            /* User info in header - stack vertically */
-            .user-info {
-                position: absolute !important;
-                right: 10px !important;
-                top: 15px !important;
-                flex-direction: column !important;
-                align-items: flex-end !important;
-                gap: 8px !important;
-            }
+    .church-logo {
+        width: 38px !important;
+        height: 38px !important;
+        margin: 0 !important;
+        order: unset !important;
+        flex-shrink: 0;
+    }
 
-            .user-info > div {
-                display: none; /* Hide email/role on very small screens */
-            }
+    .header h1 {
+        font-size: 17px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        flex: 1;
+        order: unset !important;
+        text-align: left !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-            /* Slide-out Navigation */
-            .tabs {
-                position: fixed !important;
-                top: 0;
-                left: -100%;
-                width: 280px;
-                max-width: 85%;
-                height: 100vh;
-                background: white;
-                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-                transition: left 0.3s ease;
-                z-index: 999;
-                padding: 60px 15px 20px 15px;
-                overflow-y: auto;
-                flex-direction: column !important;
-                gap: 8px !important;
-            }
+    /* Hide subtitle on mobile — no room */
+    .header p { display: none !important; }
 
-            .tabs.active {
-                left: 0;
-            }
+    /* User info — sits on the right, no absolute positioning */
+    .user-info {
+        position: static !important;
+        transform: none !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 8px !important;
+        flex-shrink: 0;
+    }
 
-            .nav-close {
-                display: block;
-            }
+    .user-info > div { display: none; }
 
-            .tab-btn {
-                width: 100% !important;
-                text-align: left !important;
-                padding: 15px 20px !important;
-                border-radius: 8px !important;
-                margin: 0 !important;
-                font-size: 1rem !important;
-                border: none !important;
-                background: #f3f4f6 !important;
-            }
+    .user-info button {
+        padding: 8px 14px !important;
+        font-size: 13px !important;
+        min-height: unset !important;
+        white-space: nowrap;
+    }
 
-            .tab-btn:hover {
-                background: #e5e7eb !important;
-            }
+    /* ── Slide-in nav drawer ── */
+    .tabs {
+        position: fixed !important;
+        top: 0 !important;
+        left: -100% !important;
+        width: 280px !important;
+        max-width: 85vw !important;
+        height: 100vh !important;
+        background: white !important;
+        box-shadow: 4px 0 20px rgba(0,0,0,0.15) !important;
+        z-index: 999 !important;
+        padding: 64px 12px 24px !important;
+        overflow-y: auto !important;
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        gap: 6px !important;
+        transition: left 0.3s ease !important;
+        border-radius: 0 !important;
+    }
 
-            .tab-btn.active {
-                background: #2563eb !important;
-                color: white !important;
-            }
+    .tabs.active { left: 0 !important; }
 
-            /* Container adjustments */
-            .container {
-                padding: 10px !important;
-            }
+    .nav-close { display: flex; }
 
-            /* Stats grid - single column on mobile */
-            .stats-grid {
-                grid-template-columns: 1fr !important;
-            }
+    /* Drawer tab buttons */
+    .tab-btn {
+        width: 100% !important;
+        text-align: left !important;
+        padding: 14px 18px !important;
+        border-radius: 10px !important;
+        font-size: 15px !important;
+        font-weight: 600 !important;
+        background: #f9fafb !important;
+        color: #374151 !important;
+        border: none !important;
+        min-height: unset !important;
+        white-space: normal !important;
+        transition: background 0.2s, color 0.2s !important;
+    }
 
-            /* Card headers */
-            .card-header {
-                flex-direction: column !important;
-                gap: 10px !important;
-                align-items: stretch !important;
-            }
+    .tab-btn:hover  { background: #f3f4f6 !important; }
+    .tab-btn.active { background: #2563eb !important; color: white !important; }
 
-            .card-header .btn {
-                width: 100% !important;
-            }
+    /* ── General layout ── */
+    .container { padding: 12px !important; }
 
-            /* Table responsiveness */
-            .table-wrapper {
-                overflow-x: auto;
-            }
+    .stats-grid { grid-template-columns: 1fr !important; }
 
-            table {
-                font-size: 0.85rem;
-            }
+    .card-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 10px !important;
+    }
 
-            th, td {
-                padding: 8px 6px !important;
-                white-space: nowrap;
-            }
+    .card-header .btn { width: 100% !important; }
 
-            /* Hide less important columns on mobile */
-            table th:nth-child(3),
-            table td:nth-child(3),
-            table th:nth-child(4),
-            table td:nth-child(4) {
-                display: none;
-            }
+    /* ── Tables ── */
+    .table-wrapper { overflow-x: auto; }
 
-            /* Action buttons - make them stack */
-            td button {
-                display: block;
-                width: 100%;
-                margin: 3px 0;
-                font-size: 0.75rem !important;
-                padding: 6px 10px !important;
-            }
+    table    { font-size: 13px; }
+    th, td   { padding: 8px 6px !important; white-space: nowrap; }
 
-            /* Modal adjustments */
-            .modal-content {
-                width: 95% !important;
-                max-width: 95% !important;
-                margin: 20px auto !important;
-            }
+    /* Action buttons stack vertically in table cells */
+    td:last-child        { min-width: auto !important; }
+    td:last-child button {
+        display: block !important;
+        width: 100% !important;
+        margin: 3px 0 !important;
+        font-size: 12px !important;
+        padding: 6px 10px !important;
+    }
 
-            .form-actions {
-                flex-direction: column !important;
-            }
+    /* ── Modals ── */
+    .modal-content {
+        width: 95% !important;
+        max-width: 95% !important;
+    }
 
-            .form-actions .btn {
-                width: 100% !important;
-            }
-        }
+    .form-actions {
+        flex-direction: column !important;
+    }
 
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.1rem !important;
-            }
+    .form-actions .btn { width: 100% !important; }
+}
 
-            .header p {
-                display: none;
-            }
+/* ============================================
+   VERY SMALL SCREENS (≤ 480px)
+   ============================================ */
+@media (max-width: 480px) {
+    .header .container { padding: 10px !important; gap: 8px; }
 
-            .stat-card .stat-value {
-                font-size: 1.5rem !important;
-            }
+    .hamburger { width: 36px; height: 36px; font-size: 20px; }
 
-            .stat-card .stat-label {
-                font-size: 0.75rem !important;
-            }
-        }
+    .church-logo { width: 32px !important; height: 32px !important; }
 
-        /* Ensure tables have proper action button layout */
-        table td:last-child {
-            min-width: 150px;
-        }
+    .header h1 { font-size: 15px !important; }
 
-        table td:last-child > * {
-            display: inline-block;
-            margin: 2px;
-        }
+    .user-info button { padding: 6px 10px !important; font-size: 12px !important; }
 
-        @media (max-width: 768px) {
-            table td:last-child {
-                min-width: auto;
-            }
-            
-            table td:last-child > * {
-                display: block;
-                width: 100%;
-                margin: 3px 0;
-            }
-        }
+    .tabs { width: 260px !important; }
+
+    .stat-card .stat-value { font-size: 28px !important; }
+    .stat-card .stat-label { font-size: 12px !important; }
+}
