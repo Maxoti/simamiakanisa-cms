@@ -323,10 +323,10 @@
 
     <!-- Auth guard + role-based UI -->
     <script>
-        // ✅ FIX 3: Listen for authReady event dispatched by auth.js
+        //  FIX 3: Listen for authReady event dispatched by auth.js
         // This replaces auth.onAuthStateChanged here — role is guaranteed loaded
         document.addEventListener('authReady', ({ detail }) => {
-            console.log('✅ authReady received:', detail);
+            console.log(' authReady received:', detail);
             initializeSecureUI(detail.member);
         });
 
@@ -349,6 +349,7 @@
         // Permission guards — applied after all modules define their functions
         function guardWrite(fn) {
             return function() {
+                 const role = sessionStorage.getItem('userRole');
                 if (!hasRole(['admin', 'editor'])) {
                     alert(' You do not have permission to perform this action.');
                     return;
