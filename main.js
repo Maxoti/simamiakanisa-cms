@@ -3,12 +3,17 @@
 //             members.js, contributions.js, events.js
 
 // ── Bootstrap ──────────────────────────────────────────────────────────────────
+let _dataLoaded = false; // guard against double-firing
+
 document.addEventListener('authReady', async ({ detail }) => {
-  console.log('✅ authReady — tenant:', detail.member.tenantId, '| role:', detail.member.role);
+  if (_dataLoaded) return;
+  _dataLoaded = true;
+
+  console.log(' authReady — tenant:', detail.member.tenantId, '| role:', detail.member.role);
 
   try {
     await auth.currentUser?.getIdToken(true);
-    console.log('✅ Token refreshed — claims active');
+    console.log(' Token refreshed — claims active');
   } catch (e) {
     console.warn('⚠ Token refresh failed:', e.message);
   }
@@ -19,7 +24,7 @@ document.addEventListener('authReady', async ({ detail }) => {
 // ── Data loading ───────────────────────────────────────────────────────────────
 async function loadAllData() {
   try {
-    console.log('Loading data for tenant:', TENANT_ID);
+    console.log(' Loading data for tenant:', TENANT_ID);
 
     const [membersSnap, contribSnap, eventsSnap] = await Promise.all([
       membersCollection().orderBy('joined', 'desc').get(),
@@ -38,18 +43,18 @@ async function loadAllData() {
       const pledgesSnap = await pledgesCollection().orderBy('createdAt', 'desc').get();
       pledges = pledgesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     } catch {
-      console.log('ℹ️ No pledges collection yet');
+      console.log(' No pledges collection yet');
       pledges = [];
     }
 
-    // ✅ Expose to window so PLEDGES + ANALYTICS modules can access them
+    // Expose to window so PLEDGES + ANALYTICS modules can access them
     window.members       = members;
     window.contributions = contributions;
     window.events        = events;
     window.pledges       = pledges;
 
     console.log(
-      '✅ Loaded —',
+      ' Loaded —',
       members.length,       'members ·',
       contributions.length, 'contributions ·',
       events.length,        'events ·',
@@ -66,7 +71,7 @@ async function loadAllData() {
     switchTab('dashboard');
 
   } catch (error) {
-    console.error('❌ loadAllData error:', error);
+    console.error(' loadAllData error:', error);
     alert('Error loading data. Please refresh the page.');
   }
 }
@@ -85,7 +90,11 @@ function switchTab(tabName) {
     section.style.display = 'block';
   }
 
-  const btn = document.querySelector(`[onclick*="switchTab('${tabName}')"]`);
+  // FIX: buttons use handleTabClick('x') not switchTab('x')
+  // Match any button whose onclick contains the tab name in quotes
+  const btn = document.querySelector(
+    `.tab-btn[onclick*="'${tabName}'"], .tab-btn[onclick*='"${tabName}"']`
+  );
   if (btn) btn.classList.add('active');
 
   const handlers = {
@@ -140,7 +149,7 @@ function updateDashboard() {
   }
 }
 
-// ── Pledges fallback (used when PLEDGES module is absent) ──────────────────────
+// ── Pledges fallback ───────────────────────────────────────────────────────────
 function loadPledgesPage() {
   const state     = paginationState.pledges;
   const container = document.getElementById('pledgesTable');
@@ -224,7 +233,6 @@ const openAddMemberModal       = () => document.getElementById('addMemberModal')
 const openAddContributionModal = () => document.getElementById('addContributionModal')?.classList.add('active');
 const openAddEventModal        = () => document.getElementById('addEventModal')?.classList.add('active');
 
-// ✅ Single closeModal definition — used by all modules
 function closeModal(id) {
   document.getElementById(id)?.classList.remove('active');
 }
