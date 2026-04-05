@@ -64,6 +64,12 @@
    MOBILE (≤ 768px)
    ============================================ */
 @media (max-width: 768px) {
+    .hamburger {
+        position: relative !important;  /* not absolute */
+        z-index: 200 !important;        /* above everything in header */
+        pointer-events: all !important;
+    }
+}
 
     /* ── Header — single flex row ── */
     .header { padding: 0; }
@@ -204,7 +210,6 @@
     }
 
     .form-actions .btn { width: 100% !important; }
-}
 
 /* ============================================
    VERY SMALL SCREENS (≤ 480px)
