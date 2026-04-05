@@ -2,7 +2,7 @@
    MOBILE NAVIGATION — SimamiaKanisa
    ============================================ */
 
-/* ── Hamburger button — hidden on desktop ── */
+/* ── Hamburger — hidden on desktop ─────────────────────────────────────────── */
 .hamburger {
     display: none;
     align-items: center;
@@ -23,7 +23,7 @@
 .hamburger:hover  { background: rgba(255,255,255,0.25); }
 .hamburger:active { transform: scale(0.95); }
 
-/* ── Overlay backdrop ── */
+/* ── Overlay backdrop ───────────────────────────────────────────────────────── */
 .nav-overlay {
     display: none;
     position: fixed;
@@ -39,7 +39,7 @@
     opacity: 1;
 }
 
-/* ── Close button inside drawer ── */
+/* ── Close button inside drawer ─────────────────────────────────────────────── */
 .nav-close {
     display: none;
     position: absolute;
@@ -64,14 +64,8 @@
    MOBILE (≤ 768px)
    ============================================ */
 @media (max-width: 768px) {
-    .hamburger {
-        position: relative !important;  /* not absolute */
-        z-index: 200 !important;        /* above everything in header */
-        pointer-events: all !important;
-    }
-}
 
-    /* ── Header — single flex row ── */
+    /* ── Header ── */
     .header { padding: 0; }
 
     .header .container {
@@ -83,7 +77,13 @@
         min-height: 64px;
     }
 
-    .hamburger { display: flex; }
+    .hamburger {
+        display: flex;
+        position: relative !important;
+        z-index: 200 !important;
+        pointer-events: all !important;
+        flex-shrink: 0;
+    }
 
     .church-logo {
         width: 38px !important;
@@ -105,10 +105,9 @@
         text-overflow: ellipsis;
     }
 
-    /* Hide subtitle on mobile — no room */
     .header p { display: none !important; }
 
-    /* User info — sits on the right, no absolute positioning */
+    /* ── User info — show role, hide email ── */
     .user-info {
         position: static !important;
         transform: none !important;
@@ -118,7 +117,16 @@
         flex-shrink: 0;
     }
 
-    .user-info > div { display: none; }
+    /* ✅ FIX 1: Show role badge, hide only email */
+    .user-info > div        { display: block !important; }
+    .user-info #userEmail   { display: none !important; }
+    .user-info #userRole    {
+        display: block !important;
+        font-size: 10px !important;
+        color: rgba(255,255,255,0.85) !important;
+        text-align: right;
+        white-space: nowrap;
+    }
 
     .user-info button {
         padding: 8px 14px !important;
@@ -145,6 +153,8 @@
         gap: 6px !important;
         transition: left 0.3s ease !important;
         border-radius: 0 !important;
+        /* ✅ FIX 2: Must be visible (not display:none) so tabs are clickable */
+        display: flex !important;
     }
 
     .tabs.active { left: 0 !important; }
@@ -165,15 +175,16 @@
         min-height: unset !important;
         white-space: normal !important;
         transition: background 0.2s, color 0.2s !important;
+        /* ✅ FIX 3: Ensure buttons are always clickable */
+        pointer-events: all !important;
+        cursor: pointer !important;
     }
 
     .tab-btn:hover  { background: #f3f4f6 !important; }
     .tab-btn.active { background: #2563eb !important; color: white !important; }
 
-    /* ── General layout ── */
+    /* ── Layout ── */
     .container { padding: 12px !important; }
-
-    .stats-grid { grid-template-columns: 1fr !important; }
 
     .card-header {
         flex-direction: column !important;
@@ -185,11 +196,9 @@
 
     /* ── Tables ── */
     .table-wrapper { overflow-x: auto; }
+    table  { font-size: 13px; }
+    th, td { padding: 8px 6px !important; white-space: nowrap; }
 
-    table    { font-size: 13px; }
-    th, td   { padding: 8px 6px !important; white-space: nowrap; }
-
-    /* Action buttons stack vertically in table cells */
     td:last-child        { min-width: auto !important; }
     td:last-child button {
         display: block !important;
@@ -205,28 +214,23 @@
         max-width: 95% !important;
     }
 
-    .form-actions {
-        flex-direction: column !important;
-    }
-
+    .form-actions { flex-direction: column !important; }
     .form-actions .btn { width: 100% !important; }
+
+} /* ← ✅ FIX 4: This closing brace was MISSING in original — broke ALL rules below it */
 
 /* ============================================
    VERY SMALL SCREENS (≤ 480px)
    ============================================ */
 @media (max-width: 480px) {
+
     .header .container { padding: 10px !important; gap: 8px; }
-
-    .hamburger { width: 36px; height: 36px; font-size: 20px; }
-
-    .church-logo { width: 32px !important; height: 32px !important; }
-
-    .header h1 { font-size: 15px !important; }
-
-    .user-info button { padding: 6px 10px !important; font-size: 12px !important; }
-
-    .tabs { width: 260px !important; }
-
+    .hamburger         { width: 36px; height: 36px; font-size: 20px; }
+    .church-logo       { width: 32px !important; height: 32px !important; }
+    .header h1         { font-size: 15px !important; }
+    .user-info button  { padding: 6px 10px !important; font-size: 12px !important; }
+    .tabs              { width: 260px !important; }
     .stat-card .stat-value { font-size: 28px !important; }
     .stat-card .stat-label { font-size: 12px !important; }
+
 }

@@ -15,7 +15,7 @@ body {
 }
 
 /* ============================================
-   CONTAINER — full width, no max-width cap
+   CONTAINER
    ============================================ */
 .container {
     width: 100%;
@@ -60,7 +60,6 @@ body {
     line-height: 1.5;
 }
 
-/* User info + logout */
 .user-info {
     position: absolute;
     right: 40px;
@@ -72,11 +71,8 @@ body {
     z-index: 100;
 }
 
-.user-info > div {
-    text-align: right;
-}
+.user-info > div { text-align: right; }
 
-/* Hamburger — hidden on desktop */
 .hamburger {
     display: none;
     position: absolute;
@@ -94,9 +90,7 @@ body {
     transition: background 0.3s;
 }
 
-.hamburger:hover {
-    background: rgba(255,255,255,0.3);
-}
+.hamburger:hover { background: rgba(255,255,255,0.3); }
 
 /* ============================================
    NAVIGATION TABS
@@ -138,7 +132,7 @@ body {
 .content.active { display: block; }
 
 /* ============================================
-   STAT CARDS — 4 columns desktop
+   STAT CARDS
    ============================================ */
 .stats-grid {
     display: grid;
@@ -206,10 +200,7 @@ body {
     gap: 10px;
 }
 
-.card-title {
-    font-size: 18px;
-    font-weight: bold;
-}
+.card-title { font-size: 18px; font-weight: bold; }
 
 /* ============================================
    BUTTONS
@@ -224,20 +215,16 @@ body {
     transition: all 0.3s;
 }
 
-.btn-primary   { background: #2563eb; color: white; }
-.btn-primary:hover   { background: #1e40af; }
-
-.btn-success   { background: #16a34a; color: white; }
-.btn-success:hover   { background: #15803d; }
-
-.btn-secondary { background: #6b7280; color: white; }
-.btn-secondary:hover { background: #4b5563; }
-
-.btn-danger    { background: #dc2626; color: white; padding: 6px 12px; font-size: 12px; }
-.btn-danger:hover    { background: #b91c1c; }
-
-.btn-whatsapp  { background: #25D366; color: white; padding: 6px 12px; font-size: 12px; }
-.btn-whatsapp:hover  { background: #20BA5A; }
+.btn-primary          { background: #2563eb; color: white; }
+.btn-primary:hover    { background: #1e40af; }
+.btn-success          { background: #16a34a; color: white; }
+.btn-success:hover    { background: #15803d; }
+.btn-secondary        { background: #6b7280; color: white; }
+.btn-secondary:hover  { background: #4b5563; }
+.btn-danger           { background: #dc2626; color: white; padding: 6px 12px; font-size: 12px; }
+.btn-danger:hover     { background: #b91c1c; }
+.btn-whatsapp         { background: #25D366; color: white; padding: 6px 12px; font-size: 12px; }
+.btn-whatsapp:hover   { background: #20BA5A; }
 
 /* ============================================
    TABLES
@@ -256,17 +243,8 @@ table {
     overflow-x: auto;
 }
 
-thead {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
-}
-
-tbody {
-    display: table;
-    width: 100%;
-    table-layout: fixed;
-}
+thead { display: table; width: 100%; table-layout: fixed; }
+tbody { display: table; width: 100%; table-layout: fixed; }
 
 th {
     background: #f3f4f6;
@@ -325,11 +303,7 @@ tr:hover { background: #f9fafb; }
     overflow-y: auto;
 }
 
-.modal-header {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 20px;
-}
+.modal-header { font-size: 20px; font-weight: bold; margin-bottom: 20px; }
 
 /* ============================================
    FORMS
@@ -358,12 +332,7 @@ tr:hover { background: #f9fafb; }
     box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
 }
 
-.form-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 25px;
-}
-
+.form-actions { display: flex; gap: 10px; margin-top: 25px; }
 .form-actions button { flex: 1; }
 
 /* ============================================
@@ -378,16 +347,8 @@ tr:hover { background: #f9fafb; }
     margin: 20px 0;
 }
 
-.empty-state-icon {
-    font-size: 48px;
-    margin-bottom: 15px;
-    opacity: 0.5;
-}
-
-.empty-state p {
-    font-size: 16px;
-    margin-bottom: 20px;
-}
+.empty-state-icon { font-size: 48px; margin-bottom: 15px; opacity: 0.5; }
+.empty-state p    { font-size: 16px; margin-bottom: 20px; }
 
 /* ============================================
    PAGINATION
@@ -417,11 +378,7 @@ tr:hover { background: #f9fafb; }
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.items-per-page label {
-    font-size: 14px;
-    font-weight: 500;
-    color: #374151;
-}
+.items-per-page label { font-size: 14px; font-weight: 500; color: #374151; }
 
 .items-per-page select {
     padding: 8px 12px;
@@ -470,7 +427,6 @@ tr:hover { background: #f9fafb; }
 
 .pagination-controls button:hover:not(:disabled) { background: #f3f4f6; }
 .pagination-controls button:disabled { opacity: 0.4; cursor: not-allowed; }
-
 .page-info { font-size: 14px; font-weight: 600; color: #374151; }
 
 /* ============================================
@@ -503,10 +459,7 @@ tr:hover { background: #f9fafb; }
 
 .pledges-table tbody tr:hover { background-color: #f9fafb; }
 
-.pledges-table tbody td {
-    padding: 12px 10px;
-    font-size: 14px;
-}
+.pledges-table tbody td { padding: 12px 10px; font-size: 14px; }
 
 .progress-bar-container {
     background: #e5e7eb;
@@ -526,12 +479,7 @@ tr:hover { background: #f9fafb; }
     border-radius: 10px;
 }
 
-.actions-cell {
-    display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-    align-items: center;
-}
+.actions-cell { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
 
 .btn-sm {
     padding: 6px 12px !important;
@@ -542,7 +490,7 @@ tr:hover { background: #f9fafb; }
 }
 
 /* ============================================
-   LOADING STATE
+   LOADING
    ============================================ */
 .loading-state {
     background: white;
@@ -572,27 +520,37 @@ tr:hover { background: #f9fafb; }
     margin: 0 auto;
 }
 
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* ============================================
-   DESKTOP — hide mobile cards, show tables
+   LARGE SCREENS (≥ 1025px)
    ============================================ */
-@media (min-width: 769px) {
+@media (min-width: 1025px) {
+    .header      { padding: 40px 0; }
+    .church-logo { width: 90px; height: 90px; }
+    .header h1   { font-size: 28px; }
+    .header p    { font-size: 15px; }
+    .cards-container { display: none !important; }
     .table-wrapper { overflow-x: auto; }
     table { min-width: 800px; }
-    .cards-container { display: none !important; }
 }
 
 /* ============================================
-   TABLET (769px – 1024px)
+   TABLET LANDSCAPE (769px – 1024px)
    ============================================ */
 @media (min-width: 769px) and (max-width: 1024px) {
     .container         { padding: 20px 24px; }
-    .stats-grid        { grid-template-columns: repeat(2, 1fr); }
-    .pledges-summary   { grid-template-columns: repeat(2, 1fr); }
+    .cards-container   { display: none !important; }
+    .table-wrapper     { overflow-x: auto; }
+    table              { min-width: 800px; }
+
+    /* ✅ 2 columns on tablet */
+    .stats-grid,
+    .pledges-summary,
     .analytics-summary { grid-template-columns: repeat(2, 1fr); }
+
+    .stat-value  { font-size: 32px; }
+    .stat-card   { padding: 22px; }
 
     .pledges-table thead th { padding: 12px 8px; font-size: 12px; }
     .pledges-table tbody td { padding: 10px 8px; font-size: 13px; }
@@ -607,180 +565,169 @@ tr:hover { background: #f9fafb; }
 }
 
 /* ============================================
-   MOBILE (≤ 768px)
+   NARROW DESKTOP / LARGE TABLET (481px – 768px)
+   ✅ This was the missing range causing the problem
    ============================================ */
-@media (max-width: 768px) {
-    .container { padding: 15px; }
+@media (min-width: 481px) and (max-width: 768px) {
+    .container { padding: 15px 20px; }
 
-    /* Header */
-    .header { padding: 15px 0; text-align: left; }
+    /* ✅ 2 columns — not 1, not 4 */
+    .stats-grid,
+    .pledges-summary,
+    .analytics-summary { grid-template-columns: repeat(2, 1fr) !important; gap: 15px !important; }
+
+    .stat-card   { padding: 20px; }
+    .stat-value  { font-size: 30px; }
+    .stat-label  { font-size: 13px; }
+
+    .header { padding: 20px 0; }
+    .church-logo { width: 70px; height: 70px; }
+    .header h1  { font-size: 22px; }
+
+    .tabs { flex-wrap: wrap; }
+    .tab-btn { flex: 1 1 45%; font-size: 13px; padding: 10px 8px; }
+
+    /* Tables still visible at this width */
+    .table-wrapper { overflow-x: auto; }
+    table { min-width: 600px; }
+    .cards-container { display: none !important; }
+
+    .user-info { right: 15px; gap: 10px; }
+    .user-info > div { display: none; }
+}
+
+/* ============================================
+   MOBILE (≤ 480px)
+   ============================================ */
+@media (max-width: 480px) {
+    .container { padding: 10px; }
+
+    .header { padding: 12px 0; text-align: left; }
     .header .container {
-        padding: 0 15px;
+        padding: 0 10px;
         display: flex;
         flex-direction: column;
         align-items: flex-start;
     }
-    .hamburger    { display: block; transform: none; top: 15px; }
-    .church-logo  { width: 70px; height: 70px; margin: 0 0 10px 0; order: 1; }
-    .header h1    { font-size: 22px; order: 2; padding-right: 100px; }
-    .header p     { font-size: 12px; order: 3; padding-right: 100px; opacity: 0.95; }
-    .user-info    { position: absolute; right: 15px; top: 15px; transform: none; flex-direction: column; align-items: flex-end; gap: 8px; }
+    .hamburger    { display: block; transform: none; left: 10px; top: 12px; font-size: 20px; padding: 6px 10px; }
+    .church-logo  { width: 60px; height: 60px; margin: 0 0 8px 0; order: 1; }
+    .header h1    { font-size: 18px; order: 2; padding-right: 80px; }
+    .header p     { font-size: 11px; order: 3; padding-right: 80px; opacity: 0.95; }
+    .user-info    { position: absolute; right: 10px; top: 12px; transform: none; flex-direction: column; align-items: flex-end; gap: 6px; }
     .user-info > div { display: none; }
-    .user-info button { padding: 8px 12px; font-size: 12px; white-space: nowrap; }
+    .user-info button { padding: 6px 10px; font-size: 11px; white-space: nowrap; }
 
-    /* Tabs */
-    .tabs     { flex-wrap: wrap; }
-    .tab-btn  { flex: 1 1 45%; font-size: 13px; padding: 10px 8px; }
+    .tabs    { flex-wrap: wrap; }
+    .tab-btn { flex: 1 1 45%; font-size: 12px; padding: 9px 6px; }
 
-    /* Grids — single column */
+    /* ✅ Single column only on true mobile */
     .stats-grid,
     .pledges-summary,
-    .analytics-summary { grid-template-columns: 1fr !important; gap: 15px !important; }
+    .analytics-summary { grid-template-columns: 1fr !important; gap: 12px !important; }
 
-    .stat-card   { padding: 20px !important; }
-    .stat-label  { font-size: 13px !important; }
-    .stat-value  { font-size: 28px !important; }
+    .stat-card   { padding: 18px !important; }
+    .stat-label  { font-size: 12px !important; }
+    .stat-value  { font-size: 26px !important; }
 
-    /* Tables → cards */
+    /* Tables → cards on mobile */
     .table-wrapper table { display: none !important; }
     .cards-container     { display: block !important; }
 
-    /* Member cards */
-    .member-card {
+    .member-card, .event-card, .contribution-card {
         background: white;
         border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 15px;
+        padding: 18px;
+        margin-bottom: 12px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border-left: 4px solid #2563eb;
-        transition: all 0.3s;
     }
 
-    /* Event cards */
-    .event-card {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border-left: 4px solid #f97316;
-    }
-
-    /* Contribution cards */
-    .contribution-card {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 15px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        border-left: 4px solid #16a34a;
-    }
+    .member-card       { border-left: 4px solid #2563eb; }
+    .event-card        { border-left: 4px solid #f97316; }
+    .contribution-card { border-left: 4px solid #16a34a; }
 
     .card-name {
-        font-size: 18px;
+        font-size: 17px;
         font-weight: 700;
         color: #1e293b;
-        margin-bottom: 15px;
-        padding-bottom: 12px;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
         border-bottom: 2px solid #f1f5f9;
     }
 
-    .event-card .card-name        { color: #f97316; border-bottom-color: #fed7aa; }
-    .contribution-card .card-name { color: #16a34a; border-bottom-color: #dcfce7; }
+    .event-card .card-name        { color: #f97316; }
+    .contribution-card .card-name { color: #16a34a; }
 
     .card-info-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 10px 0;
+        padding: 9px 0;
         border-bottom: 1px solid #f1f5f9;
     }
 
-    .card-info-row:last-of-type { border-bottom: none; padding-bottom: 15px; margin-bottom: 15px; }
-
-    .card-label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .card-value       { font-size: 14px; font-weight: 500; color: #1e293b; text-align: right; }
-    .card-phone       { color: #2563eb; font-weight: 600; }
-    .contribution-amount { font-size: 20px !important; font-weight: 700 !important; color: #16a34a !important; }
+    .card-label  { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+    .card-value  { font-size: 13px; font-weight: 500; color: #1e293b; text-align: right; }
+    .card-phone  { color: #2563eb; font-weight: 600; }
+    .contribution-amount { font-size: 18px !important; font-weight: 700 !important; color: #16a34a !important; }
 
     .card-actions {
         display: flex;
         flex-direction: column;
         gap: 8px;
-        padding-top: 15px;
+        padding-top: 12px;
         border-top: 2px solid #f1f5f9;
     }
 
     .card-actions button {
         width: 100%;
-        padding: 12px;
+        padding: 11px;
         border: none;
         border-radius: 8px;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.3s;
     }
 
     /* Pagination */
-    .pagination-container {
-        position: sticky;
-        top: 0;
-        z-index: 50;
-        background: #f5f5f5;
-        padding: 15px;
-        margin: -20px -20px 20px -20px;
-    }
-
     .pagination-top   { flex-direction: column; align-items: stretch; }
     .items-per-page,
     .search-box       { width: 100%; }
-    .search-box input { padding: 12px 15px; font-size: 16px; }
     .pagination-controls button { padding: 10px 14px; font-size: 13px; }
-    .page-info        { font-size: 13px; }
 
-    /* Pledges mobile */
-    .pledges-container { padding: 10px !important; }
+    /* Pledges mobile cards */
+    .pledges-container { padding: 5px !important; }
 
     .pledges-table,
-    #pledgesTable table,
-    .pledges-container table { border: 0 !important; display: block !important; width: 100% !important; }
+    #pledgesTable table { display: block !important; width: 100% !important; border: 0 !important; }
 
     .pledges-table thead,
-    #pledgesTable thead      { display: none !important; }
+    #pledgesTable thead { display: none !important; }
 
     .pledges-table tbody,
-    #pledgesTable tbody      { display: block !important; width: 100% !important; }
+    #pledgesTable tbody { display: block !important; width: 100% !important; }
 
     .pledges-table tbody tr,
-    #pledgesTable tbody tr   {
+    #pledgesTable tbody tr {
         display: block !important;
         width: 100% !important;
-        margin-bottom: 20px !important;
+        margin-bottom: 16px !important;
         border: 1px solid #e5e7eb !important;
         border-radius: 12px !important;
-        padding: 16px !important;
+        padding: 14px !important;
         background: white !important;
         box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
         border-left: 4px solid #667eea !important;
     }
 
     .pledges-table tbody td,
-    #pledgesTable tbody td   {
+    #pledgesTable tbody td {
         display: flex !important;
         justify-content: space-between !important;
         align-items: center !important;
-        padding: 10px 0 !important;
+        padding: 8px 0 !important;
         border: none !important;
         border-bottom: 1px solid #f3f4f6 !important;
-        font-size: 14px !important;
+        font-size: 13px !important;
         width: 100% !important;
     }
 
@@ -789,51 +736,18 @@ tr:hover { background: #f9fafb; }
         content: attr(data-label) !important;
         font-weight: 700 !important;
         color: #374151 !important;
-        font-size: 12px !important;
+        font-size: 11px !important;
         text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
-        flex: 0 0 45% !important;
+        flex: 0 0 40% !important;
     }
 
+    .pledges-filters { flex-direction: column !important; gap: 10px !important; margin: 12px 0 !important; }
+    .pledges-filters select { width: 100% !important; padding: 11px !important; }
     .actions-cell { flex-direction: column !important; width: 100% !important; gap: 8px !important; }
-    .actions-cell button { width: 100% !important; padding: 12px !important; font-size: 14px !important; border-radius: 8px !important; }
+    .actions-cell button { width: 100% !important; padding: 11px !important; font-size: 13px !important; }
 
-    .pledges-filters { display: flex !important; flex-direction: column !important; gap: 10px !important; margin: 15px 0 !important; }
-    .pledges-filters select { width: 100% !important; padding: 12px !important; font-size: 14px !important; border-radius: 8px !important; }
-
-    /* General */
-    .content { padding: 15px !important; }
-    img      { max-width: 100%; height: auto; }
+    .content { padding: 10px !important; }
+    img { max-width: 100%; height: auto; }
     button, a, input, select { min-height: 44px; }
-}
-
-/* ============================================
-   VERY SMALL SCREENS (≤ 480px)
-   ============================================ */
-@media (max-width: 480px) {
-    .container { padding: 10px; }
-    .header    { padding: 12px 0; }
-    .header .container { padding: 0 10px; }
-    .hamburger { left: 10px; top: 12px; font-size: 20px; padding: 6px 10px; }
-    .church-logo { width: 60px; height: 60px; }
-    .header h1 { font-size: 18px; padding-right: 80px; }
-    .header p  { font-size: 11px; padding-right: 80px; }
-    .user-info { right: 10px; top: 12px; }
-    .user-info button { padding: 6px 10px; font-size: 11px; }
-
-    .pledges-container { padding: 5px !important; }
-    .pledges-table tbody td,
-    #pledgesTable tbody td { padding: 8px 0 !important; font-size: 13px !important; }
-    .pledges-table tbody td::before,
-    #pledgesTable tbody td::before { flex: 0 0 40% !important; font-size: 11px !important; }
-}
-
-/* ============================================
-   LARGE SCREENS (≥ 1025px)
-   ============================================ */
-@media (min-width: 1025px) {
-    .header      { padding: 40px 0; }
-    .church-logo { width: 90px; height: 90px; }
-    .header h1   { font-size: 28px; }
-    .header p    { font-size: 15px; }
+    .modal-content { padding: 20px; width: 96%; }
 }
