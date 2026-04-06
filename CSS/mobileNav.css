@@ -62,11 +62,11 @@
 /* ── In-drawer user info panel ── */
 .nav-user-info {
     display: none;
-    margin-top: auto;
     padding: 14px 4px 0;
     border-top: 1px solid #e5e7eb;
     flex-direction: column;
     gap: 4px;
+    /* Sits right after the nav links, no auto-pushing */
 }
 
 .nav-user-details {
@@ -164,11 +164,10 @@
         background: white;
         box-shadow: 4px 0 20px rgba(0,0,0,0.15);
         z-index: 999;
-        padding: 60px 12px 20px;
+        /* No flex — let items stack naturally so user panel is visible */
+        display: block;
         overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
+        padding: 60px 12px 24px;
         transition: left 0.3s ease;
     }
 
@@ -176,10 +175,12 @@
     .nav-close   { display: flex; }
 
     /* Show user info panel inside drawer */
-    .nav-user-info { display: flex; }
+    .nav-user-info {
+        display: flex;
+        margin-top: 16px;
+    }
 
-    /* ── Nav Buttons — use `all: unset` to kill any inherited card/stat-card
-       styles that are making buttons render as giant blocks ── */
+    /* ── Nav Buttons ── */
     .tabs .tab-btn {
         all: unset;
         box-sizing: border-box !important;
@@ -197,7 +198,7 @@
         min-height: unset !important;
         height: auto !important;
         max-height: none !important;
-        margin: 0 !important;
+        margin: 0 0 4px 0 !important;
         flex: none !important;
         aspect-ratio: unset !important;
         line-height: 1.4 !important;
