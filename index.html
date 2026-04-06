@@ -17,23 +17,88 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+
+    <style>
+        /* ── Desktop header user-info ── */
+        .user-info {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        #userEmail {
+            font-size: 13px;
+            color: #fff;
+            opacity: 0.9;
+            text-align: right;
+        }
+
+        #userRole {
+            font-size: 11px;
+            color: #fff;
+            opacity: 0.75;
+            text-align: right;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .logout-btn {
+            background: #f97316;
+            color: white;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .logout-btn:hover { background: #ea580c; }
+
+        /* ── Desktop header text centred ── */
+        .header-text {
+            display: inline-block;
+            text-align: center;
+        }
+
+        .header-text h1 {
+            font-size: 26px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        #churchNameDisplay {
+            font-size: 14px;
+            opacity: 0.9;
+            margin: 0;
+        }
+    </style>
 </head>
 <body>
 
     <!-- ── Header ── -->
     <div class="header">
-        <div class="container">
-            <button class="hamburger" onclick="toggleNav()" aria-label="Toggle menu">☰</button>
+    <div class="container">
+        <button class="hamburger" onclick="toggleNav()" aria-label="Toggle menu">☰</button>
+        <div class="header-text">
             <img src="images/church.jpeg" alt="Church logo" class="church-logo">
             <h1>SimamiaKanisa</h1>
-            <p>Modern Church Management System - Built for Kenyan Churches</p>
-            <!-- FIX 1: removed inline position:absolute — CSS handles positioning -->
+            <p id="churchNameDisplay">Modern Church Management System - Built for Kenyan Churches</p>
+        </div>
+
             <div class="user-info">
                 <div>
                     <div id="userEmail"></div>
                     <div id="userRole"></div>
                 </div>
-                <button onclick="logoutUser()">Logout</button>
+                <button class="logout-btn" onclick="logoutUser()">Logout</button>
             </div>
         </div>
     </div>
@@ -42,7 +107,6 @@
 
     <div class="container">
 
-        <!-- FIX 2: nav-close button added INSIDE tabs so it shows in the drawer -->
         <div class="tabs" id="navTabs">
             <button class="nav-close" onclick="toggleNav()" aria-label="Close menu">✕</button>
             <button class="tab-btn active" onclick="handleTabClick('dashboard')">Dashboard</button>
@@ -276,19 +340,15 @@
             document.body.style.overflow = opening ? 'hidden' : '';
         }
 
-        // Close drawer when a tab is clicked on mobile
         function handleTabClick(tabName) {
             if (window.innerWidth <= 768) {
-                const nav     = document.getElementById('navTabs');
-                const overlay = document.querySelector('.nav-overlay');
-                nav.classList.remove('active');
-                overlay.classList.remove('active');
+                document.getElementById('navTabs').classList.remove('active');
+                document.querySelector('.nav-overlay').classList.remove('active');
                 document.body.style.overflow = '';
             }
             switchTab(tabName);
         }
 
-        // Close drawer on resize to desktop
         window.addEventListener('resize', () => {
             if (window.innerWidth > 768) {
                 document.getElementById('navTabs').classList.remove('active');
@@ -298,35 +358,38 @@
         });
 
         // ── Auth guard ────────────────────────────────────────────────────────
-        // FIX 3: authReady fires AFTER member doc is loaded — role is guaranteed
         document.addEventListener('authReady', ({ detail }) => {
             initializeSecureUI(detail.member);
-
-            // FIX 4: Apply write guards HERE not at window.load
-            // By now addMember/addContribution/addEvent are defined AND
-            // sessionStorage has the role — no timing race
             window.addMember       = guardWrite(window.addMember);
             window.addContribution = guardWrite(window.addContribution);
             window.addEvent        = guardWrite(window.addEvent);
         });
 
         function initializeSecureUI(member) {
-            const role  = member?.role  || getCurrentUserRole()  || 'member';
-            const email = member?.email || getCurrentUserEmail() || '';
+            const role     = member?.role     || getCurrentUserRole()  || 'member';
+            const email    = member?.email    || getCurrentUserEmail() || '';
+            const tenantId = member?.tenantId || getCurrentTenantId() || TENANT_ID;
 
-            // FIX 5: show role on mobile — removed inline display:none from CSS
             const emailEl = document.getElementById('userEmail');
             const roleEl  = document.getElementById('userRole');
             if (emailEl) emailEl.textContent = email;
             if (roleEl)  roleEl.textContent  = `Role: ${role}`;
 
+            // Swap subtitle for actual church name on mobile
+            if (window.innerWidth <= 768) {
+                db.collection('tenants').doc(tenantId).get()
+                    .then(doc => {
+                        const name = doc.exists ? doc.data().name : tenantId;
+                        const el   = document.getElementById('churchNameDisplay');
+                        if (el) el.textContent = name;
+                    })
+                    .catch(() => {});
+            }
+
             const isEditor = ['admin', 'editor'].includes(role);
             const isAdmin  = role === 'admin';
-
-            document.querySelectorAll('.editor-only')
-                    .forEach(el => el.style.display = isEditor ? '' : 'none');
-            document.querySelectorAll('.admin-only')
-                    .forEach(el => el.style.display = isAdmin  ? '' : 'none');
+            document.querySelectorAll('.editor-only').forEach(el => el.style.display = isEditor ? '' : 'none');
+            document.querySelectorAll('.admin-only').forEach(el  => el.style.display = isAdmin  ? '' : 'none');
         }
 
         function guardWrite(fn) {

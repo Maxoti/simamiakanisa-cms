@@ -2,7 +2,7 @@
    MOBILE NAVIGATION — SimamiaKanisa
    ============================================ */
 
-/* ── Hamburger — hidden on desktop ─────────────────────────────────────────── */
+/* ── Hamburger — hidden on desktop ── */
 .hamburger {
     display: none;
     align-items: center;
@@ -23,9 +23,14 @@
 .hamburger:hover  { background: rgba(255,255,255,0.25); }
 .hamburger:active { transform: scale(0.95); }
 
-/* ── Overlay backdrop ───────────────────────────────────────────────────────── */
+/* ── Overlay backdrop ── */
 .nav-overlay {
     display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 998;
+    opacity: 0;
     pointer-events: none;
 }
 
@@ -33,13 +38,10 @@
     display: block;
     opacity: 1;
     pointer-events: auto;
-}
-
-.nav-overlay.active {
     transition: opacity 0.3s ease;
 }
 
-/* ── Close button inside drawer ─────────────────────────────────────────────── */
+/* ── Close button inside drawer ── */
 .nav-close {
     display: none;
     position: absolute;
@@ -65,16 +67,17 @@
    ============================================ */
 @media (max-width: 768px) {
 
-    /* ── Header ── */
+    /* ── Header — single clean flex row ── */
     .header { padding: 0; }
 
     .header .container {
         display: flex !important;
         flex-direction: row !important;
         align-items: center !important;
-        padding: 12px 15px !important;
+        padding: 10px 12px !important;
         gap: 10px;
-        min-height: 64px;
+        min-height: 60px;
+        flex-wrap: nowrap;
     }
 
     .hamburger {
@@ -86,28 +89,64 @@
     }
 
     .church-logo {
-        width: 38px !important;
-        height: 38px !important;
+        width: 36px !important;
+        height: 36px !important;
         margin: 0 !important;
-        order: unset !important;
         flex-shrink: 0;
     }
 
+    /* Title + church name grouped */
+    .header-text {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .header-text h1,
     .header h1 {
-        font-size: 17px !important;
+        font-size: 16px !important;
         margin: 0 !important;
         padding: 0 !important;
-        flex: 1;
-        order: unset !important;
-        text-align: left !important;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        text-align: left !important;
     }
 
-    .header p { display: none !important; }
+    /* Church name subtitle — visible on mobile */
+    #churchNameDisplay {
+        font-size: 10px !important;
+        opacity: 0.8;
+        margin: 0 !important;
+        padding: 0 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block !important;
+    }
 
-    /* ── User info — show role, hide email ── */
+
+    .user-info button {
+    background: #f97316 !important;   /* orange */
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    min-height: unset !important;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.user-info button:hover {
+    background: #ea580c !important;   /* darker orange on hover */
+}
+
+    /* Hide generic subtitle if no header-text wrapper */
+    .header > .container > p { display: none !important; }
+
+    /* ── User info — role visible, email hidden ── */
     .user-info {
         position: static !important;
         transform: none !important;
@@ -117,10 +156,9 @@
         flex-shrink: 0;
     }
 
-    /* ✅ FIX 1: Show role badge, hide only email */
-    .user-info > div        { display: block !important; }
-    .user-info #userEmail   { display: none !important; }
-    .user-info #userRole    {
+    .user-info > div      { display: block !important; }
+    .user-info #userEmail { display: none !important; }
+    .user-info #userRole  {
         display: block !important;
         font-size: 10px !important;
         color: rgba(255,255,255,0.85) !important;
@@ -129,8 +167,8 @@
     }
 
     .user-info button {
-        padding: 8px 14px !important;
-        font-size: 13px !important;
+        padding: 8px 12px !important;
+        font-size: 12px !important;
         min-height: unset !important;
         white-space: nowrap;
     }
@@ -153,7 +191,6 @@
         gap: 6px !important;
         transition: left 0.3s ease !important;
         border-radius: 0 !important;
-        /* ✅ FIX 2: Must be visible (not display:none) so tabs are clickable */
         display: flex !important;
     }
 
@@ -174,16 +211,15 @@
         border: none !important;
         min-height: unset !important;
         white-space: normal !important;
-        transition: background 0.2s, color 0.2s !important;
-        /* ✅ FIX 3: Ensure buttons are always clickable */
         pointer-events: all !important;
         cursor: pointer !important;
+        transition: background 0.2s, color 0.2s !important;
     }
 
     .tab-btn:hover  { background: #f3f4f6 !important; }
     .tab-btn.active { background: #2563eb !important; color: white !important; }
 
-    /* ── Layout ── */
+    /* ── General layout ── */
     .container { padding: 12px !important; }
 
     .card-header {
@@ -198,8 +234,7 @@
     .table-wrapper { overflow-x: auto; }
     table  { font-size: 13px; }
     th, td { padding: 8px 6px !important; white-space: nowrap; }
-
-    td:last-child        { min-width: auto !important; }
+    td:last-child { min-width: auto !important; }
     td:last-child button {
         display: block !important;
         width: 100% !important;
@@ -216,21 +251,18 @@
 
     .form-actions { flex-direction: column !important; }
     .form-actions .btn { width: 100% !important; }
-
-} /* ← ✅ FIX 4: This closing brace was MISSING in original — broke ALL rules below it */
+}
 
 /* ============================================
    VERY SMALL SCREENS (≤ 480px)
    ============================================ */
 @media (max-width: 480px) {
-
-    .header .container { padding: 10px !important; gap: 8px; }
-    .hamburger         { width: 36px; height: 36px; font-size: 20px; }
-    .church-logo       { width: 32px !important; height: 32px !important; }
-    .header h1         { font-size: 15px !important; }
-    .user-info button  { padding: 6px 10px !important; font-size: 12px !important; }
+    .header .container { padding: 8px 10px !important; gap: 8px; }
+    .hamburger         { width: 34px; height: 34px; font-size: 18px; }
+    .church-logo       { width: 30px !important; height: 30px !important; }
+    .header-text h1,
+    .header h1         { font-size: 14px !important; }
+    #churchNameDisplay { font-size: 9px !important; }
+    .user-info button  { padding: 6px 8px !important; font-size: 11px !important; }
     .tabs              { width: 260px !important; }
-    .stat-card .stat-value { font-size: 28px !important; }
-    .stat-card .stat-label { font-size: 12px !important; }
-
 }
