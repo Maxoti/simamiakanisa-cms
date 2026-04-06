@@ -19,47 +19,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 
     <style>
-        /* ── DESKTOP header layout ── */
-        .header .container {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px 200px 20px 40px;
-            min-height: 110px;
-        }
-
-        /* Logo + title centered column */
-        .header-center {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-
-        .header-center .church-logo {
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-
-        .header-center h1 {
-            font-size: 26px;
-            font-weight: 600;
-            color: white;
-            margin: 0 0 4px 0;
-        }
-
-        #churchNameDisplay {
-            font-size: 13px;
-            color: rgba(255,255,255,0.85);
-            margin: 0;
-        }
-
-        /* User info — absolute right on desktop */
+        /* ── Desktop header user-info ── */
         .user-info {
             position: absolute;
             right: 40px;
@@ -67,26 +27,24 @@
             transform: translateY(-50%);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
             z-index: 100;
         }
 
-        .user-info-text { text-align: right; }
-
         #userEmail {
             font-size: 13px;
-            color: white;
+            color: #fff;
             opacity: 0.9;
-            display: block;
+            text-align: right;
         }
 
         #userRole {
             font-size: 11px;
-            color: white;
-            opacity: 0.7;
+            color: #fff;
+            opacity: 0.75;
+            text-align: right;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            display: block;
         }
 
         .logout-btn {
@@ -103,26 +61,42 @@
         }
 
         .logout-btn:hover { background: #ea580c; }
+
+        /* ── Desktop header text centred ── */
+        .header-text {
+            display: inline-block;
+            text-align: center;
+        }
+
+        .header-text h1 {
+            font-size: 26px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        #churchNameDisplay {
+            font-size: 14px;
+            opacity: 0.9;
+            margin: 0;
+        }
     </style>
 </head>
 <body>
 
+    <!-- ── Header ── -->
     <div class="header">
-        <div class="container">
-            <button class="hamburger" onclick="toggleNav()" aria-label="Toggle menu">☰</button>
+    <div class="container">
+        <button class="hamburger" onclick="toggleNav()" aria-label="Toggle menu">☰</button>
+        <div class="header-text">
+            <img src="images/church.jpeg" alt="Church logo" class="church-logo">
+            <h1>SimamiaKanisa</h1>
+            <p id="churchNameDisplay">Modern Church Management System - Built for Kenyan Churches</p>
+        </div>
 
-            <!-- ✅ Logo + title in one centered group -->
-            <div class="header-center">
-                <img src="images/church.jpeg" alt="Church logo" class="church-logo">
-                <h1>SimamiaKanisa</h1>
-                <p id="churchNameDisplay">Modern Church Management System - Built for Kenyan Churches</p>
-            </div>
-
-            <!-- ✅ User info with email + role both visible -->
             <div class="user-info">
-                <div class="user-info-text">
-                    <span id="userEmail"></span>
-                    <span id="userRole"></span>
+                <div>
+                    <div id="userEmail"></div>
+                    <div id="userRole"></div>
                 </div>
                 <button class="logout-btn" onclick="logoutUser()">Logout</button>
             </div>
@@ -132,6 +106,7 @@
     <div class="nav-overlay" onclick="toggleNav()"></div>
 
     <div class="container">
+
         <div class="tabs" id="navTabs">
             <button class="nav-close" onclick="toggleNav()" aria-label="Close menu">✕</button>
             <button class="tab-btn active" onclick="handleTabClick('dashboard')">Dashboard</button>
@@ -142,26 +117,54 @@
             <button class="tab-btn" onclick="handleTabClick('analytics')">Analytics</button>
         </div>
 
+        <!-- DASHBOARD -->
         <div id="dashboard" class="content active">
             <div class="stats-grid">
-                <div class="stat-card blue"><div class="stat-label">Total Members</div><div class="stat-value" id="totalMembers">0</div></div>
-                <div class="stat-card green"><div class="stat-label">This Month Collections</div><div class="stat-value" id="monthlyTotal">KSh 0</div></div>
-                <div class="stat-card purple"><div class="stat-label">Total Tithes</div><div class="stat-value" id="tithesTotal">KSh 0</div></div>
-                <div class="stat-card orange"><div class="stat-label">Upcoming Events</div><div class="stat-value" id="activeEvents">0</div></div>
+                <div class="stat-card blue">
+                    <div class="stat-label">Total Members</div>
+                    <div class="stat-value" id="totalMembers">0</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-label">This Month Collections</div>
+                    <div class="stat-value" id="monthlyTotal">KSh 0</div>
+                </div>
+                <div class="stat-card purple">
+                    <div class="stat-label">Total Tithes</div>
+                    <div class="stat-value" id="tithesTotal">KSh 0</div>
+                </div>
+                <div class="stat-card orange">
+                    <div class="stat-label">Upcoming Events</div>
+                    <div class="stat-value" id="activeEvents">0</div>
+                </div>
             </div>
+
             <h3 style="margin:30px 0 15px;color:#374151;font-size:18px;">Contribution Breakdown</h3>
             <div class="stats-grid">
-                <div class="stat-card teal"><div class="stat-label">Offerings</div><div class="stat-value" id="offeringsTotal">KSh 0</div></div>
-                <div class="stat-card blue"><div class="stat-label">Building Fund</div><div class="stat-value" id="buildingTotal">KSh 0</div></div>
-                <div class="stat-card pink"><div class="stat-label">Mission Fund</div><div class="stat-value" id="missionTotal">KSh 0</div></div>
-                <div class="stat-card amber"><div class="stat-label">Other Contributions</div><div class="stat-value" id="otherTotal">KSh 0</div></div>
+                <div class="stat-card teal">
+                    <div class="stat-label">Offerings</div>
+                    <div class="stat-value" id="offeringsTotal">KSh 0</div>
+                </div>
+                <div class="stat-card blue">
+                    <div class="stat-label">Building Fund</div>
+                    <div class="stat-value" id="buildingTotal">KSh 0</div>
+                </div>
+                <div class="stat-card pink">
+                    <div class="stat-label">Mission Fund</div>
+                    <div class="stat-value" id="missionTotal">KSh 0</div>
+                </div>
+                <div class="stat-card amber">
+                    <div class="stat-label">Other Contributions</div>
+                    <div class="stat-value" id="otherTotal">KSh 0</div>
+                </div>
             </div>
+
             <div class="card">
                 <div class="card-header"><h3 class="card-title">Quick Overview</h3></div>
                 <div id="quickStats"></div>
             </div>
         </div>
 
+        <!-- MEMBERS -->
         <div id="members" class="content">
             <div class="card">
                 <div class="card-header">
@@ -172,6 +175,7 @@
             </div>
         </div>
 
+        <!-- CONTRIBUTIONS -->
         <div id="contributions" class="content">
             <div class="card">
                 <div class="card-header">
@@ -182,12 +186,16 @@
             </div>
         </div>
 
+        <!-- PLEDGES -->
         <div id="pledges" class="content">
             <div class="pledges-container">
-                <div style="text-align:center;padding:50px;"><p style="color:#666;">Loading pledges...</p></div>
+                <div style="text-align:center;padding:50px;">
+                    <p style="color:#666;">Loading pledges...</p>
+                </div>
             </div>
         </div>
 
+        <!-- EVENTS -->
         <div id="events" class="content">
             <div class="card">
                 <div class="card-header">
@@ -198,28 +206,39 @@
             </div>
         </div>
 
+        <!-- ANALYTICS -->
         <div id="analytics" class="content">
             <div class="analytics-container">
-                <div style="text-align:center;padding:50px;"><p style="color:#666;">Loading analytics...</p></div>
+                <div style="text-align:center;padding:50px;">
+                    <p style="color:#666;">Loading analytics...</p>
+                </div>
             </div>
         </div>
+
     </div>
 
-    <!-- Modals -->
+    <!-- ── Modals ── -->
     <div id="addMemberModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">Add New Member</div>
-            <div class="form-group"><label class="form-label">Full Name *</label><input type="text" class="form-input" id="memberName" required></div>
-            <div class="form-group"><label class="form-label">Phone Number *</label><input type="tel" class="form-input" id="memberPhone" placeholder="07XX XXX XXX" required></div>
+            <div class="form-group">
+                <label class="form-label">Full Name *</label>
+                <input type="text" class="form-input" id="memberName" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone Number *</label>
+                <input type="tel" class="form-input" id="memberPhone" placeholder="07XX XXX XXX" required>
+            </div>
             <div class="form-group">
                 <label class="form-label">Ministry/Group</label>
                 <select class="form-input" id="memberGroup">
-                    <option>General</option><option>Youth</option><option>Choir</option><option>Women</option><option>Men</option><option>Elders</option><option>Ushers</option>
+                    <option>General</option><option>Youth</option><option>Choir</option>
+                    <option>Women</option><option>Men</option><option>Elders</option><option>Ushers</option>
                 </select>
             </div>
             <div class="form-actions">
                 <button class="btn btn-secondary" onclick="closeModal('addMemberModal')">Cancel</button>
-                <button class="btn btn-primary" onclick="addMember()">Add Member</button>
+                <button class="btn btn-primary"   onclick="addMember()">Add Member</button>
             </div>
         </div>
     </div>
@@ -227,13 +246,30 @@
     <div id="addContributionModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">Record Contribution</div>
-            <div class="form-group"><label class="form-label">Member Name *</label><input type="text" class="form-input" id="contribMember" required></div>
-            <div class="form-group"><label class="form-label">Type *</label><select class="form-input" id="contribType"><option>Tithe</option><option>Offering</option><option>Building Fund</option><option>Mission</option><option>Other</option></select></div>
-            <div class="form-group"><label class="form-label">Amount (KSh) *</label><input type="number" class="form-input" id="contribAmount" min="0" required></div>
-            <div class="form-group"><label class="form-label">Payment Method</label><select class="form-input" id="contribMethod"><option>M-Pesa</option><option>Cash</option><option>Bank Transfer</option></select></div>
+            <div class="form-group">
+                <label class="form-label">Member Name *</label>
+                <input type="text" class="form-input" id="contribMember" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Type *</label>
+                <select class="form-input" id="contribType">
+                    <option>Tithe</option><option>Offering</option><option>Building Fund</option>
+                    <option>Mission</option><option>Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Amount (KSh) *</label>
+                <input type="number" class="form-input" id="contribAmount" min="0" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Payment Method</label>
+                <select class="form-input" id="contribMethod">
+                    <option>M-Pesa</option><option>Cash</option><option>Bank Transfer</option>
+                </select>
+            </div>
             <div class="form-actions">
                 <button class="btn btn-secondary" onclick="closeModal('addContributionModal')">Cancel</button>
-                <button class="btn btn-success" onclick="addContribution()">Record</button>
+                <button class="btn btn-success"   onclick="addContribution()">Record</button>
             </div>
         </div>
     </div>
@@ -241,18 +277,32 @@
     <div id="addEventModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">Add New Event</div>
-            <div class="form-group"><label class="form-label">Event Name *</label><input type="text" class="form-input" id="eventName" required></div>
-            <div class="form-group"><label class="form-label">Date *</label><input type="date" class="form-input" id="eventDate" required></div>
-            <div class="form-group"><label class="form-label">Time *</label><input type="time" class="form-input" id="eventTime" required></div>
-            <div class="form-group"><label class="form-label">Expected Attendance</label><input type="number" class="form-input" id="eventExpected" min="0" value="50"></div>
+            <div class="form-group">
+                <label class="form-label">Event Name *</label>
+                <input type="text" class="form-input" id="eventName" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Date *</label>
+                <input type="date" class="form-input" id="eventDate" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Time *</label>
+                <input type="time" class="form-input" id="eventTime" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Expected Attendance</label>
+                <input type="number" class="form-input" id="eventExpected" min="0" value="50">
+            </div>
             <div class="form-actions">
                 <button class="btn btn-secondary" onclick="closeModal('addEventModal')">Cancel</button>
-                <button class="btn btn-primary" onclick="addEvent()">Add Event</button>
+                <button class="btn btn-primary"   onclick="addEvent()">Add Event</button>
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
+    <!-- ═══════════════════════════════════════════════════
+         SCRIPTS — ORDER IS CRITICAL
+    ═══════════════════════════════════════════════════ -->
     <script src="firebase-config.js"></script>
     <script src="auth.js"></script>
     <script src="state.js"></script>
@@ -279,6 +329,7 @@
     <script src="main.js"></script>
 
     <script>
+        // ── Mobile nav ────────────────────────────────────────────────────────
         function toggleNav() {
             const nav     = document.getElementById('navTabs');
             const overlay = document.querySelector('.nav-overlay');
@@ -306,6 +357,7 @@
             }
         });
 
+        // ── Auth guard ────────────────────────────────────────────────────────
         document.addEventListener('authReady', ({ detail }) => {
             initializeSecureUI(detail.member);
             window.addMember       = guardWrite(window.addMember);
@@ -323,13 +375,16 @@
             if (emailEl) emailEl.textContent = email;
             if (roleEl)  roleEl.textContent  = `Role: ${role}`;
 
-            db.collection('tenants').doc(tenantId).get()
-                .then(doc => {
-                    const name = doc.exists ? doc.data().name : tenantId;
-                    const el = document.getElementById('churchNameDisplay');
-                    if (el) el.textContent = name;
-                })
-                .catch(() => {});
+            // Swap subtitle for actual church name on mobile
+            if (window.innerWidth <= 768) {
+                db.collection('tenants').doc(tenantId).get()
+                    .then(doc => {
+                        const name = doc.exists ? doc.data().name : tenantId;
+                        const el   = document.getElementById('churchNameDisplay');
+                        if (el) el.textContent = name;
+                    })
+                    .catch(() => {});
+            }
 
             const isEditor = ['admin', 'editor'].includes(role);
             const isAdmin  = role === 'admin';
@@ -347,5 +402,6 @@
             };
         }
     </script>
+
 </body>
 </html>
