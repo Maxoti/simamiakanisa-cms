@@ -19,7 +19,50 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 
     <style>
-        /* ── Desktop header layout ── */
+        /* ── Desktop header user-info ── */
+        .user-info {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        #userEmail {
+            font-size: 13px;
+            color: #fff;
+            opacity: 0.9;
+            text-align: right;
+        }
+
+        #userRole {
+            font-size: 11px;
+            color: #fff;
+            opacity: 0.75;
+            text-align: right;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .logout-btn {
+            background: #f97316;
+            color: white;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        .logout-btn:hover { background: #ea580c; }
+
+        /* ── Desktop header text centred ── */
         .header-text {
             display: inline-block;
             text-align: center;
@@ -36,6 +79,11 @@
             opacity: 0.9;
             margin: 0;
         }
+
+        /* Hide desktop user-info on mobile — drawer handles it */
+        @media (max-width: 768px) {
+            .user-info { display: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -49,6 +97,15 @@
                 <h1>SimamiaKanisa</h1>
                 <p id="churchNameDisplay">Modern Church Management System - Built for Kenyan Churches</p>
             </div>
+
+            <!-- Desktop: email + role + logout (hidden on mobile) -->
+            <div class="user-info">
+                <div>
+                    <div id="userEmail"></div>
+                    <div id="userRole"></div>
+                </div>
+                <button class="logout-btn" onclick="logoutUser()">Logout</button>
+            </div>
         </div>
     </div>
 
@@ -56,10 +113,8 @@
 
     <div class="container">
 
-        <!-- ── Navigation Drawer ── -->
         <div class="tabs" id="navTabs">
             <button class="nav-close" onclick="toggleNav()" aria-label="Close menu">✕</button>
-
             <button class="tab-btn active" onclick="handleTabClick('dashboard')">Dashboard</button>
             <button class="tab-btn" onclick="handleTabClick('members')">Members</button>
             <button class="tab-btn" onclick="handleTabClick('contributions')">Contributions</button>
@@ -67,11 +122,11 @@
             <button class="tab-btn" onclick="handleTabClick('pledges')">Pledges</button>
             <button class="tab-btn" onclick="handleTabClick('analytics')">Analytics</button>
 
-            <!-- ── User info + logout pinned to drawer bottom ── -->
+            <!-- Mobile only: email + role + logout pinned at drawer bottom -->
             <div class="nav-user-info">
                 <div class="nav-user-details">
-                    <div id="userEmail"></div>
-                    <div id="userRole"></div>
+                    <div id="mobileUserEmail"></div>
+                    <div id="mobileUserRole"></div>
                 </div>
                 <button class="nav-logout-btn" onclick="logoutUser()">Logout</button>
             </div>
@@ -175,7 +230,7 @@
             </div>
         </div>
 
-    </div><!-- /.container -->
+    </div>
 
     <!-- ── Modals ── -->
     <div id="addMemberModal" class="modal">
@@ -330,12 +385,19 @@
             const email    = member?.email    || getCurrentUserEmail() || '';
             const tenantId = member?.tenantId || getCurrentTenantId() || TENANT_ID;
 
+            // Desktop header
             const emailEl = document.getElementById('userEmail');
             const roleEl  = document.getElementById('userRole');
             if (emailEl) emailEl.textContent = email;
             if (roleEl)  roleEl.textContent  = role.toUpperCase();
 
-            // Always swap subtitle for actual church name
+            // Mobile drawer
+            const mobileEmailEl = document.getElementById('mobileUserEmail');
+            const mobileRoleEl  = document.getElementById('mobileUserRole');
+            if (mobileEmailEl) mobileEmailEl.textContent = email;
+            if (mobileRoleEl)  mobileRoleEl.textContent  = role.toUpperCase();
+
+            // Church name
             db.collection('tenants').doc(tenantId).get()
                 .then(doc => {
                     const name = doc.exists ? doc.data().name : tenantId;
