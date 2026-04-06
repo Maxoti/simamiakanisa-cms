@@ -19,50 +19,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 
     <style>
-        /* ── Desktop header user-info ── */
-        .user-info {
-            position: absolute;
-            right: 40px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            z-index: 100;
-        }
-
-        #userEmail {
-            font-size: 13px;
-            color: #fff;
-            opacity: 0.9;
-            text-align: right;
-        }
-
-        #userRole {
-            font-size: 11px;
-            color: #fff;
-            opacity: 0.75;
-            text-align: right;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .logout-btn {
-            background: #f97316;
-            color: white;
-            border: none;
-            padding: 9px 18px;
-            border-radius: 7px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: background 0.2s;
-            white-space: nowrap;
-        }
-
-        .logout-btn:hover { background: #ea580c; }
-
-        /* ── Desktop header text centred ── */
+        /* ── Desktop header layout ── */
         .header-text {
             display: inline-block;
             text-align: center;
@@ -85,20 +42,12 @@
 
     <!-- ── Header ── -->
     <div class="header">
-    <div class="container">
-        <button class="hamburger" onclick="toggleNav()" aria-label="Toggle menu">☰</button>
-        <div class="header-text">
-            <img src="images/church.jpeg" alt="Church logo" class="church-logo">
-            <h1>SimamiaKanisa</h1>
-            <p id="churchNameDisplay">Modern Church Management System - Built for Kenyan Churches</p>
-        </div>
-
-            <div class="user-info">
-                <div>
-                    <div id="userEmail"></div>
-                    <div id="userRole"></div>
-                </div>
-                <button class="logout-btn" onclick="logoutUser()">Logout</button>
+        <div class="container">
+            <button class="hamburger" onclick="toggleNav()" aria-label="Toggle menu">☰</button>
+            <div class="header-text">
+                <img src="images/church.jpeg" alt="Church logo" class="church-logo">
+                <h1>SimamiaKanisa</h1>
+                <p id="churchNameDisplay">Modern Church Management System - Built for Kenyan Churches</p>
             </div>
         </div>
     </div>
@@ -107,14 +56,25 @@
 
     <div class="container">
 
+        <!-- ── Navigation Drawer ── -->
         <div class="tabs" id="navTabs">
             <button class="nav-close" onclick="toggleNav()" aria-label="Close menu">✕</button>
+
             <button class="tab-btn active" onclick="handleTabClick('dashboard')">Dashboard</button>
             <button class="tab-btn" onclick="handleTabClick('members')">Members</button>
             <button class="tab-btn" onclick="handleTabClick('contributions')">Contributions</button>
             <button class="tab-btn" onclick="handleTabClick('events')">Events</button>
             <button class="tab-btn" onclick="handleTabClick('pledges')">Pledges</button>
             <button class="tab-btn" onclick="handleTabClick('analytics')">Analytics</button>
+
+            <!-- ── User info + logout pinned to drawer bottom ── -->
+            <div class="nav-user-info">
+                <div class="nav-user-details">
+                    <div id="userEmail"></div>
+                    <div id="userRole"></div>
+                </div>
+                <button class="nav-logout-btn" onclick="logoutUser()">Logout</button>
+            </div>
         </div>
 
         <!-- DASHBOARD -->
@@ -215,7 +175,7 @@
             </div>
         </div>
 
-    </div>
+    </div><!-- /.container -->
 
     <!-- ── Modals ── -->
     <div id="addMemberModal" class="modal">
@@ -373,18 +333,16 @@
             const emailEl = document.getElementById('userEmail');
             const roleEl  = document.getElementById('userRole');
             if (emailEl) emailEl.textContent = email;
-            if (roleEl)  roleEl.textContent  = `Role: ${role}`;
+            if (roleEl)  roleEl.textContent  = role.toUpperCase();
 
-            // Swap subtitle for actual church name on mobile
-            if (window.innerWidth <= 768) {
-                db.collection('tenants').doc(tenantId).get()
-                    .then(doc => {
-                        const name = doc.exists ? doc.data().name : tenantId;
-                        const el   = document.getElementById('churchNameDisplay');
-                        if (el) el.textContent = name;
-                    })
-                    .catch(() => {});
-            }
+            // Always swap subtitle for actual church name
+            db.collection('tenants').doc(tenantId).get()
+                .then(doc => {
+                    const name = doc.exists ? doc.data().name : tenantId;
+                    const el   = document.getElementById('churchNameDisplay');
+                    if (el) el.textContent = name;
+                })
+                .catch(() => {});
 
             const isEditor = ['admin', 'editor'].includes(role);
             const isAdmin  = role === 'admin';

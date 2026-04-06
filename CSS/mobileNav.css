@@ -19,7 +19,7 @@
     z-index: 101;
 }
 
-.hamburger:hover { background: rgba(255,255,255,0.25); }
+.hamburger:hover  { background: rgba(255,255,255,0.25); }
 .hamburger:active { transform: scale(0.95); }
 
 /* ── Overlay ── */
@@ -51,9 +51,62 @@
     font-size: 24px;
     border-radius: 6px;
     cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    color: #374151;
 }
 
 .nav-close:hover { background: #f3f4f6; }
+
+/* ── In-drawer user info panel ── */
+.nav-user-info {
+    display: none; /* shown only on mobile via media query */
+    margin-top: auto;
+    padding: 16px 4px 0;
+    border-top: 1px solid #e5e7eb;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.nav-user-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 10px;
+}
+
+.nav-user-info #userEmail {
+    font-size: 13px;
+    color: #111827;
+    font-weight: 600;
+    word-break: break-all;
+}
+
+.nav-user-info #userRole {
+    font-size: 11px;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 500;
+}
+
+.nav-logout-btn {
+    width: 100%;
+    background: #f97316;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 11px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.2s;
+}
+
+.nav-logout-btn:hover  { background: #ea580c; }
+.nav-logout-btn:active { transform: scale(0.98); }
+
 
 /* ============================================
    MOBILE (≤ 768px)
@@ -65,7 +118,7 @@
 
     .header .container {
         display: flex;
-        flex-wrap: wrap;                /* ✅ FIX */
+        flex-wrap: wrap;
         align-items: center;
         gap: 8px;
         padding: 10px 12px;
@@ -80,7 +133,7 @@
 
     /* ── Title Section ── */
     .header-text {
-        flex: 1 1 100%;                /* full width row */
+        flex: 1;
         text-align: center;
     }
 
@@ -95,39 +148,8 @@
     #churchNameDisplay {
         font-size: 11px;
         opacity: 0.85;
-        white-space: normal;           /* ✅ FIX */
+        white-space: normal;
         line-height: 1.2;
-    }
-
-    /* ── User Info ── */
-    .user-info {
-        width: 100%;                   /* move to new row */
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 6px;
-    }
-
-    .user-info #userEmail { display: none; }
-
-    .user-info #userRole {
-        font-size: 11px;
-        color: rgba(255,255,255,0.85);
-    }
-
-    .user-info button {
-        background: #f97316;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        padding: 6px 10px;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-
-    .user-info button:hover {
-        background: #ea580c;
     }
 
     /* ── Drawer ── */
@@ -151,6 +173,9 @@
 
     .tabs.active { left: 0; }
     .nav-close { display: flex; }
+
+    /* Show user info panel inside drawer on mobile */
+    .nav-user-info { display: flex; }
 
     /* ── Nav Buttons ── */
     .tab-btn {
@@ -209,15 +234,15 @@
     .form-actions .btn { width: 100%; }
 }
 
+
 /* ============================================
    SMALL SCREENS (≤ 480px)
    ============================================ */
 @media (max-width: 480px) {
     .header .container { padding: 8px 10px; }
-    .hamburger { width: 34px; height: 34px; font-size: 18px; }
-    .church-logo { width: 30px; height: 30px; }
-    .header-text h1 { font-size: 14px; }
+    .hamburger         { width: 34px; height: 34px; font-size: 18px; }
+    .church-logo       { width: 30px; height: 30px; }
+    .header-text h1    { font-size: 14px; }
     #churchNameDisplay { font-size: 10px; }
-    .user-info button { font-size: 11px; padding: 5px 8px; }
-    .tabs { width: 260px; }
+    .tabs              { width: 260px; }
 }
