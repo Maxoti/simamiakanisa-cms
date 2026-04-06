@@ -3,8 +3,8 @@
 //             members.js, contributions.js, events.js
 
 // ── Bootstrap ──────────────────────────────────────────────────────────────────
-let _dataLoaded  = false; // guard against double-firing
-let _activeTab   = 'dashboard'; // track current tab so reloads don't reset it
+let _dataLoaded = false; // guard against double-firing
+let _activeTab  = 'dashboard'; // ✅ remember current tab across reloads
 
 document.addEventListener('authReady', async ({ detail }) => {
   if (_dataLoaded) return;
@@ -70,8 +70,7 @@ async function loadAllData() {
     updateDashboard();
     renderMembers();
 
-    // ✅ Always switch to dashboard only on first load.
-    // If the user has already navigated elsewhere, stay on their tab.
+    // ✅ Stay on whatever tab the user is on — only default to dashboard on first load
     switchTab(_activeTab);
 
   } catch (error) {
@@ -82,7 +81,7 @@ async function loadAllData() {
 
 // ── Tab switching ──────────────────────────────────────────────────────────────
 function switchTab(tabName) {
-  // Remember which tab is active so data reloads don't reset it
+  // ✅ Save so data reloads don't reset back to dashboard
   _activeTab = tabName;
 
   document.querySelectorAll('.content').forEach(c => {
@@ -97,7 +96,6 @@ function switchTab(tabName) {
     section.style.display = 'block';
   }
 
-  // Match button whose onclick contains the tab name
   const btn = document.querySelector(
     `.tab-btn[onclick*="'${tabName}'"], .tab-btn[onclick*='"${tabName}"']`
   );
