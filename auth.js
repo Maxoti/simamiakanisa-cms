@@ -1,5 +1,24 @@
 // ====== AUTHENTICATION — SimamiaKanisa (Multitenant) ======
 // Depends on: firebase-config.js  (TENANT_ID, membersCollection, db, auth)
+// Depends on: EmailJS CDN script  (must be loaded in HTML before this file)
+
+// ─── EmailJS Setup ─────────────────────────────────────────────────────────────
+
+emailjs.init("tLY1iJ6bfFVb7b_TN");
+
+async function _alertAdmin(displayName, email) {
+  try {
+    await emailjs.send("service_vkvy0ze", "template_woqwxpl", {
+      user_name:  displayName || "Unknown",
+      user_email: email,
+      time:       new Date().toLocaleString(),
+      to_email:   "maxoti96@gmail.com"
+    });
+    console.log("✅ Admin alert email sent");
+  } catch (err) {
+    console.warn("⚠ Email alert failed:", err);
+  }
+}
 
 // ─── Internal helpers ──────────────────────────────────────────────────────────
 
@@ -69,27 +88,35 @@ async function registerUser(email, password, role = "member", displayName = "") 
       console.warn("⚠ Could not set claim:", claimErr.message);
     }
 
-    // Write member document under tenants/{tenantId}/members/{uid}
+    // Write member document — active: false locks them until admin approves
     await membersCollection().doc(user.uid).set({
       displayName,
       email,
       role,
       tenantId:  TENANT_ID,
-      active:    true,
+      active:    false,                                           // 🔒 Locked by default
+      status:    "pending",                                       // Pending admin approval
       joined:    new Date().toISOString().split('T')[0],
       createdAt: firebase.firestore.FieldValue.serverTimestamp(),
       lastLogin: firebase.firestore.FieldValue.serverTimestamp()
     });
     console.log("✅ Member document saved under tenant:", TENANT_ID);
 
-    alert("Registration successful! Please log in.");
+    // Alert admin about new registration
+    await _alertAdmin(displayName, email);
+    console.log("✅ Admin notified of new registration");
+
+    // Sign out immediately — they must wait for admin approval
+    await auth.signOut();
+
+    alert("Registration received! Your account is pending admin approval. You will be notified once approved.");
     window.location.href = `login.html?tenant=${TENANT_ID}`;
 
   } catch (error) {
     console.error("Registration error:", error);
     alert("Registration failed. " + _friendlyAuthError(error.code, error.message));
   }
-}
+} // ← end of registerUser
 
 // ─── Login ─────────────────────────────────────────────────────────────────────
 
@@ -136,7 +163,6 @@ async function loginUser(email, password) {
       if (found) {
         resolvedTenantId = found.tenantId;
         memberDoc        = { exists: true, data: () => found.data };
-        // Save the correct tenant so future visits work without ?tenant=
         localStorage.setItem('simamia_tenant', resolvedTenantId);
         console.log(`✅ Auto-resolved tenant: ${resolvedTenantId}`);
       } else {
@@ -148,9 +174,12 @@ async function loginUser(email, password) {
 
     const data = memberDoc.data();
 
-    // 5. Check active flag
+    // 5. 🔒 Check active flag — blocks pending and deactivated users
     if (data.active === false) {
-      alert("Your account has been deactivated. Contact your church admin.");
+      const msg = data.status === "pending"
+        ? "Your account is still pending admin approval. Please wait."
+        : "Your account has been deactivated. Contact your church admin.";
+      alert(msg);
       await auth.signOut();
       return;
     }
@@ -187,7 +216,7 @@ async function loginUser(email, password) {
     console.error("Login error:", error);
     throw error;
   }
-}
+} // ← end of loginUser
 
 // ─── Logout ────────────────────────────────────────────────────────────────────
 
@@ -202,7 +231,7 @@ async function logoutUser() {
     console.error("Logout error:", error.message);
     alert("Error logging out. Please try again.");
   }
-}
+} // ← end of logoutUser
 
 // ─── Page protection ───────────────────────────────────────────────────────────
 
@@ -241,7 +270,6 @@ function protectPage(requiredRole = null) {
           resolvedTenantId = found.tenantId;
           doc = { exists: true, data: () => found.data };
           localStorage.setItem('simamia_tenant', resolvedTenantId);
-          // Reload with correct tenant in URL
           if (TENANT_ID !== resolvedTenantId) {
             window.location.href = `index.html?tenant=${resolvedTenantId}`;
             return;
@@ -256,9 +284,12 @@ function protectPage(requiredRole = null) {
 
       const data = doc.data();
 
-      // 4. Active check
+      // 4.  Active check — blocks pending/deactivated users from every protected page
       if (data.active === false) {
-        alert("Your account has been deactivated.");
+        const msg = data.status === "pending"
+          ? "Your account is still pending admin approval."
+          : "Your account has been deactivated. Contact your church admin.";
+        alert(msg);
         await auth.signOut();
         window.location.href = `login.html?tenant=${TENANT_ID}`;
         return;
@@ -286,7 +317,7 @@ function protectPage(requiredRole = null) {
       window.location.href = `login.html?tenant=${TENANT_ID}`;
     }
   });
-}
+} // ← end of protectPage
 
 // ─── Auth-ready event ──────────────────────────────────────────────────────────
 
@@ -294,7 +325,7 @@ function _dispatchAuthReady(user, memberData) {
   document.dispatchEvent(new CustomEvent("authReady", {
     detail: { user, member: memberData }
   }));
-  console.log(" authReady dispatched");
+  console.log("✅ authReady dispatched");
 }
 
 // ─── Session helpers ───────────────────────────────────────────────────────────
@@ -347,9 +378,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const publicPages = ["login.html", "register.html", "register-church.html", ""];
 
   if (!publicPages.includes(page)) {
-    console.log(` Protecting page: ${page} (tenant: ${TENANT_ID})`);
+    console.log(`✅ Protecting page: ${page} (tenant: ${TENANT_ID})`);
     protectPage();
   } else {
-    console.log(` Public page: ${page}`);
+    console.log(`✅ Public page: ${page}`);
   }
 });
