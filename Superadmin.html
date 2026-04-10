@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SimamiaKanisa — Super Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--surface:#111;--border:#222;--border2:#2a2a2a;
+  --text:#e8e8e8;--muted:#666;--dim:#333;
+  --green:#00c896;--green-dim:rgba(0,200,150,.1);--green-border:rgba(0,200,150,.3);
+  --red:#ff4757;--red-dim:rgba(255,71,87,.1);--red-border:rgba(255,71,87,.3);
+  --amber:#ffb300;--amber-dim:rgba(255,179,0,.1);--amber-border:rgba(255,179,0,.3);
+  --blue:#3d9aff;
+}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── LOGIN GATE ── */
+#gate{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:var(--bg);
+}
+.gate-card{
+  width:360px;border:1px solid var(--border2);background:var(--surface);
+  padding:40px;
+}
+.gate-title{
+  font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;
+  letter-spacing:3px;text-transform:uppercase;color:var(--green);margin-bottom:4px;
+}
+.gate-sub{font-size:13px;color:var(--muted);margin-bottom:32px}
+.gate-input{
+  width:100%;background:var(--bg);border:1px solid var(--border2);
+  color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:14px;
+  padding:12px 14px;outline:none;margin-bottom:12px;
+  transition:border-color .2s;
+}
+.gate-input:focus{border-color:var(--green)}
+.gate-btn{
+  width:100%;padding:12px;background:var(--green);color:#000;border:none;
+  font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;
+  letter-spacing:2px;text-transform:uppercase;cursor:pointer;
+  transition:opacity .2s;border-radius:999px;
+}
+.gate-btn:hover{opacity:.85}
+.gate-err{color:var(--red);font-size:12px;margin-top:8px;display:none}
+
+/* ── MAIN LAYOUT ── */
+#app{display:none}
+.topbar{
+  border-bottom:1px solid var(--border);padding:0 32px;
+  display:flex;align-items:center;justify-content:space-between;height:56px;
+}
+.topbar-brand{
+  font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;
+  letter-spacing:3px;text-transform:uppercase;color:var(--green);
+}
+.topbar-right{display:flex;align-items:center;gap:20px}
+.topbar-stat{font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace}
+.topbar-stat span{color:var(--text);font-weight:500}
+.signout-btn{
+  background:none;border:1px solid var(--border2);color:var(--muted);
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;
+  padding:6px 16px;cursor:pointer;text-transform:uppercase;
+  transition:border-color .2s,color .2s;border-radius:999px;
+}
+.signout-btn:hover{border-color:var(--red);color:var(--red)}
+
+.main{padding:32px;max-width:1200px;margin:0 auto}
+
+/* ── STATS ROW ── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.stat-card{border:1px solid var(--border2);background:var(--surface);padding:20px 24px}
+.stat-label{font-size:11px;font-family:'IBM Plex Mono',monospace;letter-spacing:2px;
+  text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.stat-value{font-size:28px;font-family:'IBM Plex Mono',monospace;font-weight:600}
+.stat-value.green{color:var(--green)}
+.stat-value.red{color:var(--red)}
+.stat-value.amber{color:var(--amber)}
+.stat-value.blue{color:var(--blue)}
+
+/* ── TOOLBAR ── */
+.toolbar{
+  display:flex;align-items:center;gap:12px;margin-bottom:20px;
+  flex-wrap:wrap;
+}
+.search-input{
+  flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border2);
+  color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;
+  padding:10px 14px;outline:none;transition:border-color .2s;
+}
+.search-input:focus{border-color:var(--green)}
+.filter-btn{
+  background:var(--surface);border:1px solid var(--border2);color:var(--muted);
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;
+  padding:10px 18px;cursor:pointer;text-transform:uppercase;
+  transition:all .2s;border-radius:999px;
+}
+.filter-btn:hover,.filter-btn.active{
+  border-color:var(--green);color:var(--green);background:var(--green-dim);
+}
+
+/* ── TABLE ── */
+.table-wrap{border:1px solid var(--border2);background:var(--surface);overflow-x:auto}
+.table{width:100%;border-collapse:collapse}
+.table th{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--muted);padding:12px 20px;
+  border-bottom:1px solid var(--border2);text-align:left;background:var(--bg);
+  white-space:nowrap;
+}
+.table td{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  font-size:13px;vertical-align:middle;
+}
+.table tr:last-child td{border-bottom:none}
+.table tr:hover td{background:rgba(255,255,255,.02)}
+
+.church-name{font-weight:500;font-size:14px;margin-bottom:2px}
+.church-id{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)}
+.church-loc{font-size:12px;color:var(--muted);margin-top:2px}
+
+.badge{
+  display:inline-block;padding:3px 10px;font-size:11px;font-weight:500;
+  font-family:'IBM Plex Mono',monospace;letter-spacing:1px;text-transform:uppercase;
+}
+.badge-active{background:var(--green-dim);color:var(--green);border:1px solid var(--green-border)}
+.badge-inactive{background:var(--red-dim);color:var(--red);border:1px solid var(--red-border)}
+.badge-trial{background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-border)}
+
+.expiry{font-family:'IBM Plex Mono',monospace;font-size:12px}
+.expiry.expired{color:var(--red)}
+.expiry.soon{color:var(--amber)}
+.expiry.ok{color:var(--green)}
+.expiry.none{color:var(--muted)}
+
+.action-btn{
+  background:none;border:1px solid var(--border2);color:var(--muted);
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:1px;
+  padding:6px 14px;cursor:pointer;text-transform:uppercase;
+  transition:all .15s;white-space:nowrap;margin-right:6px;margin-bottom:4px;
+  display:inline-block;border-radius:999px;
+}
+.action-btn.activate{border-color:var(--green-border);color:var(--green)}
+.action-btn.activate:hover{background:var(--green-dim)}
+.action-btn.deactivate{border-color:var(--red-border);color:var(--red)}
+.action-btn.deactivate:hover{background:var(--red-dim)}
+.action-btn.note{border-color:var(--border2)}
+.action-btn.note:hover{border-color:var(--amber);color:var(--amber)}
+
+.empty{padding:60px;text-align:center;color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:13px}
+
+/* ── MODAL ── */
+.modal-bg{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);
+  z-index:100;align-items:center;justify-content:center;
+}
+.modal-bg.open{display:flex}
+.modal{
+  background:var(--surface);border:1px solid var(--border2);
+  width:480px;max-width:90vw;padding:32px;
+}
+.modal-title{
+  font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;
+  letter-spacing:2px;text-transform:uppercase;color:var(--green);margin-bottom:20px;
+}
+.modal-field{margin-bottom:16px}
+.modal-label{
+  display:block;font-size:11px;font-family:'IBM Plex Mono',monospace;
+  letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px;
+}
+.modal-input,.modal-select,.modal-textarea{
+  width:100%;background:var(--bg);border:1px solid var(--border2);
+  color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:13px;
+  padding:10px 12px;outline:none;transition:border-color .2s;
+}
+.modal-input:focus,.modal-select:focus,.modal-textarea:focus{border-color:var(--green)}
+.modal-textarea{resize:vertical;min-height:80px}
+.modal-select option{background:var(--surface)}
+.modal-actions{display:flex;gap:10px;margin-top:24px;justify-content:flex-end}
+.modal-cancel{
+  background:none;border:1px solid var(--border2);color:var(--muted);
+  font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:1px;
+  padding:10px 24px;cursor:pointer;text-transform:uppercase;border-radius:999px;
+}
+.modal-save{
+  background:var(--green);color:#000;border:none;
+  font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;
+  letter-spacing:2px;padding:10px 28px;cursor:pointer;text-transform:uppercase;
+  border-radius:999px;
+}
+.modal-save:disabled{opacity:.4;cursor:not-allowed}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--surface);border:1px solid var(--green-border);
+  color:var(--green);font-family:'IBM Plex Mono',monospace;font-size:12px;
+  padding:12px 20px;z-index:200;
+  transform:translateY(80px);opacity:0;transition:all .3s;
+}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.err{border-color:var(--red-border);color:var(--red)}
+
+@media(max-width:640px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .main{padding:16px}
+  .topbar{padding:0 16px}
+  .table th,.table td{padding:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+
+<!-- ── LOGIN GATE ── -->
+<div id="gate">
+  <div class="gate-card">
+    <div class="gate-title">SimamiaKanisa</div>
+    <div class="gate-sub">Super-admin access only</div>
+    <input class="gate-input" type="email" id="gEmail" placeholder="admin@email.com" autocomplete="off">
+    <input class="gate-input" type="password" id="gPass" placeholder="Password">
+    <button class="gate-btn" onclick="gateLogin()">Enter</button>
+    <div class="gate-err" id="gErr"></div>
+  </div>
+</div>
+
+<!-- ── MAIN APP ── -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-brand">SimamiaKanisa // Control</div>
+    <div class="topbar-right">
+      <div class="topbar-stat">Total churches: <span id="statTotal">—</span></div>
+      <div class="topbar-stat">Active: <span id="statActive" style="color:var(--green)">—</span></div>
+      <button class="signout-btn" onclick="signOut()">Sign out</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Total churches</div>
+        <div class="stat-value blue" id="s1">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Active</div>
+        <div class="stat-value green" id="s2">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Inactive</div>
+        <div class="stat-value red" id="s3">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Expiring soon</div>
+        <div class="stat-value amber" id="s4">—</div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <input class="search-input" type="text" id="searchBox" placeholder="Search church name or ID..." oninput="renderTable()">
+      <button class="filter-btn active" id="f-all"    onclick="setFilter('all')">All</button>
+      <button class="filter-btn"        id="f-active" onclick="setFilter('active')">Active</button>
+      <button class="filter-btn"        id="f-inactive" onclick="setFilter('inactive')">Inactive</button>
+      <button class="filter-btn"        id="f-expiring" onclick="setFilter('expiring')">Expiring soon</button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Church</th>
+            <th>Status</th>
+            <th>Plan</th>
+            <th>Subscription expiry</th>
+            <th>Payment note</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="6" class="empty">Loading churches...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAYMENT NOTE MODAL ── -->
+<div class="modal-bg" id="noteModal">
+  <div class="modal">
+    <div class="modal-title">Update payment record</div>
+    <div class="modal-field">
+      <label class="modal-label">Church</label>
+      <div id="modalChurchName" style="font-size:14px;font-weight:500;color:var(--text)"></div>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Plan</label>
+      <select class="modal-select" id="modalPlan">
+        <option value="free">Free (pilot)</option>
+        <option value="monthly">Monthly — KES 4,000</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Subscription expiry date</label>
+      <input class="modal-input" type="date" id="modalExpiry">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">Payment note (M-Pesa ref, amount, date)</label>
+      <textarea class="modal-textarea" id="modalNote" placeholder="e.g. M-Pesa QKJ23HGT — KES 4000 — 09/04/2026"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-save" id="modalSaveBtn" onclick="saveNote()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ── Replace with your own email
+const SUPER_ADMIN_EMAIL = "maxoti96@gmail.com";
+
+// ── STATE ──
+let churches   = [];
+let currentFilter = 'all';
+let editingId  = null;
+
+// ── GATE LOGIN ──
+async function gateLogin() {
+  const email = document.getElementById('gEmail').value.trim();
+  const pass  = document.getElementById('gPass').value;
+  const errEl = document.getElementById('gErr');
+  errEl.style.display = 'none';
+
+  if (email !== SUPER_ADMIN_EMAIL) {
+    errEl.textContent = 'Access denied.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  try {
+    await auth.signInWithEmailAndPassword(email, pass);
+    showApp();
+  } catch(e) {
+    errEl.textContent = 'Invalid credentials.';
+    errEl.style.display = 'block';
+  }
+}
+
+document.getElementById('gPass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') gateLogin();
+});
+
+function showApp() {
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('app').style.display  = 'block';
+  loadChurches();
+}
+
+async function signOut() {
+  await auth.signOut();
+  location.reload();
+}
+
+// ── LOAD CHURCHES ──
+async function loadChurches() {
+  try {
+    const snap = await db.collection('tenants').orderBy('createdAt','desc').get();
+    churches = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    updateStats();
+    renderTable();
+  } catch(e) {
+    console.error(e);
+    showToast('Failed to load churches', true);
+  }
+}
+
+// ── STATS ──
+function updateStats() {
+  const now      = new Date();
+  const active   = churches.filter(c => c.active).length;
+  const inactive = churches.filter(c => !c.active).length;
+  const expiring = churches.filter(c => {
+    if (!c.subscriptionExpiry) return false;
+    const exp = new Date(c.subscriptionExpiry);
+    const days = (exp - now) / 86400000;
+    return days >= 0 && days <= 7;
+  }).length;
+
+  document.getElementById('s1').textContent = churches.length;
+  document.getElementById('s2').textContent = active;
+  document.getElementById('s3').textContent = inactive;
+  document.getElementById('s4').textContent = expiring;
+  document.getElementById('statTotal').textContent  = churches.length;
+  document.getElementById('statActive').textContent = active;
+}
+
+// ── FILTER ──
+function setFilter(f) {
+  currentFilter = f;
+  ['all','active','inactive','expiring'].forEach(k => {
+    document.getElementById('f-'+k).classList.toggle('active', k === f);
+  });
+  renderTable();
+}
+
+// ── RENDER TABLE ──
+function renderTable() {
+  const query = document.getElementById('searchBox').value.toLowerCase();
+  const now   = new Date();
+
+  let list = churches.filter(c => {
+    const matchSearch = !query ||
+      (c.name||'').toLowerCase().includes(query) ||
+      c.id.toLowerCase().includes(query);
+
+    if (!matchSearch) return false;
+
+    if (currentFilter === 'active')   return c.active;
+    if (currentFilter === 'inactive') return !c.active;
+    if (currentFilter === 'expiring') {
+      if (!c.subscriptionExpiry) return false;
+      const days = (new Date(c.subscriptionExpiry) - now) / 86400000;
+      return days >= 0 && days <= 7;
+    }
+    return true;
+  });
+
+  const tbody = document.getElementById('tableBody');
+
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">No churches found</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = list.map(c => {
+    const statusBadge = c.active
+      ? `<span class="badge badge-active">Active</span>`
+      : `<span class="badge badge-inactive">Inactive</span>`;
+
+    const planBadge = c.plan === 'annual'
+      ? `<span class="badge badge-active">Annual</span>`
+      : c.plan === 'monthly'
+      ? `<span class="badge badge-trial">Monthly</span>`
+      : `<span class="badge" style="background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--border2)">Free</span>`;
+
+    let expiryHtml = `<span class="expiry none">—</span>`;
+    if (c.subscriptionExpiry) {
+      const exp  = new Date(c.subscriptionExpiry);
+      const days = Math.round((exp - now) / 86400000);
+      const fmt  = exp.toLocaleDateString('en-KE',{day:'2-digit',month:'short',year:'numeric'});
+      if (days < 0)       expiryHtml = `<span class="expiry expired">${fmt}<br><small>Expired</small></span>`;
+      else if (days <= 7) expiryHtml = `<span class="expiry soon">${fmt}<br><small>${days}d left</small></span>`;
+      else                expiryHtml = `<span class="expiry ok">${fmt}<br><small>${days}d left</small></span>`;
+    }
+
+    const note = c.paymentNote
+      ? `<span style="font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace">${c.paymentNote.substring(0,40)}${c.paymentNote.length>40?'…':''}</span>`
+      : `<span style="color:var(--dim);font-size:12px">—</span>`;
+
+    const toggleBtn = c.active
+      ? `<button class="action-btn deactivate" onclick="toggleActive('${c.id}',false)">Deactivate</button>`
+      : `<button class="action-btn activate"   onclick="toggleActive('${c.id}',true)">Activate</button>`;
+
+    const joined = c.createdAt?.toDate
+      ? c.createdAt.toDate().toLocaleDateString('en-KE',{day:'2-digit',month:'short',year:'numeric'})
+      : '—';
+
+    return `<tr>
+      <td>
+        <div class="church-name">${c.name || c.id}</div>
+        <div class="church-id">${c.id}</div>
+        <div class="church-loc">${[c.location,c.denomination].filter(Boolean).join(' · ') || ''}</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:4px;font-family:'IBM Plex Mono',monospace">Joined ${joined}</div>
+      </td>
+      <td>${statusBadge}</td>
+      <td>${planBadge}</td>
+      <td>${expiryHtml}</td>
+      <td>${note}</td>
+      <td style="white-space:nowrap">
+        ${toggleBtn}
+        <button class="action-btn note" onclick="openNote('${c.id}')">Payment note</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── TOGGLE ACTIVE ──
+async function toggleActive(id, active) {
+  try {
+    await db.collection('tenants').doc(id).update({ active });
+    const idx = churches.findIndex(c => c.id === id);
+    if (idx > -1) churches[idx].active = active;
+    updateStats();
+    renderTable();
+    showToast(active ? 'Church activated' : 'Church deactivated');
+  } catch(e) {
+    showToast('Failed to update', true);
+  }
+}
+
+// ── PAYMENT NOTE MODAL ──
+function openNote(id) {
+  editingId = id;
+  const c   = churches.find(x => x.id === id);
+  document.getElementById('modalChurchName').textContent = c.name || c.id;
+  document.getElementById('modalPlan').value   = c.plan || 'free';
+  document.getElementById('modalExpiry').value = c.subscriptionExpiry || '';
+  document.getElementById('modalNote').value   = c.paymentNote || '';
+  document.getElementById('noteModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('noteModal').classList.remove('open');
+  editingId = null;
+}
+
+async function saveNote() {
+  if (!editingId) return;
+  const btn     = document.getElementById('modalSaveBtn');
+  btn.disabled  = true;
+  btn.textContent = 'Saving...';
+
+  const plan    = document.getElementById('modalPlan').value;
+  const expiry  = document.getElementById('modalExpiry').value;
+  const note    = document.getElementById('modalNote').value.trim();
+
+  try {
+    await db.collection('tenants').doc(editingId).update({
+      plan,
+      subscriptionExpiry: expiry || null,
+      paymentNote: note || null
+    });
+    const idx = churches.findIndex(c => c.id === editingId);
+    if (idx > -1) {
+      churches[idx].plan = plan;
+      churches[idx].subscriptionExpiry = expiry || null;
+      churches[idx].paymentNote = note || null;
+    }
+    updateStats();
+    renderTable();
+    closeModal();
+    showToast('Payment record saved');
+  } catch(e) {
+    showToast('Failed to save', true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save';
+  }
+}
+
+// Close modal on background click
+document.getElementById('noteModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg, err=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = 'toast show' + (err ? ' err' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── AUTH STATE ──
+auth.onAuthStateChanged(user => {
+  if (user && user.email === SUPER_ADMIN_EMAIL) {
+    showApp();
+  }
+});
+</script>
+</body>
+</html>
