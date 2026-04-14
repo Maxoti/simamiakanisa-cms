@@ -3,20 +3,38 @@
 // ============================================
 
 
+// ── Church name helper ────────────────────────────────────────────────────────
+
+function getChurchName() {
+    return (
+        window.currentChurch?.name        ||
+        window.analyticsState?.churchName ||
+        window.tenantData?.churchName     ||
+        document.querySelector('.church-name, [data-church-name]')?.textContent?.trim() ||
+        document.querySelector('h1, h2, .brand-name')?.textContent?.trim()              ||
+        'Church'
+    );
+}
+
+
 // ── CSV / Excel export ────────────────────────────────────────────────────────
 
- function exportToExcel() {
+function exportToExcel() {
     const { period, year, contributions } = getExportData();
 
     if (!contributions.length) { alert('No data to export for selected period'); return; }
 
-    const total = contributions.reduce((s, c) => s + c.amount, 0);
-    const rows  = contributions.map(c =>
-        [c.date.toLocaleDateString(),
-         (c.memberName || '').replace(/,/g, ' '),
-         (c.category   || '').replace(/,/g, ' '),
-         c.amount,
-         c.method || 'Cash'
+    const churchName = getChurchName();
+    const safeName   = churchName.replace(/[^a-zA-Z0-9]/g, '_');
+    const total      = contributions.reduce((s, c) => s + c.amount, 0);
+
+    const rows = contributions.map(c =>
+        [
+            c.date.toLocaleDateString(),
+            (c.memberName || '').replace(/,/g, ' '),
+            (c.category   || '').replace(/,/g, ' '),
+            c.amount,
+            c.method || 'Cash'
         ].join(',')
     ).join('\n');
 
@@ -25,39 +43,44 @@
         rows,
         '',
         'SUMMARY',
+        `Church,${churchName}`,
         `Period,${period} ${year}`,
         `Total Collections,KSh ${total.toLocaleString()}`,
         `Number of Transactions,${contributions.length}`,
         `Contributing Members,${new Set(contributions.map(c => c.memberName)).size}`
     ].join('\n');
 
-    downloadBlob(csv, 'text/csv', `simamiakanisa_report_${year}_${period}.csv`);
+    downloadBlob(csv, 'text/csv', `${safeName}_report_${year}_${period}.csv`);
     console.log('✅ CSV exported');
 }
 
+
 // ── PDF export ────────────────────────────────────────────────────────────────
 
- async function exportToPDF(event) {
+async function exportToPDF(event) {
     const btn          = event?.target;
-    const originalText = btn?.textContent || ' Export PDF';
+    const originalText = btn?.textContent || '📄 Export PDF';
 
     setBtn(btn, true, ' Generating PDF...');
 
     try {
         if (typeof window.jspdf === 'undefined') throw new Error('PDF library not loaded');
 
-        const { jsPDF }          = window.jspdf;
+        const { jsPDF }                       = window.jspdf;
         const { period, year, contributions } = getExportData();
-        const doc                = new jsPDF('p', 'mm', 'a4');
-        const W                  = doc.internal.pageSize.getWidth();
-        const H                  = doc.internal.pageSize.getHeight();
+        const doc                             = new jsPDF('p', 'mm', 'a4');
+        const W                               = doc.internal.pageSize.getWidth();
+        const H                               = doc.internal.pageSize.getHeight();
 
-        const totalCollections   = `KSh ${contributions.reduce((s, c) => s + c.amount, 0).toLocaleString()}`;
+        const churchName         = getChurchName();
+        const safeName           = churchName.replace(/[^a-zA-Z0-9]/g, '_');
+
+        const totalAmount        = contributions.reduce((s, c) => s + c.amount, 0);
+        const totalCollections   = `KSh ${totalAmount.toLocaleString()}`;
         const contributingCount  = `${new Set(contributions.map(c => c.memberName)).size}`;
         const avgPerMember       = (() => {
             const u = parseInt(contributingCount);
-            const t = contributions.reduce((s, c) => s + c.amount, 0);
-            return u > 0 ? `KSh ${Math.round(t / u).toLocaleString()}` : 'KSh 0';
+            return u > 0 ? `KSh ${Math.round(totalAmount / u).toLocaleString()}` : 'KSh 0';
         })();
         const growthTxt          = document.getElementById('analyticsGrowth')?.textContent || '0%';
         const growthVal          = parseFloat(growthTxt.replace(/[+%]/g, ''));
@@ -68,9 +91,9 @@
 
         let y = 20;
 
-        // Title
+        // ── Title ──────────────────────────────────────────────────────────────
         doc.setFontSize(22); doc.setTextColor(40, 40, 40); doc.setFont(undefined, 'bold');
-        doc.text('SimamiaKanisa Church', W / 2, y, { align: 'center' });
+        doc.text(churchName, W / 2, y, { align: 'center' });
 
         y += 10;
         doc.setFontSize(16); doc.setTextColor(102, 126, 234);
@@ -82,7 +105,7 @@
 
         y += 7; doc.setDrawColor(200, 200, 200); doc.line(15, y, W - 15, y); y += 12;
 
-        // Summary section
+        // ── Executive Summary ──────────────────────────────────────────────────
         doc.setFontSize(14); doc.setTextColor(40, 40, 40); doc.setFont(undefined, 'bold');
         doc.text('Executive Summary', 15, y); y += 8;
 
@@ -94,9 +117,9 @@
         y += 8;
 
         const summaryLines = [
-            { label: 'Total Collections:',    value: totalCollections,  color: [22, 163, 74]  },
-            { label: 'Contributing Members:', value: contributingCount,  color: [59, 130, 246] },
-            { label: 'Average per Member:',   value: avgPerMember,       color: [168, 85, 247] },
+            { label: 'Total Collections:',    value: totalCollections, color: [22,  163,  74] },
+            { label: 'Contributing Members:', value: contributingCount, color: [59,  130, 246] },
+            { label: 'Average per Member:',   value: avgPerMember,      color: [168,  85, 247] },
             { label: 'Growth Rate:',          value: growthTxt,
               color: growthVal >= 0 ? [22, 163, 74] : [234, 88, 12] }
         ];
@@ -111,7 +134,7 @@
 
         y += 10;
 
-        // Details
+        // ── Financial Details ──────────────────────────────────────────────────
         doc.setFontSize(14); doc.setTextColor(40, 40, 40); doc.setFont(undefined, 'bold');
         doc.text('Financial Details', 15, y); y += 10;
 
@@ -132,11 +155,11 @@
             '  • Financial health: Strong'
         ].forEach(line => { doc.text(line, 15, y); y += 6; });
 
-        // Footer
+        // ── Footer ─────────────────────────────────────────────────────────────
         doc.setFontSize(8); doc.setTextColor(150, 150, 150);
-        doc.text('SimamiaKanisa Church Management System', W / 2, H - 15, { align: 'center' });
+        doc.text(`${churchName} — Church Management System`, W / 2, H - 15, { align: 'center' });
 
-        doc.save(`SimamiaKanisa_Analytics_${year}_${Date.now()}.pdf`);
+        doc.save(`${safeName}_Analytics_${year}_${Date.now()}.pdf`);
         alert('✅ PDF exported successfully!');
 
     } catch (err) {
@@ -147,12 +170,14 @@
     }
 }
 
+
 // ── Internal helpers ──────────────────────────────────────────────────────────
 
 function getExportData() {
+    const state  = window.analyticsState || { contributions: [] };
     const period = document.getElementById('periodSelect')?.value || 'year';
     const year   = document.getElementById('yearSelect')?.value   || new Date().getFullYear();
-    return { period, year, contributions: filterByPeriod(state.contributions, period, year) };
+    return { period, year, contributions: filterByPeriod(analyticsState.contributions, period, year) };
 }
 
 function downloadBlob(content, type, filename) {
