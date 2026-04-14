@@ -54,6 +54,13 @@ async function loadAllData() {
     window.events        = events;
     window.pledges       = pledges;
 
+      try {
+        const tenantDoc = await db.collection('tenants').doc(TENANT_ID).get();
+        if (tenantDoc.exists) window.tenantData = tenantDoc.data();
+    } catch (e) {
+        console.warn(' Could not load tenant data:', e.message);
+    }
+
     console.log(
       ' Loaded —',
       members.length,       'members ·',
@@ -223,7 +230,7 @@ function sendWhatsAppReminder(name, phone, type) {
   if (clean.startsWith('0'))    clean = '254' + clean.substring(1);
   if (!clean.startsWith('254')) clean = '254' + clean;
 
-  const churchName = 'SimamiaKanisa Church';
+  const churchName = window.tenantData?.churchName || 'TENANT_ID.toUpperCase()';
   const templates  = {
     tithe:    `Reminder: Tithe Contribution\n\nDear ${name},\n\nThis is a friendly reminder from ${churchName} about your tithe contribution.\n\n"Bring the whole tithe into the storehouse..." - Malachi 3:10\n\nPayment Options:\nM-Pesa: [Your Paybill/Till]\nBank: [Your Account]\nCash: During service\n\nGod bless you!\n${churchName}`,
     building: `Reminder: Building Fund\n\nDear ${name},\n\nThis is a friendly reminder from ${churchName} about your Building Fund pledge.\n\nTogether we are building God's house!\n\nPayment Options:\nM-Pesa: [Your Paybill/Till]\nBank: [Your Account]\nCash: During service\n\nThank you for your partnership!\n${churchName}`
