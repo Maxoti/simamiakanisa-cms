@@ -7,15 +7,13 @@
 
 function getChurchName() {
     return (
+        window.tenantData?.name           ||   // ✅ matches Firestore: name: "PAG"
         window.currentChurch?.name        ||
         window.analyticsState?.churchName ||
-        window.tenantData?.churchName     ||
-        document.querySelector('.church-name, [data-church-name]')?.textContent?.trim() ||
-        document.querySelector('h1, h2, .brand-name')?.textContent?.trim()              ||
+        new URLSearchParams(window.location.search).get('tenant')?.toUpperCase() ||
         'Church'
     );
 }
-
 
 // ── CSV / Excel export ────────────────────────────────────────────────────────
 
@@ -160,10 +158,10 @@ async function exportToPDF(event) {
         doc.text(`${churchName} — Church Management System`, W / 2, H - 15, { align: 'center' });
 
         doc.save(`${safeName}_Analytics_${year}_${Date.now()}.pdf`);
-        alert('✅ PDF exported successfully!');
+        alert(' PDF exported successfully!');
 
     } catch (err) {
-        console.error('❌ PDF error:', err);
+        console.error(' PDF error:', err);
         alert('Failed to generate PDF. Error: ' + err.message);
     } finally {
         setBtn(btn, false, originalText);
