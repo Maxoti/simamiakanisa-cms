@@ -28,9 +28,9 @@ async function _sendSMS(recipients, message) {
     const data = await response.json();
 
     if (data.success) {
-      console.log(`✅ SMS sent to ${recipients.length} recipient(s)`);
+      console.log(` SMS sent to ${recipients.length} recipient(s)`);
     } else {
-      console.error("❌ SMS failed:", data.error);
+      console.error(" SMS failed:", data.error);
     }
 
     return data;

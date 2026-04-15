@@ -22,7 +22,6 @@ function buildAnalyticsHTML() {
 
                 <select id="yearSelect" onchange="updateAnalytics()"></select>
 
-                <button onclick="exportToExcel()">Export Excel</button>
                 <button onclick="exportToPDF(event)">Export PDF</button>
             </div>
         </div>
