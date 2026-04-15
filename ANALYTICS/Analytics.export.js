@@ -15,45 +15,6 @@ function getChurchName() {
     );
 }
 
-// ── CSV / Excel export ────────────────────────────────────────────────────────
-
-function exportToExcel() {
-    const { period, year, contributions } = getExportData();
-
-    if (!contributions.length) { alert('No data to export for selected period'); return; }
-
-    const churchName = getChurchName();
-    const safeName   = churchName.replace(/[^a-zA-Z0-9]/g, '_');
-    const total      = contributions.reduce((s, c) => s + c.amount, 0);
-
-    const rows = contributions.map(c =>
-        [
-            c.date.toLocaleDateString(),
-            (c.memberName || '').replace(/,/g, ' '),
-            (c.category   || '').replace(/,/g, ' '),
-            c.amount,                        // ✅ raw number — no toLocaleString()
-            c.method || 'Cash'
-        ].join(',')
-    ).join('\n');
-
-    const csv = [
-        // ── Transaction data ──
-        'Date,Member,Category,Amount (KSh),Method',
-        rows,
-        '',
-        // ── Summary section ──
-        'SUMMARY,,,,',
-        `Church,${churchName},,,`,
-        `Period,${period} ${year},,,`,
-        `Total Collections (KSh),${total},,,`,          // ✅ raw number, no comma
-        `Number of Transactions,${contributions.length},,,`,
-        `Contributing Members,${new Set(contributions.map(c => c.memberName)).size},,,`
-    ].join('\n');
-
-    downloadBlob(csv, 'text/csv', `${safeName}_report_${year}_${period}.csv`);
-    console.log(' CSV exported');
-}
-
 
 // ── PDF export ────────────────────────────────────────────────────────────────
 
