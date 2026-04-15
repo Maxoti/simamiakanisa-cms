@@ -31,25 +31,27 @@ function exportToExcel() {
             c.date.toLocaleDateString(),
             (c.memberName || '').replace(/,/g, ' '),
             (c.category   || '').replace(/,/g, ' '),
-            c.amount,
+            c.amount,                        // ✅ raw number — no toLocaleString()
             c.method || 'Cash'
         ].join(',')
     ).join('\n');
 
     const csv = [
-        'Date,Member,Category,Amount,Method',
+        // ── Transaction data ──
+        'Date,Member,Category,Amount (KSh),Method',
         rows,
         '',
-        'SUMMARY',
-        `Church,${churchName}`,
-        `Period,${period} ${year}`,
-        `Total Collections,KSh ${total.toLocaleString()}`,
-        `Number of Transactions,${contributions.length}`,
-        `Contributing Members,${new Set(contributions.map(c => c.memberName)).size}`
+        // ── Summary section ──
+        'SUMMARY,,,,',
+        `Church,${churchName},,,`,
+        `Period,${period} ${year},,,`,
+        `Total Collections (KSh),${total},,,`,          // ✅ raw number, no comma
+        `Number of Transactions,${contributions.length},,,`,
+        `Contributing Members,${new Set(contributions.map(c => c.memberName)).size},,,`
     ].join('\n');
 
     downloadBlob(csv, 'text/csv', `${safeName}_report_${year}_${period}.csv`);
-    console.log('✅ CSV exported');
+    console.log(' CSV exported');
 }
 
 
