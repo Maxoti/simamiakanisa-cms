@@ -1,4 +1,4 @@
-﻿// events.js â€” render, add, delete events
+﻿// events.js — render, add, delete events, notify members via SMS
 // Depends on: state.js, pagination.js, firebase-config.js
 
 function renderEvents() {
@@ -27,7 +27,16 @@ function renderEvents() {
             <td>${e.date}</td>
             <td>${e.time}</td>
             <td>${e.expected} people</td>
-            <td><button class="btn btn-danger" onclick="deleteEvent('${e.id}')">Delete</button></td>
+            <td class="action-btns">
+              <button class="btn btn-notify "
+                onclick="sendEventSMS('${e.id}', '${e.name.replace(/'/g, "\\'")}')">
+                 Notify
+              </button>
+              <button class="btn btn-danger"
+                onclick="deleteEvent('${e.id}')">
+                Delete
+              </button>
+            </td>
           </tr>`).join('')}
       </tbody>
     </table></div>`;
@@ -36,12 +45,19 @@ function renderEvents() {
     <div class="cards-container" style="display:none">
       ${paginatedItems.map(e => `
         <div class="event-card">
-          <div class="card-name"> ${e.name}</div>
-          <div class="card-info-row"><span class="card-label"> Date</span><span class="card-value">${e.date}</span></div>
-          <div class="card-info-row"><span class="card-label"> Time</span><span class="card-value">${e.time}</span></div>
-          <div class="card-info-row"><span class="card-label">ðŸ‘¥ Expected</span><span class="card-value">${e.expected} people</span></div>
+          <div class="card-name">${e.name}</div>
+          <div class="card-info-row"><span class="card-label">Date</span><span class="card-value">${e.date}</span></div>
+          <div class="card-info-row"><span class="card-label">Time</span><span class="card-value">${e.time}</span></div>
+          <div class="card-info-row"><span class="card-label">👥 Expected</span><span class="card-value">${e.expected} people</span></div>
           <div class="card-actions">
-            <button class="btn btn-danger" onclick="deleteEvent('${e.id}')"> Delete Event</button>
+            <button class="btn btn-notify"
+              onclick="sendEventSMS('${e.id}', '${e.name.replace(/'/g, "\\'")}')">
+               Notify Members
+            </button>
+            <button class="btn btn-danger"
+              onclick="deleteEvent('${e.id}')">
+              Delete Event
+            </button>
           </div>
         </div>`).join('')}
     </div>`;
@@ -49,6 +65,47 @@ function renderEvents() {
   container.innerHTML = paginationHTML + tableHTML + cardsHTML;
 }
 
+// ── Send SMS notification to all church members for an event ─────────────────
+async function sendEventSMS(eventId, eventName) {
+  if (!confirm(`Send SMS about "${eventName}" to ALL church members?`)) return;
+
+  // Disable the button that was clicked to prevent double-sends
+  const btn = document.querySelector(`button[onclick="sendEventSMS('${eventId}', '${eventName.replace(/'/g, "\\'")}')"]`);
+  if (btn) { btn.disabled = true; btn.textContent = ' Sending...'; }
+
+  try {
+    const token = await firebase.auth().currentUser?.getIdToken();
+
+    const res = await fetch(`${API_BASE_URL}/api/sms/event/${eventId}/notify`, {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        tenantId: TENANT_ID,
+        sentBy:   firebase.auth().currentUser?.uid ?? null
+      })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert(`✅ Queued ${data.queued} SMS message(s) for "${data.event}"`);
+    } else {
+      alert(`❌ ${data.error || 'Failed to send notifications'}`);
+    }
+
+  } catch (error) {
+    console.error('❌ sendEventSMS error:', error);
+    alert('Error sending SMS. Please try again.');
+  } finally {
+    // Re-enable button regardless of outcome
+    if (btn) { btn.disabled = false; btn.textContent = '📲 Notify'; }
+  }
+}
+
+// ── Add event ────────────────────────────────────────────────────────────────
 async function addEvent() {
   const name     = document.getElementById('eventName').value.trim();
   const date     = document.getElementById('eventDate').value;
@@ -69,21 +126,22 @@ async function addEvent() {
     document.getElementById('eventExpected').value = '50';
     closeModal('addEventModal');
     await loadAllData();
-    alert('âœ… Event added successfully!');
+    alert('✅ Event added successfully!');
   } catch (error) {
-    console.error('âŒ addEvent error:', error);
+    console.error(' addEvent error:', error);
     alert('Error adding event. Please try again.');
   }
 }
 
+// ── Delete event ─────────────────────────────────────────────────────────────
 async function deleteEvent(id) {
   if (!confirm('Are you sure you want to delete this event?')) return;
   try {
     await eventsCollection().doc(id).delete();
     await loadAllData();
-    alert('âœ… Event deleted successfully!');
+    alert('✅ Event deleted successfully!');
   } catch (error) {
-    console.error('âŒ deleteEvent error:', error);
+    console.error(' deleteEvent error:', error);
     alert('Error deleting event. Please try again.');
   }
 }

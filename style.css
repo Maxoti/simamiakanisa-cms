@@ -225,6 +225,9 @@ body {
 .btn-danger:hover     { background: #b91c1c; }
 .btn-whatsapp         { background: #25D366; color: white; padding: 6px 12px; font-size: 12px; }
 .btn-whatsapp:hover   { background: #20BA5A; }
+.btn-notify           { background: #2563eb; color: white; padding: 6px 12px; font-size: 12px; }
+.btn-notify:hover     { background: #1e40af; }
+.btn-notify:disabled  { background: #93c5fd; cursor: not-allowed; }
 
 /* ============================================
    TABLES
