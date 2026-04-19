@@ -1,43 +1,59 @@
 // ====== SMS SERVICE — SimamiaKanisa ======
 // Depends on: firebase-config.js (membersCollection, db, TENANT_ID)
-// Connects to: simamiakanisa-api (localhost:5000 locally, Railway in production)
 
 // ─── Config ────────────────────────────────────────────────────────────────────
 
-const SMS_API_URL      = "http://localhost:5000";       // Change to Railway URL in production
-const INTERNAL_SECRET  = "simamiakanisa_secret_2026";   // Must match server .env INTERNAL_SECRET
+const API_BASE_URL = window.location.hostname === 'localhost' ||
+                     window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:5000'                        // local dev
+  : 'https://simamiakanisa-api.onrender.com';      // production 
+
+// ─── Core SMS sender ───────────────────────────────────────────────────────────
 
 // ─── Core SMS sender ───────────────────────────────────────────────────────────
 
 async function _sendSMS(recipients, message) {
   if (!recipients || recipients.length === 0) {
-    console.warn("⚠ No recipients provided");
-    return { success: false, error: "No recipients" };
+    console.warn('⚠ No recipients provided');
+    return { success: false, error: 'No recipients' };
   }
 
   try {
-    const response = await fetch(`${SMS_API_URL}/send-sms`, {
-      method:  "POST",
+    const token = await firebase.auth().currentUser?.getIdToken();
+
+    // ✅ Smart routing — bulk goes to queue, small sends are immediate
+    const endpoint = recipients.length > 10
+      ? `${API_BASE_URL}/api/sms/queue`
+      : `${API_BASE_URL}/api/sms/send`;
+
+    const response = await fetch(endpoint, {
+      method:  'POST',
       headers: {
-        "Content-Type":  "application/json",
-        "Authorization": `Bearer ${INTERNAL_SECRET}`
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify({ recipients, message })
+      body: JSON.stringify({
+        recipients,
+        message,
+        type:     'broadcast',
+        tenantId: TENANT_ID,
+        sentBy:   firebase.auth().currentUser?.uid ?? null
+      })
     });
 
     const data = await response.json();
 
     if (data.success) {
-      console.log(` SMS sent to ${recipients.length} recipient(s)`);
+      console.log(` SMS sent to ${recipients.length} recipient(s) via ${endpoint.includes('queue') ? 'queue' : 'direct'}`);
     } else {
-      console.error(" SMS failed:", data.error);
+      console.error(' SMS failed:', data.error);
     }
 
     return data;
 
   } catch (err) {
-    console.error("❌ SMS service unreachable:", err.message);
-    return { success: false, error: "SMS service unreachable" };
+    console.error('❌ SMS service unreachable:', err.message);
+    return { success: false, error: 'SMS service unreachable' };
   }
 }
 
@@ -45,21 +61,21 @@ async function _sendSMS(recipients, message) {
 
 function _formatPhone(phone) {
   if (!phone) return null;
-  const cleaned = phone.toString().replace(/\s+/g, "").replace(/-/g, "");
-  if (cleaned.startsWith("254"))  return cleaned;           // 254722001001
-  if (cleaned.startsWith("+254")) return cleaned.slice(1);  // +254722... → 254722...
-  if (cleaned.startsWith("0"))    return "254" + cleaned.slice(1); // 0722... → 254722...
+  const cleaned = phone.toString().replace(/\s+/g, '').replace(/-/g, '');
+  if (cleaned.startsWith('254'))  return cleaned;
+  if (cleaned.startsWith('+254')) return cleaned.slice(1);
+  if (cleaned.startsWith('0'))    return '254' + cleaned.slice(1);
   return cleaned;
 }
 
 // ─── Format date nicely ────────────────────────────────────────────────────────
 
 function _formatDate(dateString) {
-  return new Date(dateString).toLocaleDateString("en-KE", {
-    weekday: "long",
-    day:     "numeric",
-    month:   "long",
-    year:    "numeric"
+  return new Date(dateString).toLocaleDateString('en-KE', {
+    weekday: 'long',
+    day:     'numeric',
+    month:   'long',
+    year:    'numeric'
   });
 }
 
@@ -82,7 +98,7 @@ async function _getMemberPhones() {
     return phones;
 
   } catch (err) {
-    console.error("❌ Could not fetch member phones:", err.message);
+    console.error('❌ Could not fetch member phones:', err.message);
     return [];
   }
 }
@@ -91,10 +107,10 @@ async function _getMemberPhones() {
 
 async function _getChurchName() {
   try {
-    const tenantDoc = await db.collection("tenants").doc(TENANT_ID).get();
-    return tenantDoc.exists ? tenantDoc.data().name || "SimamiaKanisa" : "SimamiaKanisa";
+    const tenantDoc = await db.collection('tenants').doc(TENANT_ID).get();
+    return tenantDoc.exists ? tenantDoc.data().name || 'SimamiaKanisa' : 'SimamiaKanisa';
   } catch {
-    return "SimamiaKanisa";
+    return 'SimamiaKanisa';
   }
 }
 
@@ -109,7 +125,7 @@ async function sendEventReminder(event) {
   ]);
 
   if (phones.length === 0) {
-    alert("⚠ No members with phone numbers found.\nPlease add phone numbers to member profiles first.");
+    alert('⚠ No members with phone numbers found.\nPlease add phone numbers to member profiles first.');
     return;
   }
 
@@ -120,19 +136,19 @@ async function sendEventReminder(event) {
     `We look forward to seeing you. ` +
     `— ${churchName}`;
 
-  const confirm = window.confirm(
+  const confirmed = window.confirm(
     `Send SMS reminder to ${phones.length} members?\n\n` +
     `Event: ${event.name}\n` +
     `Date: ${_formatDate(event.date)}\n` +
     `Time: ${event.time}`
   );
 
-  if (!confirm) return;
+  if (!confirmed) return;
 
   const result = await _sendSMS(phones, message);
 
   if (result.success) {
-    alert(`✅ SMS reminder sent to ${phones.length} members!`);
+    alert(` SMS reminder sent to ${phones.length} members!`);
   } else {
     alert(`⚠ SMS failed: ${result.error}`);
   }
@@ -142,7 +158,7 @@ async function sendEventReminder(event) {
 
 async function sendContributionConfirmation(member, amount, type) {
   if (!member.phone) {
-    console.log("ℹ Member has no phone number — skipping SMS");
+    console.log('ℹ Member has no phone number — skipping SMS');
     return;
   }
 
@@ -166,7 +182,6 @@ async function sendPledgeConfirmation(member, amountPaid, balance) {
 
   const churchName = await _getChurchName();
   const phone      = _formatPhone(member.phone);
-
   const isComplete = balance <= 0;
 
   const message = isComplete
@@ -193,18 +208,18 @@ async function sendBroadcast(customMessage) {
   ]);
 
   if (phones.length === 0) {
-    alert("⚠ No members with phone numbers found.");
+    alert('⚠ No members with phone numbers found.');
     return;
   }
 
   const fullMessage = `${customMessage} — ${churchName}`;
 
-  const confirm = window.confirm(
+  const confirmed = window.confirm(
     `Send broadcast SMS to ${phones.length} members?\n\n` +
     `Message: ${fullMessage}`
   );
 
-  if (!confirm) return;
+  if (!confirmed) return;
 
   const result = await _sendSMS(phones, fullMessage);
 
@@ -215,25 +230,22 @@ async function sendBroadcast(customMessage) {
   }
 }
 
-
-
-// ─── 6. Test SMS — send to one number to confirm service is working ────────────
+// ─── 5. Test SMS — send to one number to confirm service is working ────────────
 
 async function testSMS(phoneNumber) {
-  const phone = _formatPhone(phoneNumber);
-
+  const phone  = _formatPhone(phoneNumber);
   const result = await _sendSMS(
     [phone],
-    "SimamiaKanisa SMS service is working correctly. Test message only."
+    'SimamiaKanisa SMS service is working correctly. Test message only.'
   );
 
   if (result.success) {
     alert(` Test SMS sent to ${phoneNumber} successfully!`);
   } else {
-    alert(` Test SMS failed: ${result.error}\n\nMake sure the API server is running on localhost:5000`);
+    alert(` Test SMS failed: ${result.error}`);
   }
 
   return result;
 }
 
-console.log(" SimamiaKanisa SMS service loaded");
+console.log(' SimamiaKanisa SMS service loaded');
