@@ -69,12 +69,20 @@ function renderEvents() {
 async function sendEventSMS(eventId, eventName) {
   if (!confirm(`Send SMS about "${eventName}" to ALL church members?`)) return;
 
-  // Disable the button that was clicked to prevent double-sends
   const btn = document.querySelector(`button[onclick="sendEventSMS('${eventId}', '${eventName.replace(/'/g, "\\'")}')"]`);
   if (btn) { btn.disabled = true; btn.textContent = ' Sending...'; }
 
   try {
-    const token = await firebase.auth().currentUser?.getIdToken();
+    //  Wait for auth to be ready before getting token
+    const user = await new Promise((resolve, reject) => {
+      const unsubscribe = firebase.auth().onAuthStateChanged(user => {
+        unsubscribe();
+        if (user) resolve(user);
+        else reject(new Error('Not authenticated'));
+      });
+    });
+
+    const token = await user.getIdToken(true);  // true = force refresh
 
     const res = await fetch(`${API_BASE_URL}/api/sms/event/${eventId}/notify`, {
       method:  'POST',
@@ -84,23 +92,22 @@ async function sendEventSMS(eventId, eventName) {
       },
       body: JSON.stringify({
         tenantId: TENANT_ID,
-        sentBy:   firebase.auth().currentUser?.uid ?? null
+        sentBy:   user.uid
       })
     });
 
     const data = await res.json();
 
     if (res.ok) {
-      alert(`✅ Queued ${data.queued} SMS message(s) for "${data.event}"`);
+      alert(` Queued ${data.queued} SMS message(s) for "${data.event}"`);
     } else {
-      alert(`❌ ${data.error || 'Failed to send notifications'}`);
+      alert(` ${data.error || 'Failed to send notifications'}`);
     }
 
   } catch (error) {
-    console.error('❌ sendEventSMS error:', error);
-    alert('Error sending SMS. Please try again.');
+    console.error(' sendEventSMS error:', error);
+    alert(`Error: ${error.message}`);
   } finally {
-    // Re-enable button regardless of outcome
     if (btn) { btn.disabled = false; btn.textContent = '📲 Notify'; }
   }
 }

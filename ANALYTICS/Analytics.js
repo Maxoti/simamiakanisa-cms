@@ -68,7 +68,6 @@ async function updateAnalytics() {
 Object.assign(window, {
     initAnalyticsTab,
     updateAnalytics,
-    exportToExcel,
     exportToPDF
 });
 
