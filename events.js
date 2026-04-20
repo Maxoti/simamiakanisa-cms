@@ -67,22 +67,24 @@ function renderEvents() {
 
 // ── Send SMS notification to all church members for an event ─────────────────
 async function sendEventSMS(eventId, eventName) {
+  // Find event from local events array (already loaded)
+  const event = events.find(e => e.id === eventId);
+  if (!event) { alert('Event not found'); return; }
+
   if (!confirm(`Send SMS about "${eventName}" to ALL church members?`)) return;
 
   const btn = document.querySelector(`button[onclick="sendEventSMS('${eventId}', '${eventName.replace(/'/g, "\\'")}')"]`);
   if (btn) { btn.disabled = true; btn.textContent = ' Sending...'; }
 
   try {
-    //  Wait for auth to be ready before getting token
     const user = await new Promise((resolve, reject) => {
-      const unsubscribe = firebase.auth().onAuthStateChanged(user => {
+      const unsubscribe = firebase.auth().onAuthStateChanged(u => {
         unsubscribe();
-        if (user) resolve(user);
-        else reject(new Error('Not authenticated'));
+        if (u) resolve(u); else reject(new Error('Not authenticated'));
       });
     });
 
-    const token = await user.getIdToken(true);  // true = force refresh
+    const token = await user.getIdToken(true);
 
     const res = await fetch(`${API_BASE_URL}/api/sms/event/${eventId}/notify`, {
       method:  'POST',
@@ -92,23 +94,24 @@ async function sendEventSMS(eventId, eventName) {
       },
       body: JSON.stringify({
         tenantId: TENANT_ID,
-        sentBy:   user.uid
+        sentBy:   user.uid,
+        //  Pass event details directly — no Supabase lookup needed
+        eventName: event.name,
+        eventDate: event.date,
+        eventTime: event.time
       })
     });
 
     const data = await res.json();
-
-    if (res.ok) {
-      alert(` Queued ${data.queued} SMS message(s) for "${data.event}"`);
-    } else {
-      alert(` ${data.error || 'Failed to send notifications'}`);
-    }
+    res.ok
+      ? alert(` Queued ${data.queued} SMS message(s) for "${data.event}"`)
+      : alert(` ${data.error || 'Failed to send notifications'}`);
 
   } catch (error) {
     console.error(' sendEventSMS error:', error);
     alert(`Error: ${error.message}`);
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '📲 Notify'; }
+    if (btn) { btn.disabled = false; btn.textContent = ' Notify'; }
   }
 }
 
@@ -133,7 +136,7 @@ async function addEvent() {
     document.getElementById('eventExpected').value = '50';
     closeModal('addEventModal');
     await loadAllData();
-    alert('✅ Event added successfully!');
+    alert(' Event added successfully!');
   } catch (error) {
     console.error(' addEvent error:', error);
     alert('Error adding event. Please try again.');
@@ -146,7 +149,7 @@ async function deleteEvent(id) {
   try {
     await eventsCollection().doc(id).delete();
     await loadAllData();
-    alert('✅ Event deleted successfully!');
+    alert(' Event deleted successfully!');
   } catch (error) {
     console.error(' deleteEvent error:', error);
     alert('Error deleting event. Please try again.');
