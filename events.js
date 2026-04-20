@@ -67,7 +67,6 @@ function renderEvents() {
 
 // ── Send SMS notification to all church members for an event ─────────────────
 async function sendEventSMS(eventId, eventName) {
-  // Find event from local events array (already loaded)
   const event = events.find(e => e.id === eventId);
   if (!event) { alert('Event not found'); return; }
 
@@ -84,6 +83,21 @@ async function sendEventSMS(eventId, eventName) {
       });
     });
 
+    // ✅ Fetch member phones from Firebase
+    const memberSnap = await membersCollection().get();
+    const recipients = [];
+    memberSnap.forEach(doc => {
+      const m = doc.data();
+      if (m.phone && m.active !== false) {
+        recipients.push(_formatPhone(m.phone));
+      }
+    });
+
+    if (recipients.length === 0) {
+      alert('⚠️ No members with phone numbers found.');
+      return;
+    }
+
     const token = await user.getIdToken(true);
 
     const res = await fetch(`${API_BASE_URL}/api/sms/event/${eventId}/notify`, {
@@ -93,22 +107,22 @@ async function sendEventSMS(eventId, eventName) {
         'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
-        tenantId: TENANT_ID,
-        sentBy:   user.uid,
-        //  Pass event details directly — no Supabase lookup needed
+        tenantId:  TENANT_ID,
+        sentBy:    user.uid,
         eventName: event.name,
         eventDate: event.date,
-        eventTime: event.time
+        eventTime: event.time,
+        recipients  // ✅ now included
       })
     });
 
     const data = await res.json();
     res.ok
-      ? alert(` Queued ${data.queued} SMS message(s) for "${data.event}"`)
-      : alert(` ${data.error || 'Failed to send notifications'}`);
+      ? alert(`✅ Queued ${data.queued} SMS message(s) for "${data.event}"`)
+      : alert(`❌ ${data.error || 'Failed to send notifications'}`);
 
   } catch (error) {
-    console.error(' sendEventSMS error:', error);
+    console.error('❌ sendEventSMS error:', error);
     alert(`Error: ${error.message}`);
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = ' Notify'; }
