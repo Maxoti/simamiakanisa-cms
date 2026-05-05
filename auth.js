@@ -47,7 +47,6 @@ function _friendlyAuthError(code, fallback) {
 }
 
 // ─── ✅ Tenant active check helper ────────────────────────────────────────────
-// Reusable function called in both loginUser() and protectPage()
 
 async function _checkTenantActive(tenantId) {
   const tenantDoc = await db.collection('tenants').doc(tenantId).get();
@@ -209,7 +208,9 @@ async function loginUser(email, password) {
 
     _setSession({ uid: user.uid, email: data.email, role: data.role, tenantId: resolvedTenantId });
     console.log(`✅ Login OK — tenant: ${resolvedTenantId}, role: ${data.role}`);
-    window.location.href = `index.html?tenant=${resolvedTenantId}`;
+
+    // FIX: was index.html — root URL is now a router, dashboard lives at dashboard.html
+    window.location.href = `dashboard.html?tenant=${resolvedTenantId}`;
 
   } catch (error) {
     console.error("Login error:", error);
@@ -265,7 +266,8 @@ function protectPage(requiredRole = null) {
           doc = { exists: true, data: () => found.data };
           localStorage.setItem('simamia_tenant', resolvedTenantId);
           if (TENANT_ID !== resolvedTenantId) {
-            window.location.href = `index.html?tenant=${resolvedTenantId}`;
+            // FIX: was index.html
+            window.location.href = `dashboard.html?tenant=${resolvedTenantId}`;
             return;
           }
         } else {
@@ -302,7 +304,8 @@ function protectPage(requiredRole = null) {
         const allowed = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
         if (!allowed.includes(data.role)) {
           alert("Access denied! You don't have permission to view this page.");
-          window.location.href = "index.html";
+          // FIX: was index.html
+          window.location.href = "dashboard.html";
           return;
         }
       }
@@ -373,8 +376,11 @@ async function resetPassword(email) {
 // ─── Auto-initialize ───────────────────────────────────────────────────────────
 
 document.addEventListener("DOMContentLoaded", () => {
-  const page        = window.location.pathname.split("/").pop();
-  const publicPages = ["login.html", "register.html", "register-church.html", ""];
+  const page = window.location.pathname.split("/").pop();
+
+  // FIX: added "index.html" — new index.html is a pure auth router, not a protected page.
+  // Root URL ("/") resolves to "" via .pop(), which was already here and is still needed.
+  const publicPages = ["login.html", "register.html", "register-church.html", "index.html", ""];
 
   if (!publicPages.includes(page)) {
     console.log(`✅ Protecting page: ${page} (tenant: ${TENANT_ID})`);
