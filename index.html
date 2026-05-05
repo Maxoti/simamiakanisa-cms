@@ -2,18 +2,29 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SimamiaKanisa</title>
+  <!-- Firebase auth only — no UI scripts needed here -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="firebase-config.js"></script>
+  <style>
+    /* Prevent flash of blank white — match your app's primary colour */
+    body { margin: 0; background: #1e3a5f; }
+  </style>
 </head>
 <body>
   <script>
+    // Pure router — decide destination once Firebase resolves auth state.
+    // Never renders any UI. Replace() so this URL is not in the browser history.
     firebase.auth().onAuthStateChanged((user) => {
+      const tenant = new URLSearchParams(window.location.search).get('tenant') || '';
+      const suffix = tenant ? `?tenant=${tenant}` : '';
+
       if (user) {
-        window.location.replace('/dashboard.html');
+        window.location.replace(`dashboard.html${suffix}`);
       } else {
-        window.location.replace('/register-church.html');
+        window.location.replace(`register-church.html${suffix}`);
       }
     });
   </script>
